@@ -1,0 +1,22 @@
+{
+  "appId": "com.dashboard.app",
+  "productName": "Dashboard",
+  "directories": {
+    "output": "release"
+  },
+  "files": [
+    "dist-electron/**/*",
+    "dist/dashboard/browser/**/*"
+  ],
+  "win": {
+    "target": "nsis"
+  },
+  "mac": {
+    "target": "dmg",
+    "category": "public.app-category.productivity"
+  },
+  "linux": {
+    "target": "AppImage",
+    "category": "Utility"
+  }
+}
