@@ -4,7 +4,7 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideZard } from '@/shared/core/provider/providezard';
+import { provideZard } from '@/shared/ui/zard/core';
 
 import { routes } from './app.routes';
 
