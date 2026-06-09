@@ -171,3 +171,20 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+
+// ============================================================
+// App Data
+// ============================================================
+
+/** Metadados de runtime do app, expostos pelo controller `appdata`. */
+export interface AppData {
+  name: string;
+  version: string;
+  environment: 'development' | 'production';
+  timestamp: string;
+  versions: {
+    electron: string;
+    chrome: string;
+    node: string;
+  };
+}
