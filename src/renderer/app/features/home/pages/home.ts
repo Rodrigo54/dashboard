@@ -64,8 +64,6 @@ import { HomeService } from '../home.service';
           <div class="h-32 flex items-center justify-center">[Gráfico de linha]</div>
         </div>
       </div>
-
-      <footer class="text-xs text-muted-foreground py-2 text-center">{{ appVersion() }}</footer>
     </div>
   `,
   styles: [``],
@@ -75,7 +73,6 @@ export class HomePage {
   #router = inject(Router);
   #homeService = inject(HomeService);
   data = this.#homeService.userProfile;
-  appData = this.#homeService.appData;
 
   message = computed(() => {
     const profile = this.data.value();
@@ -85,11 +82,6 @@ export class HomePage {
   userName = computed(() => {
     const profile = this.data.value();
     return profile ? profile.name : 'Guest';
-  });
-
-  appVersion = computed(() => {
-    const app = this.appData.value();
-    return app ? `${app.name} v${app.version} · ${app.environment}` : '';
   });
 
   async logout() {

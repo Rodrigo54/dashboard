@@ -1,10 +1,12 @@
+import { invoke } from '@/shared/ipc/invoke';
 import { ZardBreadcrumbImports } from '@/shared/ui/zard/components/breadcrumb';
 import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
 import { ZardDividerComponent } from '@/shared/ui/zard/components/divider';
 import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
 import { LayoutImports } from '@/shared/ui/zard/components/layout';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { AppData } from '@shared/types';
 import { FrameSidebar } from './frame-sidebar';
 import { FrameService } from './frame.service';
 
@@ -67,7 +69,7 @@ import { FrameService } from './frame.service';
           </div>
         </z-content>
         <z-footer class="w-full bg-card text-card-foreground">
-          <span>© 2024 Dashboard. All rights reserved.</span>
+          <span>{{ appVersion() }}</span>
         </z-footer>
       </z-layout>
     </z-layout>
@@ -79,6 +81,18 @@ export class FrameLayout {
   frame = inject(FrameService);
   // #authService = inject(AuthService);
   router = inject(Router);
+
+  readonly appData = resource<AppData, unknown>({
+    loader: () => invoke<AppData>('appdata:read'),
+  });
+
+  appVersion = computed(() => {
+    const app = this.appData.value();
+    const year = new Date(app?.timestamp || '').getFullYear();
+    return app
+      ? `© ${year} ${app.name} v${app.version} · All rights reserved · environment: ${app.environment}`
+      : '';
+  });
 
   async logoff(): Promise<void> {
     // await this.#authService.logout();
