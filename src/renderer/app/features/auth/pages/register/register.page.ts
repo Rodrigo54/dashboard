@@ -32,7 +32,7 @@ import { AuthService } from '../../auth.service';
             <div
               class="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground"
             >
-              <z-icon zType="user-plus" zSize="lg" />
+              <z-icon zType="user-plus" zSize="2xl" />
             </div>
             <h1 class="text-2xl font-bold text-foreground">Criar conta</h1>
             <p class="text-muted-foreground text-sm">Configure seu acesso ao Dashboard</p>
@@ -112,12 +112,14 @@ import { AuthService } from '../../auth.service';
           </form>
           <p class="text-center text-sm text-muted-foreground">
             Já tem conta?
-            <a [routerLink]="['/auth/login']" class="text-primary underline-offset-4 hover:underline">
+            <a
+              [routerLink]="['/auth/login']"
+              class="text-primary underline-offset-4 hover:underline"
+            >
               Entrar
             </a>
           </p>
         </div>
-
       </div>
     </div>
   `,
