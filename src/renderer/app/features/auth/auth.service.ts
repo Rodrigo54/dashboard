@@ -44,6 +44,10 @@ export class AuthService {
       email,
       password,
     });
+    if (!res.success) {
+      console.error('Login failed:', res.error);
+      throw new Error(res.error || 'Erro ao entrar');
+    }
     this.currentUser.set(unwrap(res));
   }
 
