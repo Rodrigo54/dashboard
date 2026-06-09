@@ -1,0 +1,75 @@
+import { httpResource } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ZardAvatarComponent } from '@/shared/ui/zard/components/avatar';
+import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
+import { FrameService } from './frame.service';
+
+interface UserProfile {
+  name: string;
+  email: string;
+}
+
+@Component({
+  selector: 'app-frame-profile',
+  imports: [ZardAvatarComponent, ZardIconComponent],
+  template: `
+    <div
+      class="text-primary-foreground flex items-center justify-center"
+      [class]="sidebarCollapsed() ? 'py-10' : 'pt-6'"
+    >
+      <div [class]="avatarClasses()">
+        <z-avatar
+          zSrc="https://rodrigoalves.dev/img/profile-photo.webp"
+          zAlt="Image"
+          [zSize]="'default'"
+          [zPriority]="true"
+          class="cursor-pointer"
+        />
+
+        @if (!sidebarCollapsed()) {
+          <div class="w-25">
+            <span class="font-medium text-ellipsis overflow-hidden whitespace-nowrap">
+              {{ userName() }}
+            </span>
+            <div class="text-xs text-ellipsis overflow-hidden whitespace-nowrap">
+              {{ userEmail() }}
+            </div>
+          </div>
+
+          <z-icon zType="chevrons-up-down" class="my-auto" />
+        }
+      </div>
+    </div>
+  `,
+  styles: `
+    :host {
+      display: contents;
+    }
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class FrameProfile {
+  frame = inject(FrameService);
+  sidebarCollapsed = this.frame.sidebarCollapsed;
+
+  avatarClasses = computed(() => {
+    const baseClasses =
+      'hover:bg-accent border-transparent hover:text-accent-foreground cursor-pointer  ';
+    const sizeClasses = this.sidebarCollapsed()
+      ? 'border-2 rounded-full mx-auto flex items-center justify-center'
+      : 'rounded-md mx-4 w-full p-2 grid gap-2 grid-cols-[40px_1fr_14px]';
+    return `${baseClasses} ${sizeClasses}`;
+  });
+
+  userProfile = httpResource<UserProfile>(() => ({
+    url: '/api/users/me',
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+    },
+  }));
+
+  userName = computed(() => this.userProfile.value()?.name);
+  userEmail = computed(() => this.userProfile.value()?.email);
+}
