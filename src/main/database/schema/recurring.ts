@@ -1,30 +1,25 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { enumValues, RECURRING_STATUSES, RECURRING_TYPES } from '../../../shared/enums';
+import type { RecurringPattern, TaskTemplate, TransactionTemplate } from '../../../shared/types';
 import { createdAt, id, updatedAt } from './columns.js';
 import { users } from './users.js';
-
-export const RECURRING_TYPES = ['transaction', 'task'] as const;
-export const RECURRING_FREQUENCIES = ['daily', 'weekly', 'monthly', 'yearly'] as const;
-export const RECURRING_STATUSES = ['active', 'paused', 'completed', 'cancelled'] as const;
-
-export interface RecurringPayload {
-  // Template applied on each run; shape depends on `type`.
-  [key: string]: unknown;
-}
 
 export const recurring = sqliteTable('recurring', {
   id: id(),
   userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  type: text('type', { enum: RECURRING_TYPES }).notNull(),
-  status: text('status', { enum: RECURRING_STATUSES }).notNull().default('active'),
+  type: text('type', { enum: enumValues(RECURRING_TYPES) }).notNull(),
   name: text('name').notNull(),
-  frequency: text('frequency', { enum: RECURRING_FREQUENCIES }).notNull(),
-  intervalCount: integer('interval_count').notNull().default(1),
-  nextRunAt: integer('next_run_at', { mode: 'timestamp' }).notNull(),
-  lastRunAt: integer('last_run_at', { mode: 'timestamp' }),
-  // Template used to materialize each occurrence (transaction or task).
-  payload: text('payload', { mode: 'json' }).$type<RecurringPayload>(),
+  description: text('description'),
+  // Template materializado a cada execução (transação ou tarefa).
+  template: text('template', { mode: 'json' }).$type<TransactionTemplate | TaskTemplate>().notNull(),
+  recurringPattern: text('recurring_pattern', { mode: 'json' }).$type<RecurringPattern>().notNull(),
+  startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
+  endDate: integer('end_date', { mode: 'timestamp' }),
+  nextDate: integer('next_date', { mode: 'timestamp' }),
+  status: text('status', { enum: enumValues(RECURRING_STATUSES) }).notNull().default('active'),
+  executionCount: integer('execution_count').notNull().default(0),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

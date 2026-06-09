@@ -8,7 +8,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@shared/*": ["../../src/shared/*"],
+      "@main/*": ["../../src/main/*"],
+      "@renderer/*": ["../../src/renderer/*"]
+    }
   },
   "include": ["**/*.ts", "../shared/**/*.ts", "../shared/**/*.d.ts"]
 }

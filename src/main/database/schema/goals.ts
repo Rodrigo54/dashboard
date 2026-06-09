@@ -1,6 +1,6 @@
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { accounts } from './accounts.js';
 import { createdAt, id, updatedAt } from './columns.js';
+import { projects } from './projects.js';
 import { users } from './users.js';
 
 export const goals = sqliteTable('goals', {
@@ -8,12 +8,13 @@ export const goals = sqliteTable('goals', {
   userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  accountId: text('account_id').references(() => accounts.id, { onDelete: 'set null' }),
+  projectId: text('project_id').references(() => projects.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
+  description: text('description'),
   targetAmount: real('target_amount').notNull(),
   currentAmount: real('current_amount').notNull().default(0),
-  deadline: integer('deadline', { mode: 'timestamp' }),
-  completed: integer('completed', { mode: 'boolean' }).notNull().default(false),
+  targetDate: integer('target_date', { mode: 'timestamp' }),
+  isCompleted: integer('is_completed', { mode: 'boolean' }).notNull().default(false),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

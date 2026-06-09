@@ -1,14 +1,17 @@
-import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { createdAt, id, updatedAt } from './columns.js';
+import { users } from './users.js';
 
-// Existing table; backs the notes:list / notes:create IPC channels.
+// Backs the notes:list / notes:create IPC channels.
 export const notes = sqliteTable('notes', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
+  id: id(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
   body: text('body').notNull().default(''),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`(unixepoch())`),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
 });
 
 export type Note = typeof notes.$inferSelect;

@@ -15,3 +15,11 @@ export const updatedAt = () =>
     .notNull()
     .default(sql`(unixepoch())`)
     .$onUpdate(() => new Date());
+
+// Array de IDs de tags armazenado como JSON (espelha `tags: z.array(z.guid())`
+// nos schemas zod). Default em runtime para evitar default literal no DDL.
+export const tagIds = () =>
+  text('tags', { mode: 'json' })
+    .$type<string[]>()
+    .notNull()
+    .$defaultFn(() => []);

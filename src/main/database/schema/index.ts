@@ -8,6 +8,7 @@ export * from './budgets.js';
 export * from './goals.js';
 export * from './projects.js';
 export * from './tasks.js';
+export * from './task-comments.js';
 export * from './tags.js';
 export * from './recurring.js';
 export * from './notes.js';

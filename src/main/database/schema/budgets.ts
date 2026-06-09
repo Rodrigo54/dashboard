@@ -1,6 +1,8 @@
-import { real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { BUDGET_PERIODS, enumValues, TRANSACTION_CATEGORIES } from '../../../shared/enums';
 import { createdAt, id, updatedAt } from './columns.js';
-import { TRANSACTION_CATEGORIES } from './transactions.js';
+import { goals } from './goals.js';
+import { projects } from './projects.js';
 import { users } from './users.js';
 
 export const budgets = sqliteTable('budgets', {
@@ -8,11 +10,15 @@ export const budgets = sqliteTable('budgets', {
   userId: text('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  category: text('category', { enum: TRANSACTION_CATEGORIES }).notNull(),
+  projectId: text('project_id').references(() => projects.id, { onDelete: 'set null' }),
+  goalId: text('goal_id').references(() => goals.id, { onDelete: 'set null' }),
+  name: text('name').notNull(),
+  category: text('category', { enum: enumValues(TRANSACTION_CATEGORIES) }).notNull(),
   amount: real('amount').notNull(),
   spent: real('spent').notNull().default(0),
-  // Budget period as 'YYYY-MM'.
-  month: text('month').notNull(),
+  period: text('period', { enum: enumValues(BUDGET_PERIODS) }).notNull(),
+  startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
+  endDate: integer('end_date', { mode: 'timestamp' }).notNull(),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

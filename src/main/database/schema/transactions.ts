@@ -1,13 +1,12 @@
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { enumValues, TRANSACTION_CATEGORIES, TRANSACTION_TYPES } from '../../../shared/enums';
 import { accounts } from './accounts.js';
-import { createdAt, id, updatedAt } from './columns.js';
+import { budgets } from './budgets.js';
+import { createdAt, id, tagIds, updatedAt } from './columns.js';
+import { goals } from './goals.js';
+import { projects } from './projects.js';
+import { recurring } from './recurring.js';
 import { users } from './users.js';
-
-export const TRANSACTION_TYPES = ['income', 'expense', 'transfer'] as const;
-export const TRANSACTION_CATEGORIES = [
-  'housing', 'transport', 'food', 'health', 'education',
-  'entertainment', 'shopping', 'salary', 'investment', 'transfer', 'other',
-] as const;
 
 export const transactions = sqliteTable('transactions', {
   id: id(),
@@ -17,15 +16,18 @@ export const transactions = sqliteTable('transactions', {
   accountId: text('account_id')
     .notNull()
     .references(() => accounts.id, { onDelete: 'cascade' }),
-  // Destination account for `transfer` transactions; null otherwise.
-  transferAccountId: text('transfer_account_id').references(() => accounts.id, {
-    onDelete: 'set null',
-  }),
-  type: text('type', { enum: TRANSACTION_TYPES }).notNull(),
-  category: text('category', { enum: TRANSACTION_CATEGORIES }).notNull(),
+  // Conta de destino em transações `transfer`; null caso contrário.
+  toAccountId: text('to_account_id').references(() => accounts.id, { onDelete: 'set null' }),
+  type: text('type', { enum: enumValues(TRANSACTION_TYPES) }).notNull(),
+  category: text('category', { enum: enumValues(TRANSACTION_CATEGORIES) }).notNull(),
   amount: real('amount').notNull(),
-  description: text('description'),
+  description: text('description').notNull(),
   date: integer('date', { mode: 'timestamp' }).notNull(),
+  projectId: text('project_id').references(() => projects.id, { onDelete: 'set null' }),
+  budgetId: text('budget_id').references(() => budgets.id, { onDelete: 'set null' }),
+  goalId: text('goal_id').references(() => goals.id, { onDelete: 'set null' }),
+  recurringId: text('recurring_id').references(() => recurring.id, { onDelete: 'set null' }),
+  tags: tagIds(),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

@@ -1,8 +1,7 @@
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { ACCOUNT_TYPES, enumValues } from '../../../shared/enums';
 import { createdAt, id, updatedAt } from './columns.js';
 import { users } from './users.js';
-
-export const ACCOUNT_TYPES = ['checking', 'savings', 'credit', 'investment', 'cash'] as const;
 
 export const accounts = sqliteTable('accounts', {
   id: id(),
@@ -10,10 +9,13 @@ export const accounts = sqliteTable('accounts', {
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
-  type: text('type', { enum: ACCOUNT_TYPES }).notNull(),
-  balance: real('balance').notNull().default(0),
+  type: text('type', { enum: enumValues(ACCOUNT_TYPES) }).notNull(),
+  accountProvider: text('account_provider'),
+  // Texto para preservar a precisão decimal (espelha `balance: z.string()`).
+  balance: text('balance').notNull().default('0'),
   currency: text('currency').notNull().default('BRL'),
-  archived: integer('archived', { mode: 'boolean' }).notNull().default(false),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  description: text('description'),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
