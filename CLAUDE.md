@@ -1,87 +1,144 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Este arquivo fornece orientação ao Claude Code (claude.ai/code) ao trabalhar com
+o código deste repositório.
 
-## Overview
+## Visão Geral
 
-Dashboard is an Electron desktop app with an Angular 22 renderer and a SQLite
-data layer via Drizzle ORM. The package manager is **bun** (`bun@1.3.11`);
-`ng` and `drizzle-kit` are configured to use it.
+O Dashboard é um aplicativo desktop em Electron com um renderer em Angular 22 e
+uma camada de dados SQLite via Drizzle ORM. O gerenciador de pacotes é o **bun**
+(`bun@1.3.11`); `ng` e `drizzle-kit` estão configurados para usá-lo.
 
-## Commands
-
-```bash
-bun run dev              # full dev loop: ng serve + Electron concurrently
-bun run start            # renderer only (ng serve on :4200)
-bun run build            # Angular production build -> dist/renderer
-bun run electron:build   # compile main process (tsc) -> dist/main
-bun run dist             # full package: ng build + tsc + electron-builder -> release/
-bun test                 # unit tests (Vitest via @angular/build:unit-test)
-```
-
-`bun run dev` is the normal entry point. It serves the Angular app and, once
-`:4200` is reachable, compiles the main process and launches Electron through
-`scripts/start-electron.mjs` (see "Gotchas").
-
-### Database (Drizzle + node:sqlite)
+## Comandos
 
 ```bash
-bun run db:generate      # generate a migration from schema.ts changes -> ./drizzle
-bun run db:migrate       # apply migrations to the drizzle-kit dev db (./.data)
-bun run db:push          # push schema directly (dev only)
-bun run db:studio        # open Drizzle Studio
+bun run dev              # loop de dev completo: ng serve + Electron em paralelo
+bun run start            # apenas o renderer (ng serve na :4200)
+bun run build            # build de produção do Angular -> dist/renderer
+bun run electron:build   # compila o processo main (tsc) -> dist/main
+bun run dist             # pacote completo: ng build + tsc + electron-builder -> release/
+bun test                 # testes unitários (Vitest via @angular/build:unit-test)
 ```
 
-Migrations are also applied automatically at runtime on app ready (see `initDb`),
-reading from the bundled `./drizzle` folder.
+`bun run dev` é o ponto de entrada normal. Ele serve o app Angular e, assim que
+a `:4200` fica acessível, compila o processo main e inicia o Electron através do
+`scripts/start-electron.mjs` (veja "Pegadinhas").
 
-## Architecture
+### Banco de Dados (Drizzle + node:sqlite)
 
-The codebase is split by Electron process; the two halves are built by
-**different toolchains** and never share a runtime.
+```bash
+bun run db:generate      # gera uma migração a partir de mudanças no schema.ts -> ./drizzle
+bun run db:migrate       # aplica migrações ao banco de dev do drizzle-kit (./.data)
+bun run db:push          # envia o schema diretamente (apenas dev)
+bun run db:studio        # abre o Drizzle Studio
+```
 
-- **`src/main/`** — Electron main process. Plain TypeScript compiled by `tsc`
-  using `src/main/tsconfig.json` (NodeNext modules) into `dist/main/`. Because
-  modules are NodeNext, **relative imports use `.js` extensions** even in `.ts`
-  source (e.g. `import { initDb } from './db/index.js'`).
-- **`src/renderer/`** — Angular 22 app (standalone components, `sourceRoot` in
-  `angular.json`). Built by `@angular/build` into `dist/renderer/`. Routes live
-  in `app/app.routes.ts` (currently empty); config in `app/app.config.ts`.
+As migrações também são aplicadas automaticamente em tempo de execução quando o
+app fica pronto (veja `initDb`), lendo da pasta `./drizzle` empacotada.
 
-These two processes communicate over a single, deliberately narrow IPC bridge:
+## Arquitetura
 
-- `src/main/preload.ts` exposes `window.electron.invoke(channel, ...args)` via
+O código é dividido por processo do Electron; as duas metades são construídas por
+**toolchains diferentes** e nunca compartilham um runtime.
+
+- **`src/main/`** — processo main do Electron. TypeScript puro compilado pelo
+  `tsc` usando `src/main/tsconfig.json` (módulos NodeNext) para `dist/main/`.
+  Como os módulos são NodeNext, **imports relativos usam extensão `.js`** mesmo
+  no código-fonte `.ts` (ex.: `import { initDb } from './database/database.module.js'`).
+- **`src/renderer/`** — app Angular 22 (componentes standalone, `sourceRoot` no
+  `angular.json`). Construído pelo `@angular/build` em `dist/renderer/`. As rotas
+  ficam em `app/app.routes.ts` (atualmente vazio); a configuração em
+  `app/app.config.ts`.
+
+Esses dois processos se comunicam por uma única ponte de IPC deliberadamente
+estreita:
+
+- `src/main/preload.ts` expõe `window.electron.invoke(channel, ...args)` via
   `contextBridge` (sandboxed, `contextIsolation: true`, `nodeIntegration: false`).
-- `src/main/main.ts` registers handlers with `ipcMain.handle('<channel>', ...)`.
-- `src/renderer/electron.d.ts` types the `window.electron` surface.
+- `src/main/main.ts` registra handlers com `ipcMain.handle('<channel>', ...)`.
+- `src/renderer/electron.d.ts` tipa a superfície de `window.electron`.
 
-To add an IPC feature: register a handler in `main.ts`, then call
-`window.electron.invoke('<channel>', payload)` from the renderer. Keep the
-bridge surface minimal and typed.
+Para adicionar um recurso de IPC: registre um handler em `main.ts`, depois chame
+`window.electron.invoke('<channel>', payload)` no renderer. Mantenha a superfície
+da ponte mínima e tipada.
 
-### Data layer
+### Camada de Dados
 
-- `src/main/db/schema.ts` defines all tables, enums, the Relational Queries v2
-  `relations` object, and inferred row types (`User`/`NewUser`, etc.).
-  **This file must stay free of Electron/Node-runtime imports** — `drizzle-kit`
-  imports it directly to generate migrations.
-- `src/main/db/index.ts` owns the runtime connection. `initDb()` (call once on
-  app ready) opens `node:sqlite` `DatabaseSync` at
-  `app.getPath('userData')/dashboard.db`, sets WAL + foreign keys, applies
-  pending migrations, and memoizes the instance. `getDb()` returns it afterward.
-- Drizzle is wired with `drizzle({ client, schema, relations })` so the
-  `db.query.*` relational API is available.
-- The runtime DB (userData) and the drizzle-kit dev DB (`./.data/dashboard.db`
-  from `drizzle.config.ts`) are **separate files**.
+- `src/main/database/schema/` define todas as tabelas, enums, o objeto
+  `relations` da Relational Queries v2 e os tipos de linha inferidos
+  (`User`/`NewUser`, etc.) — um arquivo por entidade, construtores de coluna
+  compartilhados em `columns.ts`, as `relations` entre tabelas em `relations.ts`,
+  tudo reexportado por `schema/index.ts`. **Esta árvore deve permanecer livre de
+  imports de runtime Electron/Node** — o `drizzle-kit` a importa diretamente para
+  gerar migrações.
+- `src/main/database/database.providers.ts` é dono da conexão de runtime.
+  `initDb()` (chamado uma vez quando o app fica pronto) abre o `DatabaseSync` do
+  `node:sqlite` em `app.getPath('userData')/dashboard.db`, ativa WAL + foreign
+  keys, aplica migrações pendentes e memoiza a instância. `getDb()` a retorna
+  depois disso. As constantes de conexão ficam em `database.tokens.ts`;
+  `database.module.ts` é o barrel público de onde os consumidores importam.
+- O Drizzle é configurado com `drizzle({ client, schema, relations })` para que a
+  API relacional `db.query.*` fique disponível.
+- O banco de runtime (userData) e o banco de dev do drizzle-kit
+  (`./.data/dashboard.db` definido em `drizzle.config.ts`) são **arquivos
+  separados**.
 
-## Gotchas
+## Pegadinhas
 
-- **`ELECTRON_RUN_AS_NODE`**: some shells/IDEs export this, which makes the
-  Electron binary run as plain Node (no window, `require('electron')` returns a
-  path). Always launch via `scripts/start-electron.mjs`, which strips it before
-  spawning. Don't invoke the electron binary directly.
-- **Drizzle must stay on the `1.0.0-beta` line** — the `node:sqlite` driver and
-  the `defineRelations` v2 API only exist in the beta of `drizzle-orm`/
-  `drizzle-kit`. Do not downgrade to stable.
-- **`.js` import extensions** are required in `src/main/` (NodeNext); Angular
-  renderer code does not use them.
+- **`ELECTRON_RUN_AS_NODE`**: alguns shells/IDEs exportam isso, o que faz o
+  binário do Electron rodar como Node puro (sem janela, `require('electron')`
+  retorna um caminho). Sempre inicie via `scripts/start-electron.mjs`, que remove
+  a variável antes de fazer o spawn. Não invoque o binário do electron
+  diretamente.
+- **O Drizzle deve permanecer na linha `1.0.0-beta`** — o driver `node:sqlite` e
+  a API `defineRelations` v2 só existem no beta de `drizzle-orm`/`drizzle-kit`.
+  Não faça downgrade para a versão estável.
+- **Extensões `.js` nos imports** são obrigatórias em `src/main/` (NodeNext); o
+  código do renderer Angular não as usa.
+
+## Estilo de Commit
+
+Conventional commits com emojis:
+
+```
+✨ feat(escopo): descrição
+🧪 test(escopo): descrição
+🔥 fix(escopo): descrição
+💄 style(escopo): descrição
+```
+
+## Regras Críticas
+
+### 1. Organização de Código
+
+- Muitos arquivos pequenos em vez de poucos arquivos grandes
+- Alta coesão, baixo acoplamento
+- 200-400 linhas típico, 800 máximo por arquivo
+- Organize por feature/domínio, não por tipo
+
+### 2. Estilo de Código
+
+- Imutabilidade sempre - nunca mutar objetos ou arrays
+- Sem console.log em código de produção
+- Tratamento de erro adequado com try/catch
+- Validação de entrada com Zod ou similar
+
+### 3. Testes
+
+- TDD: escreva testes primeiro
+- Cobertura mínima de 80%
+- Testes unitários para utilitários
+- Testes de integração para APIs
+- Testes E2E para fluxos críticos
+
+### 4. Segurança
+
+- Sem segredos hardcoded
+- Variáveis de ambiente para dados sensíveis
+- Validar toda entrada de usuário
+- Apenas queries parametrizadas
+- Proteção CSRF habilitada
+
+### 5. Idioma
+
+- Sempre responder em português do Brasil
