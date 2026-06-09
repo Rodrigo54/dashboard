@@ -1,36 +1,16 @@
-import { httpResource } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, resource } from '@angular/core';
+import type { AppData } from '@shared/types';
 
-export interface UserProfile {
-  id: string;
-  email: string;
-  name: string;
-  avatar: string | null;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ApiData {
-  name: string;
-  description: string;
-  message: string;
-  version: string;
-  timestamp: string;
-  environment: string;
-}
+import { invoke } from '@/shared/ipc/invoke';
+import type { PublicUser } from '../auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class HomeService {
-  userProfile = httpResource<UserProfile>(() => ({
-    url: '/api/users/profile',
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-    },
-  }));
+  readonly userProfile = resource<PublicUser | null, unknown>({
+    loader: () => invoke<PublicUser | null>('auth:me'),
+  });
 
-  apiData = httpResource<ApiData>(() => '/api/');
+  readonly appData = resource<AppData, unknown>({
+    loader: () => invoke<AppData>('appdata:read'),
+  });
 }
