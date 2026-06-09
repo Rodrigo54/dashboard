@@ -6,7 +6,8 @@
   },
   "files": [
     "dist/main/**/*",
-    "dist/renderer/**/*"
+    "dist/renderer/**/*",
+    "drizzle/**/*"
   ],
   "win": {
     "target": "nsis"
