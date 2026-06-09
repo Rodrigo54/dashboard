@@ -1,6 +1,8 @@
 {
   "name": "dashboard",
   "version": "0.0.0",
+  "description": "Dashboard desktop app (Electron + Angular)",
+  "author": "Rodrigo Alves <rodrigo54mix@gmail.com>",
   "main": "dist/main/main.js",
   "scripts": {
     "ng": "ng",
