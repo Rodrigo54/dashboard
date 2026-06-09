@@ -1,6 +1,7 @@
+import { desc } from 'drizzle-orm';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'node:path';
-import { desc } from 'drizzle-orm';
+import { initControllers } from './controllers/controllers.providers.js';
 import { initDb, schema } from './database/database.module.js';
 
 const isDev = !app.isPackaged;
@@ -31,8 +32,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   const db = initDb();
 
-  // IPC handlers go here — renderer calls window.electron.invoke('<channel>')
-  ipcMain.handle('ping', () => 'pong');
+  initControllers();
 
   ipcMain.handle('notes:list', () =>
     db.select().from(schema.notes).orderBy(desc(schema.notes.createdAt)).all(),
