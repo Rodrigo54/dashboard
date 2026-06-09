@@ -1,6 +1,6 @@
 ---
 name: commit
-description: 'Gera mensagem de commit no padrão do projeto: emoji + tipo + scope opcional + descrição imperativa. Use para commitar, gerar mensagem de commit, criar commit, conventional commit.'
+description: 'Gera mensagem de commit no padrão do projeto: emoji + tipo + scope opcional + descrição imperativa. Use para gerar mensagem de commit, criar commit, conventional commit.'
 argument-hint: 'descrição opcional do que foi feito'
 ---
 
