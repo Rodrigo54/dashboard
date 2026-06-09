@@ -1,4 +1,4 @@
-import { Controller, create, list, read, remove, save, update } from './controller.decorator.js';
+import { action, Controller, create, list, read, remove, save, update } from './controller.decorator.js';
 
 @Controller('ping')
 export class PingController {
@@ -31,6 +31,11 @@ export class PingController {
   @list
   async findAll(...args: any[]): Promise<any> {
     return ['pong', 'ping', 'pang'];
+  }
+
+  @action('timestamp')
+  async customAction(...args: any[]): Promise<any> {
+    return new Date().toISOString();
   }
 
 }

@@ -12,6 +12,7 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 
       <button type="button" (click)="ping()">Test IPC (ping)</button>
       <button type="button" (click)="list()">Test IPC (list)</button>
+      <button type="button" (click)="timestamp()">Test IPC (timestamp)</button>
       @if (reply()) {
         <p>Main process replied: <strong>{{ reply() | json }}</strong></p>
       }
@@ -44,6 +45,11 @@ export class App {
 
   protected async list(): Promise<void> {
     const result = await window.electron.invoke<string[]>('ping:list');
+    this.reply.set(result);
+  }
+
+  protected async timestamp(): Promise<void> {
+    const result = await window.electron.invoke<string>('ping:timestamp');
     this.reply.set(result);
   }
 }

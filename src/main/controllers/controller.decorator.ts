@@ -39,8 +39,9 @@ export function getControllerName(target: ControllerClass): string {
 /**
  * Fábrica de decorators de método que associam um método a uma ação de IPC.
  * O nome do método pode diferir do nome da ação (ex.: `findOne` -> `read`).
+ * Também pode ser usado para criar ações customizadas, basta passar o nome desejado como argumento.
  */
-function action(actionName: string) {
+export function action(actionName: string) {
   return function (_value: unknown, context: ClassMethodDecoratorContext): void {
     const metadata = context.metadata as Record<symbol, unknown>;
     const actions = (metadata[CONTROLLER_ACTIONS] ??= {}) as ActionMap;
