@@ -16,7 +16,8 @@ function createDb() {
   // Sensible defaults for a desktop app.
   sqlite.exec('PRAGMA journal_mode = WAL;');
   sqlite.exec('PRAGMA foreign_keys = ON;');
-  return drizzle({ client: sqlite, schema });
+  // Pass `relations` to enable the v2 relational query API (db.query.*).
+  return drizzle({ client: sqlite, schema, relations: schema.relations });
 }
 
 /** Initializes the connection and applies pending migrations. Call once on app ready. */
