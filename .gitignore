@@ -5,6 +5,7 @@
 /out
 /release
 /tmp
+/.tmp
 /out-tsc
 /bazel-out
 

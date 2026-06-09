@@ -1,0 +1,17 @@
+{
+  "$schema": "https://zardui.com/schema.json",
+  "style": "css",
+  "appConfigFile": "src/renderer/app/app.config.ts",
+  "packageManager": "bun",
+  "tailwind": {
+    "css": "src/renderer/styles.css",
+    "baseColor": "slate"
+  },
+  "baseUrl": "src/renderer/app",
+  "aliases": {
+    "components": "@/shared/ui/zard",
+    "utils": "@/shared/utils",
+    "core": "@/shared/core",
+    "services": "@/shared/services"
+  }
+}

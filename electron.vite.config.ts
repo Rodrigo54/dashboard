@@ -1,6 +1,7 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'electron-vite';
 import angular from '@analogjs/vite-plugin-angular';
+import tailwindcss from '@tailwindcss/vite';
 
 // Aliases compartilhados pelos três processos. Espelham os `paths` dos tsconfig
 // (@shared / @main / @renderer) para que a resolução em runtime/build bata com
@@ -9,6 +10,7 @@ const alias = {
   '@shared': resolve(__dirname, 'src/shared'),
   '@main': resolve(__dirname, 'src/main'),
   '@renderer': resolve(__dirname, 'src/renderer'),
+  '@/': resolve(__dirname, 'src/renderer/app') + '/',
 };
 
 // Config única para os três processos do Electron.
@@ -36,6 +38,6 @@ export default defineConfig({
     base: './',
     publicDir: resolve(__dirname, 'public'),
     resolve: { alias },
-    plugins: [angular({ tsconfig: resolve(__dirname, 'tsconfig.app.json') })],
+    plugins: [tailwindcss(), angular({ tsconfig: resolve(__dirname, 'tsconfig.app.json') })],
   },
 });
