@@ -1,9 +1,11 @@
 import { ipcMain } from 'electron';
+import { AccountsController } from './accounts.controller';
+import { AppDataController } from './appdata.controller';
 import { AuthController } from './auth.controller';
 import { getControllerActions, getControllerName } from './controller.decorator';
 import { PingController } from './ping.controller';
 
-const controllers = [PingController, AuthController];
+const controllers = [PingController, AuthController, AppDataController, AccountsController];
 
 export function initControllers() {
 
