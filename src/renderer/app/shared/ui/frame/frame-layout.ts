@@ -81,9 +81,8 @@ export class FrameLayout {
   #authService = inject(AuthService);
   router = inject(Router);
 
-  logoff() {
-    this.#authService.logout().subscribe(() => {
-      this.router.navigate(['/login']);
-    });
+  async logoff(): Promise<void> {
+    await this.#authService.logout();
+    this.router.navigate(['/auth/login']);
   }
 }

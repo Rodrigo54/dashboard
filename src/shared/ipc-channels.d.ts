@@ -21,6 +21,7 @@ export type CrudAction = 'create' | 'save' | 'read' | 'update' | 'remove' | 'lis
  */
 export interface ControllerChannelMap {
   ping: CrudAction | 'timestamp';
+  auth: 'check' | 'login' | 'register' | 'logout' | 'me';
 }
 
 /** União de todos os canais válidos no formato `controller:action`. */
