@@ -10,13 +10,14 @@
       "projectType": "application",
       "schematics": {},
       "root": "",
-      "sourceRoot": "src",
+      "sourceRoot": "src/renderer",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "browser": "src/main.ts",
+            "index": "src/renderer/index.html",
+            "browser": "src/renderer/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -25,7 +26,7 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/renderer/styles.css"
             ]
           },
           "configurations": {

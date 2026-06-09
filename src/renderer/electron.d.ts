@@ -1,4 +1,4 @@
-// Types for the bridge exposed by electron/preload.ts
+// Types for the bridge exposed by src/main/preload.ts
 export interface ElectronApi {
   invoke<T = unknown>(channel: string, ...args: unknown[]): Promise<T>;
 }

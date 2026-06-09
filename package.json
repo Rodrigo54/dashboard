@@ -8,7 +8,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "electron:build": "tsc -p electron/tsconfig.json",
+    "electron:build": "tsc -p src/main/tsconfig.json",
     "electron:run": "wait-on tcp:127.0.0.1:4200 && bun run electron:build && node scripts/start-electron.mjs",
     "dev": "concurrently -k -n ng,electron -c blue,green \"ng serve --host 127.0.0.1\" \"bun run electron:run\"",
     "dist": "ng build && bun run electron:build && electron-builder"
