@@ -5,11 +5,12 @@ import { ZardFormModule } from '@/shared/ui/zard/components/form/form.module';
 import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
 import { ZardInputDirective } from '@/shared/ui/zard/components/input/input.directive';
 import { ZardSelectImports } from '@/shared/ui/zard/components/select';
-import { httpResource } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
+import { Router } from '@angular/router';
 import { CreateAccount } from '@shared/types';
+import { AccountsService } from './accounts.service';
 
 @Component({
   selector: 'app-accounts-form',
@@ -62,7 +63,7 @@ import { CreateAccount } from '@shared/types';
               <label for="accountType" z-form-label>Tipo</label>
               <z-form-control>
                 <z-select zPlaceholder="Escolha o tipo de conta" [formField]="accountForm.type">
-                  @for (type of accountTypesResource.value(); track type.value) {
+                  @for (type of accountsService.accountTypes.value(); track type.value) {
                     <z-select-item [zValue]="type.value">{{ type.label }}</z-select-item>
                   }
                 </z-select>
@@ -75,7 +76,7 @@ import { CreateAccount } from '@shared/types';
                   zPlaceholder="Escolha o provedor da conta"
                   [formField]="accountForm.accountProvider!"
                 >
-                  @for (provider of accountsProvidersResource.value(); track provider.value) {
+                  @for (provider of accountsService.providers.value(); track provider.value) {
                     <z-select-item [zValue]="provider.value">{{ provider.label }}</z-select-item>
                   }
                 </z-select>
@@ -85,7 +86,7 @@ import { CreateAccount } from '@shared/types';
               <label for="currency" z-form-label>Moeda</label>
               <z-form-control>
                 <z-select zPlaceholder="Escolha a moeda" [formField]="accountForm.currency!">
-                  @for (currency of currenciesResource.value(); track currency.value) {
+                  @for (currency of accountsService.currencies.value(); track currency.value) {
                     <z-select-item [zValue]="currency.value">{{ currency.label }}</z-select-item>
                   }
                 </z-select>
@@ -117,6 +118,9 @@ import { CreateAccount } from '@shared/types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountsForm {
+  protected readonly accountsService = inject(AccountsService);
+  readonly #router = inject(Router);
+
   accountModel = signal<CreateAccount>({
     name: '',
     type: 'cash',
@@ -131,20 +135,11 @@ export class AccountsForm {
     required(schemaPath.type, { message: 'O tipo da conta é obrigatório' });
   });
 
-  accountTypesResource = httpResource<{ value: string; label: string }[]>(
-    () => '/api/accounts/types',
-  );
-
-  accountsProvidersResource = httpResource<{ value: string; label: string }[]>(
-    () => '/api/accounts/providers',
-  );
-
-  currenciesResource = httpResource<{ value: string; label: string }[]>(
-    () => '/api/accounts/currencies',
-  );
-
-  onSubmit() {
+  async onSubmit() {
+    if (this.accountForm().invalid()) return;
     const formValue = this.accountForm().value();
-    console.log('Formulário enviado:', formValue);
+    await this.accountsService.create(formValue);
+    this.accountsService.accounts.reload();
+    await this.#router.navigate(['/accounts']);
   }
 }
