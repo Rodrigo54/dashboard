@@ -45,7 +45,7 @@ import { AuthService } from '../../auth.service';
             </div>
           }
 
-          <form (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+          <form (submit)="onSubmit($event)" class="flex flex-col gap-4">
             <z-form-field>
               <label z-form-label [for]="'email'">E-mail</label>
               <z-form-control [errorMessage]="getErrorMessage(loginForm.email())">
@@ -105,7 +105,7 @@ export default class LoginPage {
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal('');
 
-  protected readonly model = signal({ email: '', password: '' });
+  protected readonly model = signal({ email: 'rodrigo@gmail.com', password: '12345678' });
 
   protected readonly loginForm = form(this.model, (s) => {
     required(s.email, { message: 'E-mail é obrigatório' });
@@ -124,7 +124,8 @@ export default class LoginPage {
     return '';
   }
 
-  protected onSubmit(): void {
+  protected onSubmit(event: Event): void {
+    event.preventDefault();
     submit(this.loginForm, async () => {
       this.loading.set(true);
       this.errorMessage.set('');

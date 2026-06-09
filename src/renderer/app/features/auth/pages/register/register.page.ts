@@ -46,7 +46,7 @@ import { AuthService } from '../../auth.service';
             </div>
           }
 
-          <form (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
+          <form (submit)="onSubmit($event)" class="flex flex-col gap-4">
             <z-form-field>
               <label z-form-label [for]="'name'">Nome</label>
               <z-form-control [errorMessage]="getErrorMessage(registerForm.name())">
@@ -165,7 +165,8 @@ export default class RegisterPage {
     return '';
   }
 
-  protected onSubmit(): void {
+  protected onSubmit(event: Event): void {
+    event.preventDefault();
     submit(this.registerForm, async () => {
       this.loading.set(true);
       this.errorMessage.set('');
