@@ -25,19 +25,19 @@ import { AuthService } from '../../auth.service';
     RouterLink,
   ],
   template: `
-    <div class="flex items-center justify-center min-h-screen bg-background">
+    <div class="flex items-center justify-center min-h-screen">
       <div class="flex flex-col gap-6 w-full max-w-sm px-4">
-        <div class="flex flex-col items-center gap-2 text-center">
-          <div
-            class="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground"
-          >
-            <z-icon zType="user-plus" zSize="lg" />
-          </div>
-          <h1 class="text-2xl font-bold text-foreground">Criar conta</h1>
-          <p class="text-muted-foreground text-sm">Configure seu acesso ao Dashboard</p>
-        </div>
-
         <div class="bg-card rounded-xl shadow p-6 flex flex-col gap-4">
+          <div class="flex flex-col items-center gap-2 text-center">
+            <div
+              class="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground"
+            >
+              <z-icon zType="user-plus" zSize="lg" />
+            </div>
+            <h1 class="text-2xl font-bold text-foreground">Criar conta</h1>
+            <p class="text-muted-foreground text-sm">Configure seu acesso ao Dashboard</p>
+          </div>
+
           @if (errorMessage()) {
             <div
               class="rounded-md bg-destructive/10 border border-destructive/30 text-destructive text-sm px-3 py-2"
@@ -76,7 +76,6 @@ import { AuthService } from '../../auth.service';
             <z-form-field>
               <label z-form-label [for]="'password'">Senha</label>
               <z-form-control [errorMessage]="getErrorMessage(registerForm.password())">
-
                 <input
                   z-input
                   type="password"
@@ -111,20 +110,20 @@ import { AuthService } from '../../auth.service';
               Criar conta
             </button>
           </form>
+          <p class="text-center text-sm text-muted-foreground">
+            Já tem conta?
+            <a [routerLink]="['/auth/login']" class="text-primary underline-offset-4 hover:underline">
+              Entrar
+            </a>
+          </p>
         </div>
 
-        <p class="text-center text-sm text-muted-foreground">
-          Já tem conta?
-          <a [routerLink]="['/auth/login']" class="text-primary underline-offset-4 hover:underline">
-            Entrar
-          </a>
-        </p>
       </div>
     </div>
   `,
   styles: ``,
 })
-export class RegisterPage {
+export default class RegisterPage {
   readonly #auth = inject(AuthService);
   readonly #router = inject(Router);
 

@@ -1,11 +1,10 @@
-import { AuthService } from '@/features/auth/auth.service';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-import { ZardBreadcrumbImports } from '@/shared/ui/zard/components/breadcrumb/breadcrumb.imports';
+import { ZardBreadcrumbImports } from '@/shared/ui/zard/components/breadcrumb';
 import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
 import { ZardDividerComponent } from '@/shared/ui/zard/components/divider';
 import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
 import { LayoutImports } from '@/shared/ui/zard/components/layout';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 import { FrameSidebar } from './frame-sidebar';
 import { FrameService } from './frame.service';
 
@@ -78,11 +77,11 @@ import { FrameService } from './frame.service';
 })
 export class FrameLayout {
   frame = inject(FrameService);
-  #authService = inject(AuthService);
+  // #authService = inject(AuthService);
   router = inject(Router);
 
   async logoff(): Promise<void> {
-    await this.#authService.logout();
+    // await this.#authService.logout();
     this.router.navigate(['/auth/login']);
   }
 }

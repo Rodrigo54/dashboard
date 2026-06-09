@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { PreloadAllModules, provideRouter, Routes, withHashLocation, withPreloading, withRouterConfig, withViewTransitions } from '@angular/router';
 import { authGuard } from './features/auth/auth.guard';
 
 export const routes: Routes = [
@@ -9,32 +9,32 @@ export const routes: Routes = [
   },
   {
     path: 'auth',
-    children: [
-      {
-        path: 'welcome',
-        loadComponent: () =>
-          import('./features/auth/pages/welcome/welcome.page').then((m) => m.WelcomePage),
-      },
-      {
-        path: 'login',
-        loadComponent: () =>
-          import('./features/auth/pages/login/login.page').then((m) => m.LoginPage),
-      },
-      {
-        path: 'register',
-        loadComponent: () =>
-          import('./features/auth/pages/register/register.page').then((m) => m.RegisterPage),
-      },
-    ],
+    loadChildren: () => import('./features/auth/auth.routes'),
   },
   {
     path: 'home',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./shared/ui/frame/frame-layout').then((m) => m.FrameLayout),
+    loadComponent: () => import('./shared/ui/frame/frame-layout').then((m) => m.FrameLayout),
   },
   {
     path: '**',
     redirectTo: 'auth/welcome',
   },
 ];
+
+export const provideAppRouting = () => {
+  return provideRouter(
+    routes,
+    // withDebugTracing(),
+    // Hash routing (URL com `#`) é obrigatório no Electron: a parte antes do `#`
+    // nunca muda, então `<base href="./">` permanece estável em refresh (sem o
+    // acúmulo de `auth/auth/...`) e funciona via `file://` no build de produção,
+    // onde não há servidor para fazer o fallback de SPA do roteamento por path.
+    withHashLocation(),
+    withViewTransitions(),
+    withPreloading(PreloadAllModules),
+    withRouterConfig({
+      onSameUrlNavigation: 'reload',
+    }),
+  );
+};

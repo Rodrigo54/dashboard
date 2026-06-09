@@ -9,49 +9,51 @@ import { AuthService } from '../../auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ZardButtonComponent, ZardIconComponent, RouterLink],
   template: `
-    <div class="flex items-center justify-center min-h-screen bg-background">
+    <div class="flex items-center justify-center min-h-screen">
       <div class="flex flex-col items-center gap-8 w-full max-w-sm px-4">
-        <div class="flex flex-col items-center gap-2 text-center">
-          <div
-            class="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground"
-          >
-            <z-icon zType="layout-dashboard" zSize="2xl" />
-          </div>
-          <h1 class="text-2xl font-bold text-foreground">Dashboard</h1>
-          @if (firstAccess.isLoading()) {
-            <p class="text-muted-foreground text-sm">Carregando...</p>
-          } @else if (firstAccess.value()) {
-            <p class="text-muted-foreground text-sm">Configure sua conta para começar</p>
-          } @else {
-            <p class="text-muted-foreground text-sm">Bem-vindo de volta!</p>
-          }
-        </div>
-
-        @if (!firstAccess.isLoading()) {
-          <div class="flex flex-col gap-3 w-full">
-            @if (firstAccess.value()) {
-              <button z-button zType="default" class="w-full" [routerLink]="['/auth/register']">
-                <z-icon zType="user-plus" />
-                Criar conta
-              </button>
+        <div class="bg-card min-w-lg min-h-lg rounded-xl shadow p-6 flex flex-col gap-4">
+          <div class="flex flex-col items-center gap-2 text-center">
+            <div
+              class="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground"
+            >
+              <z-icon zType="layout-dashboard" zSize="2xl" />
+            </div>
+            <h1 class="text-2xl font-bold text-foreground">Dashboard</h1>
+            @if (firstAccess.isLoading()) {
+              <p class="text-muted-foreground text-sm">Carregando...</p>
+            } @else if (firstAccess.value()) {
+              <p class="text-muted-foreground text-sm">Configure sua conta para começar</p>
             } @else {
-              <button z-button zType="default" class="w-full" [routerLink]="['/auth/login']">
-                <z-icon zType="log-in" />
-                Entrar
-              </button>
-              <button z-button zType="ghost" class="w-full" [routerLink]="['/auth/register']">
-                <z-icon zType="user-plus" />
-                Criar nova conta
-              </button>
+              <p class="text-muted-foreground text-sm">Bem-vindo de volta!</p>
             }
           </div>
-        }
+
+          @if (!firstAccess.isLoading()) {
+            <div class="flex flex-col gap-3 w-full">
+              @if (firstAccess.value()) {
+                <button z-button zType="default" class="w-full" [routerLink]="['/auth/register']">
+                  <z-icon zType="user-plus" />
+                  Criar conta
+                </button>
+              } @else {
+                <button z-button zType="default" class="w-full" [routerLink]="['/auth/login']">
+                  <z-icon zType="log-in" />
+                  Entrar
+                </button>
+                <button z-button zType="ghost" class="w-full" [routerLink]="['/auth/register']">
+                  <z-icon zType="user-plus" />
+                  Criar nova conta
+                </button>
+              }
+            </div>
+          }
+        </div>
       </div>
     </div>
   `,
   styles: ``,
 })
-export class WelcomePage {
+export default class WelcomePage {
   readonly #auth = inject(AuthService);
   readonly #router = inject(Router);
 
