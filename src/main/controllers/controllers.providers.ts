@@ -24,3 +24,5 @@ export function initControllers() {
   }
 
 }
+
+export type { Channels } from '../../shared/ipc-channels.js';

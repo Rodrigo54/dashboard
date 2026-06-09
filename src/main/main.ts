@@ -12,7 +12,7 @@ function createWindow(): void {
     height: 800,
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, '../preload/preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
@@ -21,8 +21,9 @@ function createWindow(): void {
 
   win.once('ready-to-show', () => win.show());
 
-  if (isDev) {
-    win.loadURL('http://localhost:4200');
+  const devServerUrl = process.env['ELECTRON_RENDERER_URL'];
+  if (isDev && devServerUrl) {
+    win.loadURL(devServerUrl);
     win.webContents.openDevTools({ mode: 'detach' });
   } else {
     win.loadFile(path.join(__dirname, '../renderer/index.html'));

@@ -5,8 +5,7 @@
     "output": "release"
   },
   "files": [
-    "dist/main/**/*",
-    "dist/renderer/**/*",
+    "out/**/*",
     "drizzle/**/*"
   ],
   "win": {
