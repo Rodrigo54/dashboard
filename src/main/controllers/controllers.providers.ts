@@ -17,8 +17,9 @@ export function initControllers() {
           const result = await instance[method](...args);
           return { success: true, result };
         } catch (error) {
-          console.error(`Error in ${name}.${action}:`, error);
-          return { success: false, error: error instanceof Error ? error.message : String(error) };
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          console.error(`[Error in ${name}:${action}] - ${errorMessage}`);
+          return { success: false, error: errorMessage };
         }
       });
     }
@@ -27,3 +28,4 @@ export function initControllers() {
 }
 
 export type { Channels } from '@shared/ipc-channels';
+
