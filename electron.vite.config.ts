@@ -1,21 +1,22 @@
 import { resolve } from 'node:path';
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
+import { defineConfig } from 'electron-vite';
 import angular from '@analogjs/vite-plugin-angular';
 
 // Config única para os três processos do Electron.
 // - main/preload: bundle CJS via Rollup; deps de runtime (electron, node:sqlite,
-//   drizzle-orm) ficam externalizadas e são resolvidas de node_modules.
+//   drizzle-orm) ficam externalizadas (build.externalizeDeps) e são resolvidas
+//   de node_modules.
 // - renderer: app Angular compilado pelo plugin do AnalogJS, sob o Vite.
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
     build: {
+      externalizeDeps: true,
       lib: { entry: resolve(__dirname, 'src/main/main.ts') },
     },
   },
   preload: {
-    plugins: [externalizeDepsPlugin()],
     build: {
+      externalizeDeps: true,
       lib: { entry: resolve(__dirname, 'src/main/preload.ts') },
     },
   },

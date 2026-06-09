@@ -4,6 +4,7 @@
   "directories": {
     "output": "release"
   },
+  "afterPack": "scripts/afterPack.mjs",
   "files": [
     "out/**/*",
     "drizzle/**/*"
