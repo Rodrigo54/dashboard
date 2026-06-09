@@ -1,4 +1,4 @@
-import { action, Controller, create, list, read, remove, save, update } from './controller.decorator.js';
+import { action, Controller, create, list, read, remove, save, update } from './controller.decorator';
 
 @Controller('ping')
 export class PingController {

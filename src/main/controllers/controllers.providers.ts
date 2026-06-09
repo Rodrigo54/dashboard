@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
-import { AuthController } from './auth.controller.js';
-import { getControllerActions, getControllerName } from './controller.decorator.js';
-import { PingController } from './ping.controller.js';
+import { AuthController } from './auth.controller';
+import { getControllerActions, getControllerName } from './controller.decorator';
+import { PingController } from './ping.controller';
 
 const controllers = [PingController, AuthController];
 

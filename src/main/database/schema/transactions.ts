@@ -1,12 +1,12 @@
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { enumValues, TRANSACTION_CATEGORIES, TRANSACTION_TYPES } from '../../../shared/enums';
-import { accounts } from './accounts.js';
-import { budgets } from './budgets.js';
-import { createdAt, id, tagIds, updatedAt } from './columns.js';
-import { goals } from './goals.js';
-import { projects } from './projects.js';
-import { recurring } from './recurring.js';
-import { users } from './users.js';
+import { accounts } from './accounts';
+import { budgets } from './budgets';
+import { createdAt, id, tagIds, updatedAt } from './columns';
+import { goals } from './goals';
+import { projects } from './projects';
+import { recurring } from './recurring';
+import { users } from './users';
 
 export const transactions = sqliteTable('transactions', {
   id: id(),

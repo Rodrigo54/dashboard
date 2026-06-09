@@ -3,8 +3,8 @@ import { drizzle } from 'drizzle-orm/node-sqlite';
 import { migrate } from 'drizzle-orm/node-sqlite/migrator';
 import { DatabaseSync } from 'node:sqlite';
 import * as path from 'node:path';
-import { DB_FILENAME, MIGRATIONS_DIRNAME } from './database.tokens.js';
-import * as schema from './schema/index.js';
+import { DB_FILENAME, MIGRATIONS_DIRNAME } from './database.tokens';
+import * as schema from './schema/index';
 
 export type DB = ReturnType<typeof createDb>;
 

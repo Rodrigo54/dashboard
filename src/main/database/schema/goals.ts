@@ -1,7 +1,7 @@
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { createdAt, id, updatedAt } from './columns.js';
-import { projects } from './projects.js';
-import { users } from './users.js';
+import { createdAt, id, updatedAt } from './columns';
+import { projects } from './projects';
+import { users } from './users';
 
 export const goals = sqliteTable('goals', {
   id: id(),

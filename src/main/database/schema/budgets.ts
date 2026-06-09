@@ -1,9 +1,9 @@
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { BUDGET_PERIODS, enumValues, TRANSACTION_CATEGORIES } from '../../../shared/enums';
-import { createdAt, id, updatedAt } from './columns.js';
-import { goals } from './goals.js';
-import { projects } from './projects.js';
-import { users } from './users.js';
+import { createdAt, id, updatedAt } from './columns';
+import { goals } from './goals';
+import { projects } from './projects';
+import { users } from './users';
 
 export const budgets = sqliteTable('budgets', {
   id: id(),

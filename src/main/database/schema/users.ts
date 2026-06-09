@@ -1,6 +1,6 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { enumValues, USER_ROLES } from '../../../shared/enums';
-import { createdAt, id, updatedAt } from './columns.js';
+import { createdAt, id, updatedAt } from './columns';
 
 export const users = sqliteTable('users', {
   id: id(),

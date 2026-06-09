@@ -1,7 +1,7 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { enumValues, TAG_TYPES } from '../../../shared/enums';
-import { createdAt, id, updatedAt } from './columns.js';
-import { users } from './users.js';
+import { createdAt, id, updatedAt } from './columns';
+import { users } from './users';
 
 export const tags = sqliteTable('tags', {
   id: id(),

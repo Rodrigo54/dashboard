@@ -1,7 +1,7 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { enumValues, PROJECT_STATUSES, TASK_PRIORITIES } from '../../../shared/enums';
-import { createdAt, id, tagIds, updatedAt } from './columns.js';
-import { users } from './users.js';
+import { createdAt, id, tagIds, updatedAt } from './columns';
+import { users } from './users';
 
 export const projects = sqliteTable('projects', {
   id: id(),

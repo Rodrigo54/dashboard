@@ -1,8 +1,8 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { enumValues, RECURRING_STATUSES, RECURRING_TYPES } from '../../../shared/enums';
 import type { RecurringPattern, TaskTemplate, TransactionTemplate } from '../../../shared/types';
-import { createdAt, id, updatedAt } from './columns.js';
-import { users } from './users.js';
+import { createdAt, id, updatedAt } from './columns';
+import { users } from './users';
 
 export const recurring = sqliteTable('recurring', {
   id: id(),

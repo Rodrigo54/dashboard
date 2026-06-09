@@ -1,8 +1,8 @@
 import { desc } from 'drizzle-orm';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'node:path';
-import { initControllers } from './controllers/controllers.providers.js';
-import { initDb, schema } from './database/database.module.js';
+import { initControllers } from './controllers/controllers.providers';
+import { initDb, schema } from './database/database.module';
 
 const isDev = !app.isPackaged;
 

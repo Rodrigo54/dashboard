@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
-import { getDb, schema } from '../database/database.module.js';
-import { action, Controller } from './controller.decorator.js';
+import { getDb, schema } from '../database/database.module';
+import { action, Controller } from './controller.decorator';
 
 type PublicUser = Omit<schema.User, 'passwordHash'>;
 

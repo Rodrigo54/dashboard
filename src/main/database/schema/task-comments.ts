@@ -1,7 +1,7 @@
 import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
-import { createdAt, id, updatedAt } from './columns.js';
-import { tasks } from './tasks.js';
-import { users } from './users.js';
+import { createdAt, id, updatedAt } from './columns';
+import { tasks } from './tasks';
+import { users } from './users';
 
 // Um comentário sempre pertence a exatamente uma task.
 export const taskComments = sqliteTable('task_comments', {

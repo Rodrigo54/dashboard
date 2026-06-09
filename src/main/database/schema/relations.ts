@@ -1,15 +1,15 @@
 import { defineRelations } from 'drizzle-orm';
-import { accounts } from './accounts.js';
-import { budgets } from './budgets.js';
-import { goals } from './goals.js';
-import { notes } from './notes.js';
-import { projects } from './projects.js';
-import { recurring } from './recurring.js';
-import { tags } from './tags.js';
-import { taskComments } from './task-comments.js';
-import { tasks } from './tasks.js';
-import { transactions } from './transactions.js';
-import { users } from './users.js';
+import { accounts } from './accounts';
+import { budgets } from './budgets';
+import { goals } from './goals';
+import { notes } from './notes';
+import { projects } from './projects';
+import { recurring } from './recurring';
+import { tags } from './tags';
+import { taskComments } from './task-comments';
+import { tasks } from './tasks';
+import { transactions } from './transactions';
+import { users } from './users';
 
 // Relational Queries v2 — um único defineRelations cobrindo todas as tabelas.
 export const relations = defineRelations(

@@ -1,9 +1,9 @@
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { enumValues, TASK_PRIORITIES, TASK_STATUSES } from '../../../shared/enums';
-import { createdAt, id, tagIds, updatedAt } from './columns.js';
-import { projects } from './projects.js';
-import { recurring } from './recurring.js';
-import { users } from './users.js';
+import { createdAt, id, tagIds, updatedAt } from './columns';
+import { projects } from './projects';
+import { recurring } from './recurring';
+import { users } from './users';
 
 export const tasks = sqliteTable('tasks', {
   id: id(),
