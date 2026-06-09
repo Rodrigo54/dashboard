@@ -1,7 +1,8 @@
-import { httpResource } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { invoke } from '@/shared/ipc/invoke';
 import { ZardAvatarComponent } from '@/shared/ui/zard/components/avatar';
 import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
+import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
+import { PublicUser } from '@renderer/app/features/auth/auth.service';
 import { FrameService } from './frame.service';
 
 interface UserProfile {
@@ -61,14 +62,9 @@ export class FrameProfile {
     return `${baseClasses} ${sizeClasses}`;
   });
 
-  userProfile = httpResource<UserProfile>(() => ({
-    url: '/api/users/me',
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-    },
-  }));
+  readonly userProfile = resource<PublicUser | null, unknown>({
+    loader: () => invoke<PublicUser | null>('auth:me'),
+  });
 
   userName = computed(() => this.userProfile.value()?.name);
   userEmail = computed(() => this.userProfile.value()?.email);
