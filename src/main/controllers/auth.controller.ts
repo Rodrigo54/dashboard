@@ -2,13 +2,10 @@ import { eq } from 'drizzle-orm';
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { getDb, schema } from '../database/database.module';
 import { action, Controller } from './controller.decorator';
-
-type PublicUser = Omit<schema.User, 'passwordHash'>;
+import { clearCurrentUser, getCurrentUser, setCurrentUser, type PublicUser } from './session';
 
 @Controller('auth')
 export class AuthController {
-  #session: PublicUser | null = null;
-
   @action('check')
   async check(): Promise<{ hasUsers: boolean }> {
     const db = getDb();
@@ -32,7 +29,7 @@ export class AuthController {
     }
 
     const { passwordHash: _, ...publicUser } = user;
-    this.#session = publicUser;
+    setCurrentUser(publicUser);
     return publicUser;
   }
 
@@ -58,17 +55,17 @@ export class AuthController {
       .get();
 
     const { passwordHash: _, ...publicUser } = newUser;
-    this.#session = publicUser;
+    setCurrentUser(publicUser);
     return publicUser;
   }
 
   @action('logout')
   async logout(): Promise<void> {
-    this.#session = null;
+    clearCurrentUser();
   }
 
   @action('me')
   async me(): Promise<PublicUser | null> {
-    return this.#session;
+    return getCurrentUser();
   }
 }
