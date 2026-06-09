@@ -1,5 +1,7 @@
 import { computed, Injectable, signal } from '@angular/core';
 
+import { type IpcResponse, unwrap } from '@/shared/ipc/invoke';
+
 export interface PublicUser {
   id: number;
   name: string;
@@ -9,17 +11,6 @@ export interface PublicUser {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-}
-
-interface IpcResponse<T> {
-  success: boolean;
-  result: T;
-  error?: string;
-}
-
-function unwrap<T>(res: IpcResponse<T>): T {
-  if (!res.success) throw new Error(res.error ?? 'Erro desconhecido');
-  return res.result;
 }
 
 @Injectable({ providedIn: 'root' })
