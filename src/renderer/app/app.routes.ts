@@ -1,20 +1,21 @@
 import { PreloadAllModules, provideRouter, Routes, withHashLocation, withPreloading, withRouterConfig, withViewTransitions } from '@angular/router';
 import { authGuard } from './features/auth/auth.guard';
+import { FrameLayout } from './shared/ui/frame/frame-layout';
 
 export const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'auth/welcome',
-    pathMatch: 'full',
-  },
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes'),
   },
   {
-    path: 'home',
+    path: '',
+    component: FrameLayout,
     canActivate: [authGuard],
-    loadComponent: () => import('./shared/ui/frame/frame-layout').then((m) => m.FrameLayout),
+    children: [
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
+      { path: 'home', loadChildren: () => import('./features/home/home.routes') },
+      { path: 'accounts', loadChildren: () => import('./features/accounts/accounts.routes') },
+    ],
   },
   {
     path: '**',
