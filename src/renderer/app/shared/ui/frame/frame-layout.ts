@@ -9,6 +9,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { AppData } from '@shared/types';
 import { FrameSidebar } from './frame-sidebar';
 import { FrameService } from './frame.service';
+import { FrameTitle } from './frame-title';
 
 @Component({
   selector: 'app-frame-layout',
@@ -19,10 +20,13 @@ import { FrameService } from './frame.service';
     ZardIconComponent,
     ZardDividerComponent,
     FrameSidebar,
+    FrameTitle,
     RouterOutlet,
   ],
   template: `
-    <z-layout class="overflow-hidden h-screen w-screen">
+    <div class="flex h-screen w-screen flex-col overflow-hidden">
+      <app-frame-title />
+      <z-layout class="min-h-0 flex-1 overflow-hidden">
       <!-- Sidebar -->
       <z-sidebar
         [zWidth]="250"
@@ -72,7 +76,8 @@ import { FrameService } from './frame.service';
           <span>{{ appVersion() }}</span>
         </z-footer>
       </z-layout>
-    </z-layout>
+      </z-layout>
+    </div>
   `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
