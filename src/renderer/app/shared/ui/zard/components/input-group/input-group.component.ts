@@ -137,6 +137,7 @@ export class ZardInputGroupComponent {
       if (size) {
         contentInput?.size.set(size);
       }
+      contentInput?.borderless.set(true);
       contentInput?.disable(disabled);
       contentInput?.setDataSlot('input-group-control');
     });

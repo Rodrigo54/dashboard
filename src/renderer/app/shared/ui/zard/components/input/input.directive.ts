@@ -56,6 +56,7 @@ export class ZardInputDirective implements ControlValueAccessor {
   readonly value = model<ZardInputValue>(null);
 
   readonly size = linkedSignal<ZardInputSizeVariants>(() => this.zSize());
+  readonly borderless = linkedSignal<boolean>(() => this.zBorderless());
 
   protected readonly classes = computed(() =>
     mergeClasses(
@@ -63,7 +64,7 @@ export class ZardInputDirective implements ControlValueAccessor {
         zType: this.getType(),
         zSize: this.size(),
         zStatus: this.zStatus(),
-        zBorderless: this.zBorderless(),
+        zBorderless: this.borderless(),
       }),
       this.class(),
     ),
