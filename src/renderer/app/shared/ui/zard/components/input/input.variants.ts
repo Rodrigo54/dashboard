@@ -30,4 +30,6 @@ export const inputVariants = cva('w-full', {
   },
 });
 
-export type ZardInputVariants = VariantProps<typeof inputVariants>;
+export type ZardInputTypeVariants = NonNullable<VariantProps<typeof inputVariants>['zType']>;
+export type ZardInputSizeVariants = NonNullable<VariantProps<typeof inputVariants>['zSize']>;
+export type ZardInputStatusVariants = NonNullable<VariantProps<typeof inputVariants>['zStatus']>;
