@@ -9,7 +9,10 @@ const controllers = [AuthController, AppDataController, AccountsController];
 export function initControllers() {
 
   for (const Controller of controllers) {
-    const instance = new Controller() as unknown as Record<string | symbol, (payload?: unknown) => Promise<any>>;
+    const instance = new Controller() as unknown as Record<
+      string | symbol,
+      (payload?: unknown) => Promise<unknown>
+    >;
     const name = getControllerName(Controller);
     const actions = getControllerActions(Controller);
     for (const [action, method] of Object.entries(actions)) {

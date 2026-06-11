@@ -5,11 +5,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, resource } from '
 import { PublicUser } from '@renderer/app/features/auth/auth.service';
 import { FrameService } from './frame.service';
 
-interface UserProfile {
-  name: string;
-  email: string;
-}
-
 @Component({
   selector: 'app-frame-profile',
   imports: [ZardAvatarComponent, ZardIconComponent],

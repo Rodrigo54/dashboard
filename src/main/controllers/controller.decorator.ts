@@ -6,7 +6,10 @@ const METADATA = (Symbol as unknown as { metadata: symbol }).metadata;
 const CONTROLLER_NAME = Symbol('controller:name');
 const CONTROLLER_ACTIONS = Symbol('controller:actions');
 
-export type ControllerClass = new (...args: any[]) => any;
+// `any` nos argumentos é necessário para aceitar qualquer assinatura de
+// construtor (variância de construtores).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ControllerClass = (new (...args: any[]) => object) & { readonly name: string };
 
 /** Mapa de ação de IPC -> chave do método que a implementa. */
 export type ActionMap = Record<string, string | symbol>;
@@ -29,7 +32,7 @@ export function Controller(name: string) {
 
 /** Recupera o nome registrado por `@Controller(...)`. */
 export function getControllerName(target: ControllerClass): string {
-  const name = (target as any)[CONTROLLER_NAME];
+  const name = (target as unknown as Record<symbol, unknown>)[CONTROLLER_NAME];
   if (typeof name !== 'string') {
     throw new Error(`Controller ${target.name} não foi decorado com @Controller(...).`);
   }
@@ -58,7 +61,9 @@ export const list = action('list');
 
 /** Recupera o mapa de ações registrado pelos decorators de método. */
 export function getControllerActions(target: ControllerClass): ActionMap {
-  const metadata = (target as any)[METADATA] as Record<symbol, unknown> | undefined;
+  const metadata = (target as unknown as Record<symbol, unknown>)[METADATA] as
+    | Record<symbol, unknown>
+    | undefined;
   const actions = metadata?.[CONTROLLER_ACTIONS] as ActionMap | undefined;
   if (!actions) {
     throw new Error(`Controller ${target.name} não possui métodos decorados com ações.`);
