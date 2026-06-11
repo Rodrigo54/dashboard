@@ -5,9 +5,17 @@ import { ZardFormModule } from '@/shared/ui/zard/components/form/form.module';
 import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
 import { ZardInputDirective } from '@/shared/ui/zard/components/input/input.directive';
 import { ZardSelectImports } from '@/shared/ui/zard/components/select';
+import { CurrencyInputComponent } from '@/shared/ui/currency-input';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FieldState, form, FormField, required, submit, validateStandardSchema } from '@angular/forms/signals';
+import {
+  FieldState,
+  form,
+  FormField,
+  required,
+  submit,
+  validateStandardSchema,
+} from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import { createAccountSchema } from '@shared/schemas';
 import { CreateAccount, UUID } from '@shared/types';
@@ -25,6 +33,7 @@ import { AccountsService } from './accounts.service';
     ZardInputDirective,
     ZardButtonComponent,
     ZardSelectImports,
+    CurrencyInputComponent,
   ],
   template: `
     <div>
@@ -98,13 +107,7 @@ import { AccountsService } from './accounts.service';
             <z-form-field class="col-span-6">
               <label for="balance" z-form-label>Saldo</label>
               <z-form-control [errorMessage]="errorOf(accountForm.balance())">
-                <input
-                  z-input
-                  type="text"
-                  id="balance"
-                  [formField]="accountForm.balance"
-                  placeholder="Saldo"
-                />
+                <app-currency-input id="balance" [formField]="accountForm.balance" />
               </z-form-control>
             </z-form-field>
 
