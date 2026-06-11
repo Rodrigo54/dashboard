@@ -1,56 +1,92 @@
 import { describe, expect, it } from 'vitest';
 
-import { decimalStringToMasked, maskedToDecimalString } from './currency.utils';
+import {
+  decimalStringToDigits,
+  digitsToDecimalString,
+  digitsToMasked,
+  sanitizeDigits,
+} from './currency.utils';
 
-describe('maskedToDecimalString', () => {
-  it('converte texto mascarado em string decimal canônica', () => {
-    expect(maskedToDecimalString('1.234,56')).toBe('1234.56');
+describe('sanitizeDigits', () => {
+  it('remove tudo que não é dígito', () => {
+    expect(sanitizeDigits('1.234,56')).toBe('123456');
+    expect(sanitizeDigits('R$ 0,05')).toBe('5');
   });
 
-  it('ignora prefixo e símbolos de moeda', () => {
-    expect(maskedToDecimalString('R$ 1.234,56')).toBe('1234.56');
+  it('remove zeros à esquerda', () => {
+    expect(sanitizeDigits('0,001')).toBe('1');
+    expect(sanitizeDigits('0,00')).toBe('');
   });
 
-  it('preserva os dígitos informados sem round-trip de float', () => {
-    expect(maskedToDecimalString('10,50')).toBe('10.50');
+  it('limita a quantidade máxima de dígitos', () => {
+    expect(sanitizeDigits('9'.repeat(30))).toHaveLength(15);
   });
 
-  it('lida com valores sem separador de milhar', () => {
-    expect(maskedToDecimalString('99,90')).toBe('99.90');
-  });
-
-  it('converte valores negativos', () => {
-    expect(maskedToDecimalString('-5,00')).toBe('-5.00');
-  });
-
-  it('retorna string vazia para entradas vazias ou inválidas', () => {
-    expect(maskedToDecimalString('')).toBe('');
-    expect(maskedToDecimalString('abc')).toBe('');
-    expect(maskedToDecimalString('-')).toBe('');
+  it('retorna vazio para entradas sem dígitos', () => {
+    expect(sanitizeDigits('')).toBe('');
+    expect(sanitizeDigits('abc')).toBe('');
   });
 });
 
-describe('decimalStringToMasked', () => {
-  it('formata string decimal canônica no padrão pt-BR', () => {
-    expect(decimalStringToMasked('1234.56')).toBe('1.234,56');
-    expect(decimalStringToMasked('1234.5')).toBe('1.234,50');
+describe('digitsToDecimalString', () => {
+  it('preenche da direita para a esquerda com 2 casas', () => {
+    expect(digitsToDecimalString('')).toBe('0.00');
+    expect(digitsToDecimalString('5')).toBe('0.05');
+    expect(digitsToDecimalString('12')).toBe('0.12');
+    expect(digitsToDecimalString('123')).toBe('1.23');
+    expect(digitsToDecimalString('123456')).toBe('1234.56');
   });
 
   it('respeita o número de casas decimais informado', () => {
-    expect(decimalStringToMasked('10', 0)).toBe('10');
-    expect(decimalStringToMasked('10.123', 3)).toBe('10,123');
+    expect(digitsToDecimalString('123', 0)).toBe('123');
+    expect(digitsToDecimalString('', 0)).toBe('0');
+    expect(digitsToDecimalString('1234', 3)).toBe('1.234');
   });
 
-  it('formata valores negativos', () => {
-    expect(decimalStringToMasked('-99.9')).toBe('-99,90');
+  it('ignora zeros à esquerda', () => {
+    expect(digitsToDecimalString('000123')).toBe('1.23');
+  });
+});
+
+describe('digitsToMasked', () => {
+  it('formata no padrão pt-BR preenchendo pela direita', () => {
+    expect(digitsToMasked('')).toBe('0,00');
+    expect(digitsToMasked('5')).toBe('0,05');
+    expect(digitsToMasked('123')).toBe('1,23');
+    expect(digitsToMasked('123456')).toBe('1.234,56');
+    expect(digitsToMasked('123456789')).toBe('1.234.567,89');
   });
 
-  it('retorna string vazia para valores vazios ou inválidos', () => {
-    expect(decimalStringToMasked('')).toBe('');
-    expect(decimalStringToMasked('abc')).toBe('');
+  it('respeita o número de casas decimais informado', () => {
+    expect(digitsToMasked('1234', 0)).toBe('1.234');
+    expect(digitsToMasked('1234', 3)).toBe('1,234');
+  });
+});
+
+describe('decimalStringToDigits', () => {
+  it('converte a string decimal canônica em dígitos (centavos)', () => {
+    expect(decimalStringToDigits('1234.56')).toBe('123456');
+    expect(decimalStringToDigits('0.05')).toBe('5');
   });
 
-  it('faz round-trip com maskedToDecimalString para valores com 2 casas', () => {
-    expect(maskedToDecimalString(decimalStringToMasked('1234.56'))).toBe('1234.56');
+  it('completa casas decimais ausentes', () => {
+    expect(decimalStringToDigits('10.5')).toBe('1050');
+    expect(decimalStringToDigits('10')).toBe('1000');
+  });
+
+  it('trunca casas decimais excedentes', () => {
+    expect(decimalStringToDigits('1.999')).toBe('199');
+  });
+
+  it('retorna vazio para valores vazios, zerados ou inválidos', () => {
+    expect(decimalStringToDigits('')).toBe('');
+    expect(decimalStringToDigits('abc')).toBe('');
+    expect(decimalStringToDigits('0')).toBe('');
+    expect(decimalStringToDigits('0.00')).toBe('');
+  });
+
+  it('faz round-trip com digitsToDecimalString', () => {
+    expect(digitsToDecimalString(decimalStringToDigits('1234.56'))).toBe('1234.56');
+    expect(decimalStringToDigits(digitsToDecimalString('123456'))).toBe('123456');
   });
 });

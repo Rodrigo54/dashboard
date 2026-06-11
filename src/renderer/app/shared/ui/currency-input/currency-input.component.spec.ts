@@ -26,46 +26,81 @@ describe('CurrencyInputComponent', () => {
     return fixture.nativeElement.querySelector('input');
   }
 
-  it('renderiza o addon de moeda e o input', () => {
+  /** Simula a digitação de um caractere no fim do campo (estilo app bancário). */
+  function type(char: string): void {
+    const el = input();
+    el.value = `${el.value}${char}`;
+    el.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+  }
+
+  it('renderiza o addon de moeda e inicia exibindo 0,00', () => {
     const host: HTMLElement = fixture.nativeElement;
     expect(host.textContent).toContain('R$');
-    expect(input()).toBeTruthy();
+    expect(input().value).toBe('0,00');
+  });
+
+  it('preenche da direita para a esquerda conforme o usuário digita', () => {
+    type('1');
+    expect(input().value).toBe('0,01');
+
+    type('2');
+    expect(input().value).toBe('0,12');
+
+    type('3');
+    expect(input().value).toBe('1,23');
+
+    expect(fixture.componentInstance.model().balance).toBe('1.23');
+  });
+
+  it('aplica separador de milhar conforme o valor cresce', () => {
+    for (const digit of '123456') {
+      type(digit);
+    }
+
+    expect(input().value).toBe('1.234,56');
+    expect(fixture.componentInstance.model().balance).toBe('1234.56');
+  });
+
+  it('remove o último dígito no backspace (direita para esquerda)', () => {
+    for (const digit of '123') {
+      type(digit);
+    }
+
+    const el = input();
+    el.value = el.value.slice(0, -1); // backspace no fim: "1,23" -> "1,2"
+    el.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(el.value).toBe('0,12');
+    expect(fixture.componentInstance.model().balance).toBe('0.12');
+  });
+
+  it('volta a 0,00 quando todos os dígitos são removidos', () => {
+    type('5');
+
+    const el = input();
+    el.value = '';
+    el.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(el.value).toBe('0,00');
+    expect(fixture.componentInstance.model().balance).toBe('0.00');
+  });
+
+  it('ignora caracteres não numéricos colados no campo', () => {
+    const el = input();
+    el.value = 'abc';
+    el.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(el.value).toBe('0,00');
   });
 
   it('reflete a string decimal do modelo formatada na view', () => {
     fixture.componentInstance.model.set({ balance: '1234.5' });
     fixture.detectChanges();
+
     expect(input().value).toBe('1.234,50');
-  });
-
-  it('atualiza o modelo com a string decimal canônica ao digitar', () => {
-    const el = input();
-    el.value = '1.234,56';
-    el.dispatchEvent(new Event('input'));
-    fixture.detectChanges();
-    expect(fixture.componentInstance.model().balance).toBe('1234.56');
-  });
-
-  it('mantém o modelo correto após digitar e perder o foco', () => {
-    const el = input();
-    el.dispatchEvent(new Event('focus'));
-    el.value = '10,5';
-    el.dispatchEvent(new Event('input'));
-    el.dispatchEvent(new Event('blur'));
-    fixture.detectChanges();
-    // O ngx-mask é dono do texto exibido durante a edição; o contrato do
-    // controle é a string decimal do modelo permanecer correta.
-    expect(fixture.componentInstance.model().balance).toBe('10.5');
-  });
-
-  it('não compete com o ngx-mask enquanto o campo está em foco', () => {
-    const el = input();
-    el.dispatchEvent(new Event('focus'));
-    fixture.detectChanges();
-    // Com o campo em foco, uma mudança externa de modelo não sobrescreve o texto.
-    el.value = '7,';
-    fixture.componentInstance.model.set({ balance: '999' });
-    fixture.detectChanges();
-    expect(el.value).toBe('7,');
   });
 });
