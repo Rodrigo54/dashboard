@@ -51,6 +51,10 @@ import {
   // Users
   userSchema,
   uuidSchema,
+  // Environment
+  environmentNameSchema,
+  environmentSchema,
+  publicEnvironmentSchema,
 } from '../schemas';
 
 export type UUID = z.infer<typeof uuidSchema>;
@@ -171,6 +175,15 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+
+// ============================================================
+// Environment (environments/*.yml)
+// ============================================================
+
+export type EnvironmentName = z.infer<typeof environmentNameSchema>;
+export type Environment = z.infer<typeof environmentSchema>;
+/** Subconjunto do environment seguro para o renderer (sem `security`). */
+export type PublicEnvironment = z.infer<typeof publicEnvironmentSchema>;
 
 // ============================================================
 // App Data

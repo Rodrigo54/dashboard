@@ -1,19 +1,34 @@
 import { app } from 'electron';
 import { drizzle } from 'drizzle-orm/node-sqlite';
 import { migrate } from 'drizzle-orm/node-sqlite/migrator';
+import * as fs from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import * as path from 'node:path';
-import { DB_FILENAME, MIGRATIONS_DIRNAME } from './database.tokens';
+import { getEnvironment } from '../environment/environment.module';
+import { MIGRATIONS_DIRNAME } from './database.tokens';
 import * as schema from './schema/index';
 
 export type DB = ReturnType<typeof createDb>;
 
 let _db: DB | undefined;
 
+/**
+ * Resolves the database file from the active environment (environments/*.yml):
+ * `directory: userData` maps to Electron's user-data dir; anything else is a
+ * directory path. DASHBOARD_DB overrides everything (e.g. test databases) —
+ * drizzle.config.ts mirrors this same resolution for the CLI.
+ */
+function resolveDbFile(): string {
+  if (process.env['DASHBOARD_DB']) return process.env['DASHBOARD_DB'];
+  const { database } = getEnvironment();
+  const dir =
+    database.directory === 'userData' ? app.getPath('userData') : path.resolve(database.directory);
+  fs.mkdirSync(dir, { recursive: true });
+  return path.join(dir, database.fileName);
+}
+
 function createDb() {
-  // Store the database alongside the app's user data, not in the bundle.
-  const file = path.join(app.getPath('userData'), DB_FILENAME);
-  const sqlite = new DatabaseSync(file);
+  const sqlite = new DatabaseSync(resolveDbFile());
   // Sensible defaults for a desktop app.
   sqlite.exec('PRAGMA journal_mode = WAL;');
   sqlite.exec('PRAGMA foreign_keys = ON;');

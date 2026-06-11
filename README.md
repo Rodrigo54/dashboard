@@ -15,6 +15,8 @@ build dos três processos do Electron (main / preload / renderer) é unificado p
 - **Tailwind CSS 4** + design system **zard** (componentes portados)
 - **Drizzle ORM** (`1.0.0-beta`) sobre `node:sqlite`
 - **Zod** para validação de entrada (schemas compartilhados main ↔ renderer)
+- **Environments em YAML** (`environments/*.yml`) — config por ambiente
+  validada com Zod e embutida no build
 - **bun** (`bun@1.3.11`) como gerenciador de pacotes
 - **ESLint** + **Prettier** para lint/format
 
@@ -43,7 +45,32 @@ bun test             # testes unitários (Vitest via ng test)
 
 `bun run dev` é o ponto de entrada normal. Os scripts `dev`/`preview` passam pelo
 wrapper `scripts/electron-vite.mjs`, que remove `ELECTRON_RUN_AS_NODE` antes de
-delegar ao CLI do electron-vite (veja "Pegadinhas" em `CLAUDE.md`).
+delegar ao CLI do electron-vite (veja "Pegadinhas" em `CLAUDE.md`). O modo do
+build decide o environment: `dev` usa `environments/development.yml`;
+`build`/`preview`/`dist` usam `environments/production.yml`.
+
+## Environments
+
+A configuração por ambiente vive em `environments/development.yml` e
+`environments/production.yml`, validada por schema Zod
+(`src/shared/schemas/environment.schema.ts`):
+
+| Bloco      | Opções                                                                       |
+| ---------- | ---------------------------------------------------------------------------- |
+| `app`      | `id` (técnico, define a pasta de userData), `name`, `version`, `environment` |
+| `database` | `directory` (`userData` ou um caminho) e `fileName`                          |
+| `security` | `encryptionSecret` (nunca exposto ao renderer)                               |
+| `window`   | `width`, `height`, `devTools`                                                |
+| `logging`  | `level` (`debug`/`info`/`warn`/`error`)                                      |
+
+Os valores aceitam interpolação `${VAR}` / `${VAR:-fallback}` com variáveis de
+ambiente — em builds de distribuição reais, defina `DASHBOARD_ENCRYPTION_SECRET`
+em vez de depender do fallback do YAML.
+
+Os YAML são embutidos no bundle do main em build-time (import `?raw` do Vite).
+No processo main, consuma com `getEnvironment()` (`src/main/environment/`); no
+renderer, com o `EnvironmentService` (`app/shared/environment/`), que recebe via
+IPC (`environment:read`) apenas o subconjunto público — sem o bloco `security`.
 
 ### Banco de Dados (Drizzle)
 
@@ -55,19 +82,23 @@ bun run db:studio    # abre o Drizzle Studio sobre o mesmo banco
 ```
 
 As migrações da pasta `./drizzle` também são aplicadas automaticamente em runtime
-quando o app fica pronto (veja `initDb`). O banco fica em
-`app.getPath('userData')/dashboard.db`, e o `drizzle.config.ts` resolve **esse
-mesmo** arquivo (não há banco de dev separado), para que `migrate`/`push`/`studio`
-operem sobre os dados reais do app. Sobrescreva com a env `DASHBOARD_DB` para
-apontar para outro arquivo.
+quando o app fica pronto (veja `initDb`). Cada environment tem seu próprio banco,
+definido no YAML: development usa `.data/dashboard.dev.db` (relativo à raiz do
+projeto) e production usa `<userData>/dashboard.db`. O `drizzle.config.ts` parseia
+o mesmo YAML em Node puro e resolve **o mesmo** arquivo do runtime, para que
+`migrate`/`push`/`studio` operem sobre os dados reais do app — o CLI usa
+`development.yml` por padrão; selecione outro com `DASHBOARD_ENV=production` ou
+sobrescreva o arquivo resolvido com a env `DASHBOARD_DB`.
 
 ## Estrutura
 
 ```
+environments/    # config por ambiente (YAML): development.yml / production.yml
 src/
 ├── main/        # processo main + preload do Electron
 │   ├── controllers/   # handlers de IPC via decorators (@Controller/@action)
-│   └── database/      # conexão, schema Drizzle e migrações
+│   ├── database/      # conexão, schema Drizzle e migrações
+│   └── environment/   # parser/provider dos environments (embutidos no build)
 ├── renderer/    # app Angular 22 (features, design system zard, Tailwind)
 └── shared/      # contrato compartilhado main ↔ renderer
                  # (enums, schemas Zod, types inferidos, canais de IPC tipados)

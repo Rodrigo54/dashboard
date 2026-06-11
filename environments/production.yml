@@ -1,0 +1,28 @@
+# Environment de PRODUÇÃO — carregado por `bun run build`/`preview`/`dist`
+# (qualquer build do electron-vite em modo production).
+#
+# Valores podem interpolar variáveis de ambiente com ${VAR} ou ${VAR:-fallback}.
+# O arquivo é validado pelo schema Zod em src/shared/schemas/environment.schema.ts.
+
+app:
+  id: dashboard
+  name: Dashboard
+  version: 0.0.0
+  environment: production
+
+database:
+  directory: userData
+  fileName: dashboard.db
+
+security:
+  # ATENÇÃO: defina DASHBOARD_ENCRYPTION_SECRET no build de distribuição real.
+  # O fallback existe apenas para `bun run preview` funcionar sem setup.
+  encryptionSecret: ${DASHBOARD_ENCRYPTION_SECRET:-c255baad4c9ffe153176172d9174a14aa153e2fb4071641200f9ac7d2dd61163}
+
+window:
+  width: 1280
+  height: 800
+  devTools: false
+
+logging:
+  level: warn

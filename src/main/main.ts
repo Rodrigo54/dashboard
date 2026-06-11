@@ -3,13 +3,18 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'node:path';
 import { initControllers } from './controllers/controllers.providers';
 import { initDb, schema } from './database/database.module';
+import { getEnvironment } from './environment/environment.module';
+
+const env = getEnvironment();
+// O id técnico define a pasta de userData — precisa rodar antes do app ready.
+app.setName(env.app.id);
 
 const isDev = !app.isPackaged;
 
 function createWindow(): void {
   const win = new BrowserWindow({
-    width: 1280,
-    height: 800,
+    width: env.window.width,
+    height: env.window.height,
     show: false,
     frame: false,
     webPreferences: {
@@ -29,7 +34,7 @@ function createWindow(): void {
   const devServerUrl = process.env['ELECTRON_RENDERER_URL'];
   if (isDev && devServerUrl) {
     win.loadURL(devServerUrl);
-    win.webContents.openDevTools({ mode: 'detach' });
+    if (env.window.devTools) win.webContents.openDevTools({ mode: 'detach' });
   } else {
     win.loadFile(path.join(__dirname, '../renderer/index.html'));
   }

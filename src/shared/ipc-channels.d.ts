@@ -23,6 +23,7 @@ export interface ControllerChannelMap {
   ping: CrudAction | 'timestamp';
   auth: 'check' | 'login' | 'register' | 'logout' | 'me';
   appdata: 'read';
+  environment: 'read';
   accounts: CrudAction | 'types' | 'providers' | 'currencies';
 }
 

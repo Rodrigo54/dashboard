@@ -3,11 +3,11 @@ import { AccountsController } from './accounts.controller';
 import { AppDataController } from './appdata.controller';
 import { AuthController } from './auth.controller';
 import { getControllerActions, getControllerName } from './controller.decorator';
+import { EnvironmentController } from './environment.controller';
 
-const controllers = [AuthController, AppDataController, AccountsController];
+const controllers = [AuthController, AppDataController, AccountsController, EnvironmentController];
 
 export function initControllers() {
-
   for (const Controller of controllers) {
     const instance = new Controller() as unknown as Record<
       string | symbol,
@@ -28,8 +28,6 @@ export function initControllers() {
       });
     }
   }
-
 }
 
 export type { Channels } from '@shared/ipc-channels';
-

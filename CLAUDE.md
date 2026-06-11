@@ -30,7 +30,10 @@ bun test                 # testes unitários (Vitest via @angular/build:unit-tes
 `bun run dev` é o ponto de entrada normal: o electron-vite serve o renderer (Vite
 dev server), builda main/preload e sobe o Electron, que carrega o renderer via
 `process.env.ELECTRON_RENDERER_URL`. Os scripts `dev`/`preview` passam pelo
-wrapper `scripts/electron-vite.mjs` (veja "Pegadinhas").
+wrapper `scripts/electron-vite.mjs` (veja "Pegadinhas"). O modo do build decide
+o environment carregado: `dev` embute `environments/development.yml`;
+`build`/`preview`/`dist` embutem `environments/production.yml` (veja
+"Environments").
 
 ### Banco de Dados (Drizzle + node:sqlite)
 
@@ -41,13 +44,14 @@ bun run db:push          # empurra o schema direto ao banco, sem gerar migraçã
 bun run db:studio        # abre o Drizzle Studio sobre o mesmo banco
 ```
 
-O `drizzle.config.ts` resolve **o mesmo** arquivo que o runtime
-(`<userData>/dashboard.db`), recalculando o diretório de userData por plataforma
-sem importar o electron (o CLI roda em Node puro) — então `migrate`/`push`/`studio`
-refletem os dados reais do app. Sobrescreva com a env `DASHBOARD_DB` para apontar
-para outro arquivo (ex.: um banco de teste). As migrações também são aplicadas
-automaticamente em tempo de execução quando o app fica pronto (veja `initDb`),
-lendo da pasta `./drizzle` empacotada.
+O `drizzle.config.ts` resolve **o mesmo** arquivo que o runtime, parseando o
+mesmo `environments/<env>.yml` em Node puro (sem electron, via
+`src/main/environment/environment.parser.ts`) — então `migrate`/`push`/`studio`
+refletem os dados reais do app. O CLI usa `development.yml` por padrão; selecione
+outro environment com a env `DASHBOARD_ENV` (ex.: `DASHBOARD_ENV=production`) ou
+sobrescreva o arquivo resolvido com `DASHBOARD_DB` (ex.: um banco de teste). As
+migrações também são aplicadas automaticamente em tempo de execução quando o app
+fica pronto (veja `initDb`), lendo da pasta `./drizzle` empacotada.
 
 ## Arquitetura
 
@@ -118,6 +122,40 @@ ações, registre a classe no array de `controllers.providers.ts`, declare o can
 em `ControllerChannelMap` e consuma no renderer via `invoke<T>(...)`. Valide todo
 payload de entrada com um schema Zod de `@shared/schemas`.
 
+### Environments (environments/\*.yml)
+
+A configuração por ambiente vive em YAML na raiz do projeto
+(`environments/development.yml` e `environments/production.yml`), validada por
+schema Zod: identidade do app (`app.id` técnico — define a pasta de userData via
+`app.setName` —, `app.name` de exibição, `app.version`, `app.environment`),
+banco (`database.directory`: `'userData'` ou um caminho de diretório, +
+`database.fileName`), segredo de encriptação (`security.encryptionSecret`),
+janela (`window.width`/`height`/`devTools`) e `logging.level`. Os valores
+aceitam interpolação `${VAR}` / `${VAR:-fallback}` com variáveis de ambiente —
+o segredo lê `DASHBOARD_ENCRYPTION_SECRET` e só cai no fallback se ela não
+existir.
+
+- O schema fica em `src/shared/schemas/environment.schema.ts` (arquivo próprio,
+  **sem dependências do resto de shared** — o drizzle.config o importa por
+  caminho relativo); os tipos `Environment`/`PublicEnvironment` são inferidos em
+  `shared/types`.
+- `src/main/environment/` é o dono do environment no processo main:
+  `environment.parser.ts` (parse YAML + interpolação + validação Zod; **puro,
+  imports relativos** — reutilizado pelo `drizzle.config.ts` em Node puro) e
+  `environment.providers.ts`, que embute os dois YAML no bundle via import
+  `?raw` do Vite e escolhe por `import.meta.env.DEV` **em build-time** — o YAML
+  não usado sai por tree-shaking e não há leitura de disco em runtime. Consuma
+  com `getEnvironment()` (completo, só no main) ou `getPublicEnvironment()`
+  (sem `security`); o barrel é `environment.module.ts`.
+- O renderer recebe o environment pelo canal `environment:read`
+  (`controllers/environment.controller.ts`) e o consome via `EnvironmentService`
+  (`app/shared/environment/environment.service.ts`, `resource` + computeds
+  `appName`/`appVersion`/`isDevelopment`/`logLevel`). **O bloco `security`
+  nunca atravessa o IPC** — o controller envia o parse de
+  `publicEnvironmentSchema`, que descarta a chave.
+- As declarações de tipo dos imports `*.yml?raw` (e do `import.meta.env` do
+  electron-vite) ficam em `src/main/env.d.ts`.
+
 ### Camada de Dados
 
 - `src/main/database/schema/` define todas as tabelas, enums, o objeto
@@ -129,19 +167,22 @@ payload de entrada com um schema Zod de `@shared/schemas`.
   gerar migrações.
 - `src/main/database/database.providers.ts` é dono da conexão de runtime.
   `initDb()` (chamado uma vez quando o app fica pronto) abre o `DatabaseSync` do
-  `node:sqlite` em `app.getPath('userData')/dashboard.db`, ativa `PRAGMA
-journal_mode = WAL` + `PRAGMA foreign_keys = ON`, aplica as migrações pendentes
-  de `<appPath>/drizzle` (a pasta `./drizzle` empacotada) e memoiza a instância
-  no módulo. `getDb()` a retorna depois (lança se `initDb()` ainda não rodou). Os
-  nomes de arquivo/pasta ficam em `database.tokens.ts` (`DB_FILENAME`,
-  `MIGRATIONS_DIRNAME`); `database.module.ts` é o barrel público de onde os
+  `node:sqlite` no arquivo resolvido do environment ativo
+  (`database.directory` + `database.fileName`; a env `DASHBOARD_DB` sobrescreve
+  tudo), ativa `PRAGMA journal_mode = WAL` + `PRAGMA foreign_keys = ON`, aplica
+  as migrações pendentes de `<appPath>/drizzle` (a pasta `./drizzle` empacotada)
+  e memoiza a instância no módulo. `getDb()` a retorna depois (lança se
+  `initDb()` ainda não rodou). `database.tokens.ts` guarda
+  `MIGRATIONS_DIRNAME`; `database.module.ts` é o barrel público de onde os
   consumidores importam (reexporta os providers, os tokens e o `schema`).
 - O Drizzle é configurado com `drizzle({ client, schema, relations })` para que a
   API relacional `db.query.*` fique disponível.
-- **Não há banco de dev separado**: por padrão o drizzle-kit (CLI) e o runtime
-  apontam para o **mesmo** arquivo em userData — o `drizzle.config.ts` recalcula
-  esse caminho em Node puro. Use a env `DASHBOARD_DB` quando quiser isolar um
-  arquivo (a pasta `.data/` é apenas ignorada pelo ESLint, não é o alvo padrão).
+- **Cada environment tem seu próprio banco**: development usa
+  `.data/dashboard.dev.db` (relativo à raiz do projeto) e production usa
+  `<userData>/dashboard.db` — ambos definidos nos `environments/*.yml`. O
+  drizzle-kit (CLI) resolve o mesmo arquivo do runtime parseando o mesmo YAML
+  (`DASHBOARD_ENV` seleciona o environment; `development` é o padrão); a env
+  `DASHBOARD_DB` sobrescreve tudo quando quiser isolar um arquivo.
 
 ### Renderer (Angular)
 
@@ -202,6 +243,11 @@ relativos** — o drizzle-kit a importa direto, ignorando os paths do tsconfig.
 - **`@analogjs/vite-plugin-angular` precisa do `tsconfig` explícito** apontando
   para `tsconfig.app.json` (na config do renderer); sem isso o plugin não acha o
   tsconfig, cai pra JIT e o type-check de template não roda.
+- **Os YAML de environment são embutidos em build-time** (import `?raw`):
+  mudanças em `environments/*.yml` exigem novo build para valerem em
+  `preview`/`dist` (no `dev` o electron-vite recompila o main sozinho). Já o
+  `drizzle.config.ts` lê o YAML do disco a cada execução do CLI. E cuidado com
+  `app.id`: ele define a pasta de userData — mudá-lo "move" o banco de produção.
 
 ## Estilo de Commit
 

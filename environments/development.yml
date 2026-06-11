@@ -1,0 +1,33 @@
+# Environment de DESENVOLVIMENTO — carregado por `bun run dev` (electron-vite dev).
+#
+# Valores podem interpolar variáveis de ambiente com ${VAR} ou ${VAR:-fallback}.
+# O arquivo é validado pelo schema Zod em src/shared/schemas/environment.schema.ts.
+
+app:
+  # Identificador técnico: define a pasta de userData do Electron (app.setName).
+  id: dashboard
+  # Nome de exibição do app (UI, título da janela, appdata).
+  name: Dashboard (Dev)
+  version: 0.0.0
+  environment: development
+
+database:
+  # 'userData' usa a pasta padrão do Electron (%APPDATA%/<app.id> no Windows);
+  # qualquer outro valor é tratado como caminho de diretório (absoluto ou
+  # relativo ao cwd).
+  directory: .data/
+  fileName: dashboard.dev.db
+
+security:
+  # Segredo de encriptação (hex). Em desenvolvimento o fallback abaixo é usado;
+  # sobrescreva exportando DASHBOARD_ENCRYPTION_SECRET.
+  encryptionSecret: ${DASHBOARD_ENCRYPTION_SECRET:-3c27bbd564aba09013b1d169c1fff6603b923de9c17853e8d507d3767a4b0f06}
+
+window:
+  width: 1280
+  height: 800
+  # Abre o DevTools destacado ao iniciar (só tem efeito com o dev server).
+  devTools: true
+
+logging:
+  level: debug

@@ -1,3 +1,5 @@
+export * from './environment.schema';
+
 import { z } from 'zod';
 import {
   ACCOUNT_TYPES,
