@@ -18,6 +18,7 @@
         "clsx": "^2.1.1",
         "drizzle-orm": "^1.0.0-beta.22",
         "lucide-angular": "^1.0.0",
+        "ngx-mask": "21",
         "rxjs": "~7.8.0",
         "tailwind-merge": "^3.6.0",
         "tslib": "^2.3.0",
@@ -1386,6 +1387,8 @@
     "natural-compare": ["natural-compare@1.4.0", "", {}, "sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw=="],
 
     "negotiator": ["negotiator@1.0.0", "", {}, "sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg=="],
+
+    "ngx-mask": ["ngx-mask@21.0.1", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/common": "^21.0.0", "@angular/core": "^21.0.0", "@angular/forms": "^21.0.0" } }, "sha512-L7zyKhXHQjfMLIGPxEmaVXdZ6VurHemgPt352yY9vP0dmWKmmzwF1nkKzDjYqpqEWhL/KMooSqrMGApNVzWeYA=="],
 
     "node-abi": ["node-abi@4.31.0", "", { "dependencies": { "semver": "^7.6.3" } }, "sha512-Erq5w/t3syw3s4sDsUaX4QttIdBPsGKTT1DTRsCkTonGggczhlDKm/wDX3o+HPJpQ41EjXCbcmXf0tgr5YZJXw=="],
 
