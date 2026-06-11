@@ -14,7 +14,7 @@ export function unwrap<T>(res: IpcResponse<T>): T {
 }
 
 /** Invoca um canal IPC tipado e já desempacota o `IpcResponse`. */
-export async function invoke<T>(channel: Channels, ...args: unknown[]): Promise<T> {
-  const res = await window.electron.invoke<IpcResponse<T>>(channel, ...args);
+export async function invoke<T>(channel: Channels, payload?: unknown): Promise<T> {
+  const res = await window.electron.invoke<IpcResponse<T>>(channel, payload);
   return unwrap(res);
 }

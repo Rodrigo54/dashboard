@@ -11,7 +11,7 @@ export interface WindowControlsApi {
 }
 
 export interface ElectronApi {
-  invoke<T = unknown>(channel: Channels, ...args: unknown[]): Promise<T>;
+  invoke<T = unknown>(channel: Channels, payload?: unknown): Promise<T>;
   window: WindowControlsApi;
 }
 
