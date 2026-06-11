@@ -11,6 +11,7 @@ function createWindow(): void {
     width: 1280,
     height: 800,
     show: false,
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, '../preload/preload.js'),
       contextIsolation: true,
@@ -21,6 +22,10 @@ function createWindow(): void {
 
   win.once('ready-to-show', () => win.show());
 
+  // Mantém o renderer informado do estado de maximização para alternar o ícone.
+  win.on('maximize', () => win.webContents.send('window:maximized-changed', true));
+  win.on('unmaximize', () => win.webContents.send('window:maximized-changed', false));
+
   const devServerUrl = process.env['ELECTRON_RENDERER_URL'];
   if (isDev && devServerUrl) {
     win.loadURL(devServerUrl);
@@ -30,10 +35,29 @@ function createWindow(): void {
   }
 }
 
+function registerWindowControls(): void {
+  const windowFrom = (event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent) =>
+    BrowserWindow.fromWebContents(event.sender);
+
+  ipcMain.on('window:minimize', (event) => windowFrom(event)?.minimize());
+
+  ipcMain.on('window:maximize-toggle', (event) => {
+    const win = windowFrom(event);
+    if (!win) return;
+    if (win.isMaximized()) win.unmaximize();
+    else win.maximize();
+  });
+
+  ipcMain.on('window:close', (event) => windowFrom(event)?.close());
+
+  ipcMain.handle('window:is-maximized', (event) => windowFrom(event)?.isMaximized() ?? false);
+}
+
 app.whenReady().then(() => {
   const db = initDb();
 
   initControllers();
+  registerWindowControls();
 
   ipcMain.handle('notes:list', () =>
     db.select().from(schema.notes).orderBy(desc(schema.notes.createdAt)).all(),
