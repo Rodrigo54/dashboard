@@ -8,11 +8,11 @@ const routes: Routes = [
     component: Accounts,
   },
   {
-    path: ':accountId',
+    path: 'new',
     component: AccountsForm,
   },
   {
-    path: 'new',
+    path: ':accountId',
     component: AccountsForm,
   },
 ];

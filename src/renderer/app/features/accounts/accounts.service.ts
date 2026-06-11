@@ -32,12 +32,9 @@ export class AccountsService {
     return invoke<Account>('accounts:read', id);
   }
 
-  create(data: CreateAccount): Promise<Account> {
-    return invoke<Account>('accounts:create', data);
-  }
-
-  update(id: UUID, data: UpdateAccount): Promise<Account> {
-    return invoke<Account>('accounts:update', id, data);
+  /** Upsert: cria quando `id` é omitido, atualiza quando informado. */
+  save(data: CreateAccount | UpdateAccount, id?: UUID): Promise<Account> {
+    return invoke<Account>('accounts:save', { id, data });
   }
 
   delete(id: UUID): Promise<{ id: UUID }> {
