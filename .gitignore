@@ -48,3 +48,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Claude Code: configuração local/pessoal (settings.json compartilhado é versionado)
+.claude/settings.local.json
