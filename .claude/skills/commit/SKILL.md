@@ -26,16 +26,21 @@ argument-hint: 'descrição opcional do que foi feito'
 ## Tipos Válidos
 
 | Emoji | Tipo     | Quando usar                              |
-|-------|----------|------------------------------------------|
+| ----- | -------- | ---------------------------------------- |
 | ✨    | feat     | Nova funcionalidade                      |
 | 🐛    | fix      | Correção de bug                          |
 | 📚    | docs     | Documentação                             |
+| 💄    | style    | Formatação, lint, estilo visual          |
 | ♻️    | refactor | Refatoração sem mudança de comportamento |
-| 🚧    | ci       | Integração contínua / pipelines          |
-| 🛠️    | chore    | Manutenção, dependências, build          |
 | 🚀    | perf     | Melhoria de performance                  |
 | 🧪    | test     | Testes                                   |
-| 💄    | style    | Formatação, lint, estilo visual          |
+| 📦    | build    | Build, empacotamento, dependências       |
+| 🚧    | ci       | Integração contínua / pipelines          |
+| 🛠️    | chore    | Manutenção, tarefas gerais               |
+| ⏪    | revert   | Reverte um commit anterior               |
+
+> Esse mapeamento é validado pelo commitlint (`commitlint.config.mjs`, regra
+> `type-emoji`): cada tipo exige exatamente o seu emoji.
 
 ## Procedimento
 
@@ -56,3 +61,17 @@ argument-hint: 'descrição opcional do que foi feito'
 🚀 perf: melhora carregamento do dashboard
 🧪 test(schema): adiciona testes para validação de usuário
 ```
+
+## Validação Automática
+
+O padrão é checado em duas camadas — não dependa só desta skill:
+
+- **commitlint** (`commitlint.config.mjs`) roda no hook `commit-msg` do husky
+  (`.husky/commit-msg`) a cada `git commit`. Valida tipo, emoji por tipo
+  (regra `type-emoji`), assunto não vazio e `header-max-length: 100`.
+- **VSCode / Copilot** (`.vscode/settings.json`) ensina o gerador de mensagens
+  de commit do Copilot a seguir este mesmo padrão via
+  `github.copilot.chat.commitMessageGeneration.instructions` (formato, tabela de
+  emojis e limite de 100 caracteres no header).
+
+Ao gerar a mensagem, respeite o limite de 100 caracteres no header.

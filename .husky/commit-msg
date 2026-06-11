@@ -1,0 +1,2 @@
+#!/bin/sh
+NO_COLOR=1 bunx commitlint --edit "$1"

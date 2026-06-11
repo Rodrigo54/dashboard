@@ -10,6 +10,20 @@
   "eslint.useFlatConfig": true,
   "eslint.validate": ["javascript", "typescript", "html"],
 
+  // Instruções para o Copilot gerar mensagens de commit no padrão do projeto
+  // (mesmo contrato validado pelo commitlint — commitlint.config.mjs).
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "Formato obrigatório: \"<emoji> <type>(<scope>): <descrição>\". O emoji vem ANTES do tipo e é obrigatório. O scope (entre parênteses) é opcional — omita quando as mudanças forem amplas. Descrição no imperativo, em português do Brasil, curta, sem ponto final. Header com no máximo 100 caracteres. Sem emojis extras fora do prefixo."
+    },
+    {
+      "text": "Emoji obrigatório por tipo: ✨ feat (nova funcionalidade); 🐛 fix (correção de bug); 📚 docs (documentação); 💄 style (formatação/lint/estilo); ♻️ refactor (refatoração sem mudança de comportamento); 🚀 perf (performance); 🧪 test (testes); 📦 build (build/empacotamento/dependências); 🚧 ci (integração contínua); 🛠️ chore (manutenção/tarefas gerais); ⏪ revert (reverte um commit). Cada tipo exige exatamente o seu emoji."
+    },
+    {
+      "text": "Exemplos: \"✨ feat(auth): adiciona login social\"; \"🐛 fix(auth): corrige redirecionamento após login\"; \"🛠️ chore: atualiza dependências do projeto\"."
+    }
+  ],
+
   "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[html]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
