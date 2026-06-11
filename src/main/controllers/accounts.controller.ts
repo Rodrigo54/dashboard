@@ -3,7 +3,7 @@ import { createAccountSchema, updateAccountSchema, uuidSchema } from '@shared/sc
 import type { CreateAccount, UpdateAccount, UUID } from '@shared/types';
 import { and, eq } from 'drizzle-orm';
 import { getDb, schema } from '../database/database.module';
-import { action, Controller, create, list, read, remove, update } from './controller.decorator';
+import { action, Controller, create, list, read, remove, save, update } from './controller.decorator';
 import { requireCurrentUser } from './session';
 
 @Controller('accounts')
@@ -57,9 +57,9 @@ export class AccountsController {
   }
 
   @update
-  async update(rawId: unknown, rawData: unknown): Promise<schema.Account> {
-    const id = uuidSchema.parse(rawId) as UUID;
-    const accountData: UpdateAccount = updateAccountSchema.parse(rawData);
+  async update(payload: { id: unknown; data: unknown }): Promise<schema.Account> {
+    const id = uuidSchema.parse(payload.id) as UUID;
+    const accountData: UpdateAccount = updateAccountSchema.parse(payload.data);
     const user = requireCurrentUser();
     const db = getDb();
     const updated = db
@@ -70,6 +70,13 @@ export class AccountsController {
       .get();
     if (!updated) throw new Error('Conta não encontrada');
     return updated;
+  }
+
+  @save
+  async save(payload: { id?: unknown; data: unknown }): Promise<schema.Account> {
+    return payload.id === undefined || payload.id === null
+      ? this.create(payload.data)
+      : this.update({ id: payload.id, data: payload.data });
   }
 
   @remove
