@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { FrameTitle } from '@/shared/ui/frame/frame-title';
 
 /**
  * Layout das páginas de autenticação. Exibe a imagem
@@ -13,7 +14,7 @@ import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-auth-layout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, FrameTitle],
   template: `
     <div class="relative min-h-screen w-full overflow-hidden">
       <img
@@ -23,6 +24,7 @@ import { RouterOutlet } from '@angular/router';
         class="pointer-events-none fixed inset-0 -z-10 h-full w-full object-cover"
       />
       <div class="pointer-events-none fixed inset-0 -z-10 bg-background/60"></div>
+      <app-frame-title class="fixed inset-x-0 top-0 z-20" [transparent]="true" />
       <router-outlet />
     </div>
   `,
