@@ -85,6 +85,19 @@ export const CURRENCIES = {
 
 export type Currency = keyof typeof CURRENCIES;
 
+export const CURRENCY_SYMBOLS: Record<Currency, string> = {
+  BRL: 'R$',
+  USD: '$',
+  EUR: '€',
+  GBP: '£',
+  JPY: '¥',
+  AUD: 'A$',
+  CAD: 'C$',
+  CHF: 'Fr',
+  CNY: '¥',
+  SEK: 'kr',
+};
+
 // ------------------------------------
 // Transaction Type
 // ------------------------------------
