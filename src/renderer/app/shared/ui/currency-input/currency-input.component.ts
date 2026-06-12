@@ -10,9 +10,9 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
+import { ZardInputGroupComponent } from '@/shared/ui/zard/components/input-group/input-group.component';
 import { ZardInputDirective } from '@/shared/ui/zard/components/input/input.directive';
 import type { ZardInputSizeVariants } from '@/shared/ui/zard/components/input/input.variants';
-import { ZardInputGroupComponent } from '@/shared/ui/zard/components/input-group/input-group.component';
 
 import {
   decimalStringToDigits,

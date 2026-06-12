@@ -5,6 +5,7 @@ import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.c
 import { ZardEmptyComponent } from '@/shared/ui/zard/components/empty';
 import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
 import { ZardTableImports } from '@/shared/ui/zard/components/table';
+import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { Account } from '@shared/types';
@@ -20,6 +21,7 @@ import { AccountsService } from './accounts.service';
     ZardButtonComponent,
     ZardBadgeComponent,
     ZardEmptyComponent,
+    CurrencyPipe,
     ...ZardTableImports,
   ],
   template: `
@@ -71,11 +73,11 @@ import { AccountsService } from './accounts.service';
                     <z-badge zType="secondary">{{ typeLabel(account.type) }}</z-badge>
                   </td>
                   <td z-table-cell>{{ providerLabel(account.accountProvider) }}</td>
-                  <td z-table-cell class="text-right tabular-nums">
-                    {{ account.balance }} {{ account.currency }}
+                  <td z-table-cell class="text-left tabular-nums">
+                    {{ account.balance | currency: account.currency }}
                   </td>
                   <td z-table-cell>
-                    <div class="flex flex-row-reverse gap-2">
+                    <div class="flex flex-row items-center gap-2 ">
                       <button
                         z-button
                         zType="ghost"
@@ -113,7 +115,9 @@ export default class Accounts {
 
   /** Rótulo amigável do tipo de conta; cai no valor cru se os tipos ainda não carregaram. */
   protected typeLabel(value: string): string {
-    return this.accountsService.accountTypes.value()?.find((o) => o.value === value)?.label ?? value;
+    return (
+      this.accountsService.accountTypes.value()?.find((o) => o.value === value)?.label ?? value
+    );
   }
 
   /** Rótulo do provedor; `—` quando ausente. */

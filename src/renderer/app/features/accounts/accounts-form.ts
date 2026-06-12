@@ -1,3 +1,4 @@
+import { CurrencyInputComponent } from '@/shared/ui/currency-input';
 import { FrameHeader } from '@/shared/ui/frame/frame-header';
 import { FramePaper } from '@/shared/ui/frame/frame-paper';
 import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
@@ -5,8 +6,8 @@ import { ZardFormModule } from '@/shared/ui/zard/components/form/form.module';
 import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
 import { ZardInputDirective } from '@/shared/ui/zard/components/input/input.directive';
 import { ZardSelectImports } from '@/shared/ui/zard/components/select';
-import { CurrencyInputComponent } from '@/shared/ui/currency-input';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { CURRENCY_SYMBOLS } from '@shared/enums';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   FieldState,
@@ -96,8 +97,8 @@ import { AccountsService } from './accounts.service';
             </z-form-field>
             <z-form-field class="col-span-2">
               <label for="currency" z-form-label>Moeda</label>
-              <z-form-control [errorMessage]="errorOf(accountForm.currency!())">
-                <z-select zPlaceholder="Escolha a moeda" [formField]="accountForm.currency!">
+              <z-form-control [errorMessage]="errorOf(accountForm.currency())">
+                <z-select zPlaceholder="Escolha a moeda" [formField]="accountForm.currency">
                   @for (currency of accountsService.currencies.value(); track currency.value) {
                     <z-select-item [zValue]="currency.value">{{ currency.label }}</z-select-item>
                   }
@@ -107,7 +108,11 @@ import { AccountsService } from './accounts.service';
             <z-form-field class="col-span-6">
               <label for="balance" z-form-label>Saldo</label>
               <z-form-control [errorMessage]="errorOf(accountForm.balance())">
-                <app-currency-input id="balance" [formField]="accountForm.balance" />
+                <app-currency-input
+                  id="balance"
+                  [formField]="accountForm.balance"
+                  [zCurrency]="currencySymbol()"
+                />
               </z-form-control>
             </z-form-field>
 
@@ -139,9 +144,13 @@ export class AccountsForm {
     type: 'cash',
     accountProvider: '',
     balance: '',
-    currency: '',
+    currency: 'BRL',
     description: '',
   });
+
+  protected readonly currencySymbol = computed(
+    () => CURRENCY_SYMBOLS[this.accountModel().currency as keyof typeof CURRENCY_SYMBOLS] ?? 'R$',
+  );
 
   protected readonly accountForm = form(this.accountModel, (schemaPath) => {
     required(schemaPath.name, { message: 'O nome da conta é obrigatório' });
