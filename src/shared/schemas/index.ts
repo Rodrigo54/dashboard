@@ -27,6 +27,27 @@ function keysOf<T extends Record<string, unknown>>(obj: T) {
 export const uuidSchema = z.uuid({ message: 'ID deve ser um UUID válido', version: 'v7' });
 const guid = () => uuidSchema;
 
+// Valores decimais (dinheiro, horas) trafegam e persistem como string decimal
+// canônica — ponto decimal, sem separador de milhar, até 2 casas (ex.: "1234.56",
+// "-45.90") — armazenada como TEXT no SQLite para preservar a precisão (mesma
+// estratégia de accounts.balance; é o formato emitido pelo app-currency-input).
+export const decimalSchema = z
+  .string()
+  .trim()
+  .regex(/^-?\d+(\.\d{1,2})?$/, 'Valor decimal inválido (use o formato "1234.56")');
+
+/** Decimal estritamente positivo (> 0) — ex.: amount, targetAmount. */
+export const positiveDecimalSchema = decimalSchema.refine(
+  (value) => Number(value) > 0,
+  'Valor deve ser maior que zero',
+);
+
+/** Decimal não-negativo (>= 0) — ex.: acumuladores como spent/currentAmount. */
+export const nonNegativeDecimalSchema = decimalSchema.refine(
+  (value) => Number(value) >= 0,
+  'Valor não pode ser negativo',
+);
+
 const timestamps = {
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
@@ -67,7 +88,7 @@ export const accountSchema = z.object({
   name: z.string().min(1).max(255),
   type: z.enum(keysOf(ACCOUNT_TYPES)),
   accountProvider: z.string().max(255).nullish(),
-  balance: z.string().default('0'),
+  balance: decimalSchema.default('0'),
   currency: z.string().length(3).default('BRL'),
   isActive: z.boolean(),
   description: z.string().nullish(),
@@ -78,7 +99,7 @@ export const createAccountSchema = z.object({
   name: z.string().min(1).max(255),
   type: z.enum(keysOf(ACCOUNT_TYPES)),
   accountProvider: z.string().max(255).optional(),
-  balance: z.string().default('0'),
+  balance: decimalSchema.default('0'),
   currency: z.string().length(3).default('BRL'),
   description: z.string().optional(),
 });
@@ -96,7 +117,7 @@ export const transactionSchema = z.object({
   toAccountId: guid().nullish(),
   type: z.enum(keysOf(TRANSACTION_TYPES)),
   category: z.enum(keysOf(TRANSACTION_CATEGORIES)),
-  amount: z.coerce.number().positive(),
+  amount: positiveDecimalSchema,
   description: z.string(),
   date: z.coerce.date(),
   projectId: guid().nullish(),
@@ -112,7 +133,7 @@ export const createTransactionSchema = z.object({
   toAccountId: guid().optional(),
   type: z.enum(keysOf(TRANSACTION_TYPES)),
   category: z.enum(keysOf(TRANSACTION_CATEGORIES)),
-  amount: z.coerce.number().positive(),
+  amount: positiveDecimalSchema,
   description: z.string().min(1),
   date: z.coerce.date(),
   projectId: guid().optional(),
@@ -134,8 +155,8 @@ export const budgetSchema = z.object({
   goalId: guid().nullish(),
   name: z.string().min(1).max(255),
   category: z.enum(keysOf(TRANSACTION_CATEGORIES)),
-  amount: z.coerce.number().positive(),
-  spent: z.coerce.number(),
+  amount: positiveDecimalSchema,
+  spent: nonNegativeDecimalSchema,
   period: z.enum(keysOf(BUDGET_PERIODS)),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
@@ -147,7 +168,7 @@ export const createBudgetSchema = z.object({
   goalId: guid().optional(),
   name: z.string().min(1).max(255),
   category: z.enum(keysOf(TRANSACTION_CATEGORIES)),
-  amount: z.coerce.number().positive(),
+  amount: positiveDecimalSchema,
   period: z.enum(keysOf(BUDGET_PERIODS)),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
@@ -165,8 +186,8 @@ export const goalSchema = z.object({
   projectId: guid().nullish(),
   name: z.string().min(1).max(255),
   description: z.string().nullish(),
-  targetAmount: z.coerce.number().positive(),
-  currentAmount: z.coerce.number(),
+  targetAmount: positiveDecimalSchema,
+  currentAmount: nonNegativeDecimalSchema,
   targetDate: z.coerce.date().nullish(),
   isCompleted: z.boolean(),
   ...timestamps,
@@ -176,7 +197,7 @@ export const createGoalSchema = z.object({
   projectId: guid().optional(),
   name: z.string().min(1).max(255),
   description: z.string().optional(),
-  targetAmount: z.coerce.number().positive(),
+  targetAmount: positiveDecimalSchema,
   targetDate: z.coerce.date().optional(),
 });
 
@@ -236,8 +257,8 @@ export const taskSchema = z.object({
   priority: z.enum(keysOf(TASK_PRIORITIES)),
   dueDate: z.coerce.date().nullish(),
   completedAt: z.coerce.date().nullish(),
-  estimatedHours: z.coerce.number().nullish(),
-  actualHours: z.coerce.number().nullish(),
+  estimatedHours: positiveDecimalSchema.nullish(),
+  actualHours: positiveDecimalSchema.nullish(),
   tags: z.array(z.guid()).default([]),
   order: z.number().int(),
   ...timestamps,
@@ -250,7 +271,7 @@ export const createTaskSchema = z.object({
   status: z.enum(keysOf(TASK_STATUSES)).default('pending'),
   priority: z.enum(keysOf(TASK_PRIORITIES)).default('medium'),
   dueDate: z.coerce.date().optional(),
-  estimatedHours: z.coerce.number().positive().optional(),
+  estimatedHours: positiveDecimalSchema.optional(),
   tags: z.array(z.guid()).default([]),
 });
 
@@ -302,7 +323,7 @@ export const transactionTemplateSchema = z.object({
   accountId: guid(),
   type: z.enum(keysOf(TRANSACTION_TYPES)),
   category: z.enum(keysOf(TRANSACTION_CATEGORIES)),
-  amount: z.coerce.number().positive(),
+  amount: positiveDecimalSchema,
   description: z.string(),
 });
 
@@ -311,7 +332,7 @@ export const taskTemplateSchema = z.object({
   description: z.string().optional(),
   priority: z.enum(keysOf(TASK_PRIORITIES)).default('medium'),
   projectId: guid().optional(),
-  estimatedHours: z.coerce.number().positive().optional(),
+  estimatedHours: positiveDecimalSchema.optional(),
 });
 
 export const recurringSchema = z.object({

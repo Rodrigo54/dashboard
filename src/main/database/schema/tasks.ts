@@ -1,4 +1,4 @@
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { enumValues, TASK_PRIORITIES, TASK_STATUSES } from '../../../shared/enums';
 import { createdAt, id, tagIds, updatedAt } from './columns';
 import { projects } from './projects';
@@ -14,12 +14,17 @@ export const tasks = sqliteTable('tasks', {
   recurringId: text('recurring_id').references(() => recurring.id, { onDelete: 'set null' }),
   title: text('title').notNull(),
   description: text('description'),
-  status: text('status', { enum: enumValues(TASK_STATUSES) }).notNull().default('pending'),
-  priority: text('priority', { enum: enumValues(TASK_PRIORITIES) }).notNull().default('medium'),
+  status: text('status', { enum: enumValues(TASK_STATUSES) })
+    .notNull()
+    .default('pending'),
+  priority: text('priority', { enum: enumValues(TASK_PRIORITIES) })
+    .notNull()
+    .default('medium'),
   dueDate: integer('due_date', { mode: 'timestamp' }),
   completedAt: integer('completed_at', { mode: 'timestamp' }),
-  estimatedHours: real('estimated_hours'),
-  actualHours: real('actual_hours'),
+  // Texto para preservar a precisão decimal (espelha os schemas zod de decimal).
+  estimatedHours: text('estimated_hours'),
+  actualHours: text('actual_hours'),
   tags: tagIds(),
   // Ordenação manual num quadro/coluna (coluna `sort_order` evita palavra reservada).
   order: integer('sort_order').notNull().default(0),

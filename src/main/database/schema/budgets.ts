@@ -1,4 +1,4 @@
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { BUDGET_PERIODS, enumValues, TRANSACTION_CATEGORIES } from '../../../shared/enums';
 import { createdAt, id, updatedAt } from './columns';
 import { goals } from './goals';
@@ -14,8 +14,9 @@ export const budgets = sqliteTable('budgets', {
   goalId: text('goal_id').references(() => goals.id, { onDelete: 'set null' }),
   name: text('name').notNull(),
   category: text('category', { enum: enumValues(TRANSACTION_CATEGORIES) }).notNull(),
-  amount: real('amount').notNull(),
-  spent: real('spent').notNull().default(0),
+  // Texto para preservar a precisão decimal (espelha os schemas zod de decimal).
+  amount: text('amount').notNull(),
+  spent: text('spent').notNull().default('0'),
   period: text('period', { enum: enumValues(BUDGET_PERIODS) }).notNull(),
   startDate: integer('start_date', { mode: 'timestamp' }).notNull(),
   endDate: integer('end_date', { mode: 'timestamp' }).notNull(),

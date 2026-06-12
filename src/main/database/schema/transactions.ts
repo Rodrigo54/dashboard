@@ -1,4 +1,4 @@
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { enumValues, TRANSACTION_CATEGORIES, TRANSACTION_TYPES } from '../../../shared/enums';
 import { accounts } from './accounts';
 import { budgets } from './budgets';
@@ -20,7 +20,8 @@ export const transactions = sqliteTable('transactions', {
   toAccountId: text('to_account_id').references(() => accounts.id, { onDelete: 'set null' }),
   type: text('type', { enum: enumValues(TRANSACTION_TYPES) }).notNull(),
   category: text('category', { enum: enumValues(TRANSACTION_CATEGORIES) }).notNull(),
-  amount: real('amount').notNull(),
+  // Texto para preservar a precisão decimal (espelha `amount: positiveDecimalSchema`).
+  amount: text('amount').notNull(),
   description: text('description').notNull(),
   date: integer('date', { mode: 'timestamp' }).notNull(),
   projectId: text('project_id').references(() => projects.id, { onDelete: 'set null' }),

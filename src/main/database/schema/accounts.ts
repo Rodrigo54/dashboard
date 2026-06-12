@@ -11,7 +11,7 @@ export const accounts = sqliteTable('accounts', {
   name: text('name').notNull(),
   type: text('type', { enum: enumValues(ACCOUNT_TYPES) }).notNull(),
   accountProvider: text('account_provider'),
-  // Texto para preservar a precisão decimal (espelha `balance: z.string()`).
+  // Texto para preservar a precisão decimal (espelha `balance: decimalSchema`).
   balance: text('balance').notNull().default('0'),
   currency: text('currency').notNull().default('BRL'),
   isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
