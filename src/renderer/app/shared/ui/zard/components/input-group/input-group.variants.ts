@@ -4,11 +4,11 @@ import { mergeClasses } from '@/shared/ui/zard/utils/merge-classes';
 
 export const inputGroupVariants = cva(
   mergeClasses(
-    'rounded-md flex items-stretch w-full min-w-0 transition-colors',
+    'rounded-md flex items-baseline leading-none w-full min-w-0 transition-colors',
     'border border-input shadow-xs shadow-foreground/35 bg-foreground/5',
     '[&_input[z-input]]:border-0! [&_input[z-input]]:bg-transparent! [&_input[z-input]]:outline-none!',
     '[&_input[z-input]]:ring-0! [&_input[z-input]]:ring-offset-0! [&_input[z-input]]:px-0!',
-    '[&_input[z-input]]:py-0! [&_input[z-input]]:h-full! [&_input[z-input]]:flex-1',
+    '[&_input[z-input]]:py-0! [&_input[z-input]]:h-full! [&_input[z-input]]:flex-1 [&_input[z-input]]:leading-none!',
     '[&_textarea[z-input]]:border-0! [&_textarea[z-input]]:bg-transparent! [&_textarea[z-input]]:outline-none!',
     '[&_textarea[z-input]]:ring-0! [&_textarea[z-input]]:ring-offset-0! [&_textarea[z-input]]:px-2.5! [&_textarea[z-input]]:py-2!',
     'has-[textarea]:flex-col has-[textarea]:h-auto',
@@ -120,9 +120,9 @@ export const inputGroupInputVariants = cva(
   {
     variants: {
       zSize: {
-        sm: 'h-8.5 px-0.5 py-0 text-xs',
-        default: 'h-9.5 px-0.5 py-0 text-sm',
-        lg: 'h-10.5 px-0.5 py-0 text-base',
+        sm: 'h-8.5 px-1 py-0 text-xs',
+        default: 'h-9.5 px-1 py-0 text-sm',
+        lg: 'h-10.5 px-1 py-0 text-base',
       },
       zHasAddonBefore: {
         true: 'border-l-0 rounded-l-none',
