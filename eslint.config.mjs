@@ -1,8 +1,8 @@
 // @ts-check
 import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import angular from 'angular-eslint';
 import prettier from 'eslint-config-prettier';
+import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
@@ -48,10 +48,7 @@ export default tseslint.config(
   // -------- Templates Angular (HTML) --------
   {
     files: ['src/renderer/**/*.html'],
-    extends: [
-      ...angular.configs.templateRecommended,
-      ...angular.configs.templateAccessibility,
-    ],
+    extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
     rules: {},
   },
 
@@ -73,6 +70,16 @@ export default tseslint.config(
     },
   },
 
+  // -------- Limites de tamanho (todo o código-fonte) --------
+  // Muitos arquivos pequenos em vez de poucos grandes (ver CLAUDE.md).
+  {
+    files: ['src/**/*.ts'],
+    rules: {
+      'max-lines': ['error', { max: 400, skipBlankLines: true, skipComments: true }],
+      'max-lines-per-function': ['error', { max: 75, skipBlankLines: true, skipComments: true }],
+    },
+  },
+
   // -------- Design system zard (componentes portados) --------
   // Anexa-se a elementos HTML nativos (table[z-table], input[z-input]...) e usa
   // utilitários genéricos — relaxa regras de seletor/`any` para a lib vendorizada.
@@ -82,6 +89,8 @@ export default tseslint.config(
       '@angular-eslint/component-selector': 'off',
       '@angular-eslint/directive-selector': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
     },
   },
 
