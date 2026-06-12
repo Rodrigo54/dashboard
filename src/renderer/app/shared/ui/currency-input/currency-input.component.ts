@@ -4,6 +4,7 @@ import {
   effect,
   ElementRef,
   input,
+  linkedSignal,
   model,
   viewChild,
   ViewEncapsulation,
@@ -18,6 +19,7 @@ import {
   decimalStringToDigits,
   digitsToDecimalString,
   digitsToMasked,
+  isNegativeDecimal,
   sanitizeDigits,
 } from './currency.utils';
 
@@ -58,6 +60,7 @@ import {
         inputmode="numeric"
         autocomplete="off"
         [attr.aria-label]="zCurrency()"
+        (keydown)="onKeyDown($event)"
         (input)="onInput()"
         (focus)="moveCaretToEnd()"
         (mouseup)="moveCaretToEnd()"
@@ -81,12 +84,20 @@ export class CurrencyInputComponent implements FormValueControl<string> {
   private readonly element = viewChild.required<ElementRef<HTMLInputElement>>('control');
   private readonly zInput = viewChild.required('control', { read: ZardInputDirective });
 
+  /** Rastreia o sinal do valor; reseta automaticamente quando `value` muda externamente. */
+  private readonly _negative = linkedSignal(() => isNegativeDecimal(this.value()));
+
   constructor() {
     // Sincroniza modelo -> view (carga inicial, edição, resets) através do
     // `value` da diretiva — o effect dela espelha o texto no `el.value`.
     effect(() => {
       const decimals = this.zDecimals();
-      const masked = digitsToMasked(decimalStringToDigits(this.value(), decimals), decimals);
+      const negative = this._negative();
+      const masked = digitsToMasked(
+        decimalStringToDigits(this.value(), decimals),
+        decimals,
+        negative,
+      );
 
       this.zInput().value.set(masked);
     });
@@ -95,11 +106,27 @@ export class CurrencyInputComponent implements FormValueControl<string> {
   /** Reextrai os dígitos do texto cru, reformata pela direita e atualiza o modelo. */
   protected onInput(): void {
     const decimals = this.zDecimals();
+    const negative = this._negative();
     const digits = sanitizeDigits(this.element().nativeElement.value);
 
     // Corrige o texto exibido mesmo quando o modelo não muda (ex.: letras digitadas).
-    this.zInput().value.set(digitsToMasked(digits, decimals));
-    this.value.set(digitsToDecimalString(digits, decimals));
+    this.zInput().value.set(digitsToMasked(digits, decimals, negative));
+    this.value.set(digitsToDecimalString(digits, decimals, negative));
+  }
+
+  /** Alterna o sinal ao pressionar `-`; ignora para outros atalhos. */
+  protected onKeyDown(event: KeyboardEvent): void {
+    if (event.key !== '-') return;
+
+    event.preventDefault();
+    const decimals = this.zDecimals();
+    const digits = sanitizeDigits(this.element().nativeElement.value);
+
+    this._negative.update((n) => !n);
+    const negative = this._negative();
+
+    this.zInput().value.set(digitsToMasked(digits, decimals, negative));
+    this.value.set(digitsToDecimalString(digits, decimals, negative));
   }
 
   /** Mantém o caret ancorado no fim — a digitação sempre preenche pela direita. */
