@@ -1,5 +1,6 @@
-import '@analogjs/vite-plugin-angular/setup-vitest';
-import { getTestBed } from '@angular/core/testing';
-import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
+import '@angular/compiler';
+import '@analogjs/vitest-angular/setup-snapshots';
+import '@analogjs/vitest-angular/setup-serializers';
+import { setupTestBed } from '@analogjs/vitest-angular/setup-testbed';
 
-getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+setupTestBed();
