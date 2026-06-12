@@ -24,8 +24,12 @@ bun run typecheck        # type-check do main e do renderer (tsc --noEmit)
 bun run lint             # eslint .
 bun run lint:fix         # eslint . --fix
 bun run format           # prettier --write "src/**/*.{ts,html,css,json}"
-bun test                 # testes unitários (Vitest via @angular/build:unit-test)
+bun run test             # testes unitários (vitest run)
 ```
+
+> **Use `bun run test`, não `bun test`**: sem o `run`, o Bun intercepta o
+> subcomando e usa o test runner nativo dele, que não carrega o setup do
+> Angular — os specs falham com `Need to call TestBed.initTestEnvironment()`.
 
 `bun run dev` é o ponto de entrada normal: o electron-vite serve o renderer (Vite
 dev server), builda main/preload e sobe o Electron, que carrega o renderer via
@@ -80,8 +84,11 @@ Bundler` + `noEmit` (só type-check; o Vite emite). **Imports relativos não
 - **`src/shared/`** — contrato compartilhado entre os processos, importável dos
   dois lados sem acoplar runtimes. Centraliza: `ipc-channels.d.ts` (canais de IPC
   tipados, fonte única de verdade), `enums/` (constantes `{ value: label }` +
-  helpers `enumValues`/`enumOptions`), `schemas/` (schemas **Zod** de validação) e
-  `types/` (tipos inferidos dos schemas via `z.infer`). Reexportado por
+  helpers `enumValues`/`enumOptions`), `schemas/` (schemas **Zod** de validação,
+  um arquivo por entidade + `common.schema.ts` com os primitivos públicos —
+  `uuidSchema`, `decimalSchema`, etc. — e os helpers internos `keysOf`/`guid`/
+  `timestamps`, que o barrel `schemas/index.ts` **não** reexporta) e `types/`
+  (tipos inferidos dos schemas via `z.infer`). Reexportado por
   `shared/index.ts`.
 
 Esses dois processos se comunicam por uma única ponte de IPC deliberadamente
@@ -218,9 +225,11 @@ relativos** — o drizzle-kit a importa direto, ignorando os paths do tsconfig.
 
 - **ESLint** (flat config em `eslint.config.mjs`) com blocos distintos: renderer
   (angular-eslint + templates HTML com regras de acessibilidade), main/preload/
-  shared (TS/Node, `no-console` liberado), e um bloco que **relaxa** regras de
-  seletor/`any` para a lib zard vendorizada. `out/`, `dist/`, `release/`,
-  `drizzle/` e `.data/` são ignorados.
+  shared (TS/Node, `no-console` liberado), limites de tamanho para todo
+  `src/**/*.ts` (`max-lines: 400` e `max-lines-per-function: 75`, ignorando
+  linhas em branco e comentários), e um bloco que **relaxa** regras de
+  seletor/`any` e os limites de tamanho para a lib zard vendorizada. `out/`,
+  `dist/`, `release/`, `drizzle/` e `.data/` são ignorados.
 - **Prettier** roda por último no ESLint via `eslint-config-prettier` (desativa
   regras conflitantes). Formate com `bun run format`.
 - Um hook **PostToolUse** (`.claude/settings.json` → `scripts/format-hook.mjs`)
@@ -266,7 +275,8 @@ Conventional commits com emojis:
 
 - Muitos arquivos pequenos em vez de poucos arquivos grandes
 - Alta coesão, baixo acoplamento
-- 200-400 linhas típico, 800 máximo por arquivo
+- Máximo de 400 linhas por arquivo e 75 por função (imposto pelo ESLint;
+  a zard vendorizada é isenta)
 - Organize por feature/domínio, não por tipo
 
 ### 2. Estilo de Código
