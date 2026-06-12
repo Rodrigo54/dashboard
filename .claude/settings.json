@@ -1,4 +1,7 @@
 {
+  "permissions": {
+    "allow": ["Edit(/**)", "Bash(bun run *)"]
+  },
   "hooks": {
     "PostToolUse": [
       {
