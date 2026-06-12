@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "dashboard",
@@ -28,7 +29,6 @@
         "@angular/build": "^22.0.0",
         "@angular/cli": "^22.0.0",
         "@angular/compiler-cli": "^22.0.0",
-        "@angular/platform-browser-dynamic": "^22.0.1",
         "@commitlint/cli": "^21.0.2",
         "@commitlint/config-conventional": "^21.0.2",
         "@electron-toolkit/utils": "^4.0.0",
@@ -52,7 +52,6 @@
         "typescript-eslint": "^8.61.0",
         "vite": "^7",
         "vitest": "^4.0.8",
-        "zone.js": "^0.16.2",
       },
     },
   },
@@ -128,8 +127,6 @@
     "@angular/forms": ["@angular/forms@22.0.0", "", { "dependencies": { "@standard-schema/spec": "^1.0.0", "tslib": "^2.3.0", "zod": "^4.0.10" }, "peerDependencies": { "@angular/common": "22.0.0", "@angular/core": "22.0.0", "@angular/platform-browser": "22.0.0", "rxjs": "^6.5.3 || ^7.4.0" } }, "sha512-OjyiF0hgbNXrFbIgqazyNJlFTtqfU0kfwJgmlMr4FG+e9P89UmgZhELUWs1CIuNX+jhh3DePm+Fo26dJIS7cfg=="],
 
     "@angular/platform-browser": ["@angular/platform-browser@22.0.0", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/animations": "22.0.0", "@angular/common": "22.0.0", "@angular/core": "22.0.0" }, "optionalPeers": ["@angular/animations"] }, "sha512-ry4Hdov19V8sA+MrIEIeISXA8GKWluCDUg06PaAm9nJveYjQUUlElZqa3fTNGOmy3/eNV8H9nmaroD27L8yU1A=="],
-
-    "@angular/platform-browser-dynamic": ["@angular/platform-browser-dynamic@22.0.1", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/common": "22.0.1", "@angular/compiler": "22.0.1", "@angular/core": "22.0.1", "@angular/platform-browser": "22.0.1" } }, "sha512-Z0h2gVNxPoJqzon7OlOhfScuMgPyW4qbJZAZCBMRYC8se+7YP1w81dw5dmqyeqf66pD+NwhkJXL1hOrYKK1m2g=="],
 
     "@angular/router": ["@angular/router@22.0.0", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular/common": "22.0.0", "@angular/core": "22.0.0", "@angular/platform-browser": "22.0.0", "rxjs": "^6.5.3 || ^7.4.0" } }, "sha512-CCtonkDVkkfKLtuKol8rC1zmWI4QX7w3uUtdlOoz6K9HXAhpZYGcSq5RyloA767QLj36u7108K9xHBs2abOajQ=="],
 
