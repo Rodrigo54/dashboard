@@ -25,6 +25,8 @@ export interface ControllerChannelMap {
   appdata: 'read';
   environment: 'read';
   accounts: CrudAction | 'types' | 'providers' | 'currencies';
+  transactions: CrudAction | 'types' | 'categories';
+  recurring: Exclude<CrudAction, 'save'> | 'frequencies' | 'pause' | 'resume' | 'materialize';
 }
 
 /** União de todos os canais válidos no formato `controller:action`. */

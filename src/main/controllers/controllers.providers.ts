@@ -4,8 +4,17 @@ import { AppDataController } from './appdata.controller';
 import { AuthController } from './auth.controller';
 import { getControllerActions, getControllerName } from './controller.decorator';
 import { EnvironmentController } from './environment.controller';
+import { RecurringController } from './recurring.controller';
+import { TransactionsController } from './transactions.controller';
 
-const controllers = [AuthController, AppDataController, AccountsController, EnvironmentController];
+const controllers = [
+  AuthController,
+  AppDataController,
+  AccountsController,
+  EnvironmentController,
+  TransactionsController,
+  RecurringController,
+];
 
 export function initControllers() {
   for (const Controller of controllers) {
