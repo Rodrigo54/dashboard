@@ -114,14 +114,15 @@ export type TransactionType = keyof typeof TRANSACTION_TYPES;
 // Transaction Category
 // ------------------------------------
 
-export const TRANSACTION_CATEGORIES = {
-  // Receitas
+export const INCOME_CATEGORIES = {
   salary: 'Salário',
   freelance: 'Freelance',
   investment_return: 'Retorno de Investimento',
   gift: 'Presente',
   other_income: 'Outra Receita',
-  // Despesas
+} as const;
+
+export const EXPENSE_CATEGORIES = {
   food: 'Alimentação',
   transport: 'Transporte',
   housing: 'Moradia',
@@ -135,7 +136,18 @@ export const TRANSACTION_CATEGORIES = {
   other_expense: 'Outra Despesa',
 } as const;
 
+export const TRANSACTION_CATEGORIES = {
+  ...INCOME_CATEGORIES,
+  ...EXPENSE_CATEGORIES,
+} as const;
+
 export type TransactionCategory = keyof typeof TRANSACTION_CATEGORIES;
+
+/** Subconjunto de categorias válido para cada tipo de transação (form e validação). */
+export const TRANSACTION_CATEGORIES_BY_TYPE = {
+  income: INCOME_CATEGORIES,
+  expense: EXPENSE_CATEGORIES,
+} as const;
 
 // ------------------------------------
 // Task Status
