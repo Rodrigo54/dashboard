@@ -35,3 +35,11 @@ export const createTransactionSchema = z.object({
 });
 
 export const updateTransactionSchema = createTransactionSchema.partial();
+
+/** Filtro do `transactions:list`: um mês por vez + filtros opcionais. */
+export const listTransactionsSchema = z.object({
+  year: z.number().int().min(2000).max(2100),
+  month: z.number().int().min(1).max(12),
+  accountId: guid().optional(),
+  type: z.enum(keysOf(TRANSACTION_TYPES)).optional(),
+});
