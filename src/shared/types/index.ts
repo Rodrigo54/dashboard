@@ -38,6 +38,7 @@ import {
   taskSchema,
   taskTemplateSchema,
   // Transactions
+  listTransactionsSchema,
   transactionSchema,
   transactionTemplateSchema,
   updateAccountSchema,
@@ -82,6 +83,7 @@ export type UpdateAccount = z.infer<typeof updateAccountSchema>;
 export type Transaction = z.infer<typeof transactionSchema>;
 export type CreateTransaction = z.infer<typeof createTransactionSchema>;
 export type UpdateTransaction = z.infer<typeof updateTransactionSchema>;
+export type ListTransactionsFilter = z.infer<typeof listTransactionsSchema>;
 
 // ============================================================
 // Budgets
