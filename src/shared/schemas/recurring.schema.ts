@@ -60,4 +60,7 @@ export const createRecurringSchema = z.object({
   endDate: z.coerce.date().optional(),
 });
 
-export const updateRecurringSchema = createRecurringSchema.partial();
+// `endDate: null` limpa a data fim (volta a ser uma recorrência sem término).
+export const updateRecurringSchema = createRecurringSchema.partial().extend({
+  endDate: z.coerce.date().nullable().optional(),
+});
