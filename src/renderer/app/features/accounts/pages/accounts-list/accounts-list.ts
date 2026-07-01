@@ -1,15 +1,15 @@
-import { FrameHeader } from '@/shared/ui/frame/frame-header';
-import { FramePaper } from '@/shared/ui/frame/frame-paper';
-import { ZardBadgeComponent } from '@/shared/ui/zard/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
-import { ZardEmptyComponent } from '@/shared/ui/zard/components/empty';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
-import { ZardTableImports } from '@/shared/ui/zard/components/table';
+import { FrameHeader } from '@/shared/frame/frame-header';
+import { FramePaper } from '@/shared/frame/frame-paper';
+import { ZardBadgeComponent } from '@/shared/zard/components/badge/badge.component';
+import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { ZardEmptyComponent } from '@/shared/zard/components/empty';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { ZardTableImports } from '@/shared/zard/components/table';
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { Account } from '@shared/types';
-import { AccountsService } from './accounts.service';
+import { AccountsService } from '../../shared/accounts.service';
 
 @Component({
   selector: 'app-accounts',
@@ -109,7 +109,7 @@ import { AccountsService } from './accounts.service';
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class Accounts {
+export default class AccountsList {
   protected readonly accountsService = inject(AccountsService);
   protected readonly accounts = this.accountsService.accounts;
 

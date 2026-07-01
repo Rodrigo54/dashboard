@@ -1,7 +1,7 @@
 import { Injectable, resource } from '@angular/core';
 import type { Account, CreateAccount, UpdateAccount, UUID } from '@shared/types';
 
-import { invoke } from '@/shared/ipc/invoke';
+import { invoke } from '@/core/ipc/invoke';
 
 /** Opção `{ value, label }` para selects, espelhando `enumOptions` do main. */
 export interface EnumOption {

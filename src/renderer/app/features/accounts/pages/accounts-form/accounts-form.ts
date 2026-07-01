@@ -1,11 +1,11 @@
-import { CurrencyInputComponent } from '@/shared/ui/currency-input';
-import { FrameHeader } from '@/shared/ui/frame/frame-header';
-import { FramePaper } from '@/shared/ui/frame/frame-paper';
-import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
-import { ZardFormModule } from '@/shared/ui/zard/components/form/form.module';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
-import { ZardInputDirective } from '@/shared/ui/zard/components/input/input.directive';
-import { ZardSelectImports } from '@/shared/ui/zard/components/select';
+import { CurrencyInputComponent } from '@/shared/currency-input';
+import { FrameHeader } from '@/shared/frame/frame-header';
+import { FramePaper } from '@/shared/frame/frame-paper';
+import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { ZardFormModule } from '@/shared/zard/components/form/form.module';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
+import { ZardSelectImports } from '@/shared/zard/components/select';
 import { CURRENCY_SYMBOLS } from '@shared/enums';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -20,7 +20,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { createAccountSchema } from '@shared/schemas';
 import { CreateAccount, UUID } from '@shared/types';
-import { AccountsService } from './accounts.service';
+import { AccountsService } from '../../shared/accounts.service';
 
 @Component({
   selector: 'app-accounts-form',

@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
-import Accounts from './accounts';
-import { AccountsForm } from './accounts-form';
+import AccountsList from './pages/accounts-list/accounts-list';
+import { AccountsForm } from './pages/accounts-form/accounts-form';
 
 const routes: Routes = [
   {
     path: '',
-    component: Accounts,
+    component: AccountsList,
   },
   {
     path: 'new',
