@@ -1,12 +1,12 @@
-import { AccountsService } from '@/features/accounts/accounts.service';
-import { CurrencyInputComponent } from '@/shared/ui/currency-input';
-import { FrameHeader } from '@/shared/ui/frame/frame-header';
-import { FramePaper } from '@/shared/ui/frame/frame-paper';
-import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
-import { ZardFormModule } from '@/shared/ui/zard/components/form/form.module';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
-import { ZardInputDirective } from '@/shared/ui/zard/components/input/input.directive';
-import { ZardSelectImports } from '@/shared/ui/zard/components/select';
+import { AccountsService } from '@/features/accounts/shared/accounts.service';
+import { CurrencyInputComponent } from '@/shared/currency-input';
+import { FrameHeader } from '@/shared/frame/frame-header';
+import { FramePaper } from '@/shared/frame/frame-paper';
+import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { ZardFormModule } from '@/shared/zard/components/form/form.module';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
+import { ZardSelectImports } from '@/shared/zard/components/select';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -28,10 +28,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CURRENCY_SYMBOLS, type RecurringFrequency, type TransactionType } from '@shared/enums';
 import { positiveDecimalSchema } from '@shared/schemas';
 import type { UUID } from '@shared/types';
-import { toDateInputValue } from './date-input.utils';
-import { RecurringService } from './recurring.service';
-import { buildCreateRecurring, buildCreateTransaction } from './transaction-payloads';
-import { TransactionsService } from './transactions.service';
+import { toDateInputValue } from '../../shared/date-input.utils';
+import { RecurringService } from '../../shared/recurring.service';
+import { buildCreateRecurring, buildCreateTransaction } from '../../shared/transactions-payloads';
+import { TransactionsService } from '../../shared/transactions.service';
 
 /** Modelo do form: datas como string de `<input type="date">`. */
 export interface TransactionFormModel {

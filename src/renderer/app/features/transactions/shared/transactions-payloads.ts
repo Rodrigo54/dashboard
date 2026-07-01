@@ -8,8 +8,8 @@ import type {
   UUID,
 } from '@shared/types';
 import { fromDateInputValue } from './date-input.utils';
-import type { RecurringFormModel } from './recurring-form';
-import type { TransactionFormModel } from './transactions-form';
+import type { RecurringFormModel } from '../pages/recurring-form/recurring-form';
+import type { TransactionFormModel } from '../pages/transactions-form/transactions-form';
 
 /** Converte o modelo do form no payload de `transactions:create`/`save`. */
 export function buildCreateTransaction(model: TransactionFormModel): CreateTransaction {

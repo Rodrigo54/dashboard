@@ -1,7 +1,7 @@
-import { FrameHeader } from '@/shared/ui/frame/frame-header';
-import { FramePaper } from '@/shared/ui/frame/frame-paper';
-import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
+import { FrameHeader } from '@/shared/frame/frame-header';
+import { FramePaper } from '@/shared/frame/frame-paper';
+import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TransactionsTable } from './transactions-table';
@@ -37,4 +37,4 @@ import { TransactionsTable } from './transactions-table';
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class Transactions {}
+export default class TransactionsList {}

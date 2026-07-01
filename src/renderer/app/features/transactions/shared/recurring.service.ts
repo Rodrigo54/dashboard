@@ -1,4 +1,4 @@
-import { invoke } from '@/shared/ipc/invoke';
+import { invoke } from '@/core/ipc/invoke';
 import { Injectable, resource } from '@angular/core';
 import type { CreateRecurring, Recurring, UpdateRecurring, UUID } from '@shared/types';
 import type { EnumOption } from './transactions.service';

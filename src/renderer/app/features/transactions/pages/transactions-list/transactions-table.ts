@@ -1,10 +1,10 @@
-import { AccountsService } from '@/features/accounts/accounts.service';
-import { ZardBadgeComponent } from '@/shared/ui/zard/components/badge/badge.component';
-import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
-import { ZardEmptyComponent } from '@/shared/ui/zard/components/empty';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
-import { ZardSelectImports } from '@/shared/ui/zard/components/select';
-import { ZardTableImports } from '@/shared/ui/zard/components/table';
+import { AccountsService } from '@/features/accounts/shared/accounts.service';
+import { ZardBadgeComponent } from '@/shared/zard/components/badge/badge.component';
+import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { ZardEmptyComponent } from '@/shared/zard/components/empty';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { ZardSelectImports } from '@/shared/zard/components/select';
+import { ZardTableImports } from '@/shared/zard/components/table';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -12,8 +12,8 @@ import type { TransactionType } from '@shared/enums';
 import type { Recurring, Transaction, UUID } from '@shared/types';
 import { byDateThenForecast, transactionToRow, type LedgerRow } from './ledger-row';
 import { forecastRows } from './recurring-forecast';
-import { RecurringService } from './recurring.service';
-import { TransactionsService } from './transactions.service';
+import { RecurringService } from '../../shared/recurring.service';
+import { TransactionsService } from '../../shared/transactions.service';
 
 type Scope = 'all' | 'recurring';
 

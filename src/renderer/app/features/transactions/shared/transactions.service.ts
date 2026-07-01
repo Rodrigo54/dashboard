@@ -1,4 +1,4 @@
-import { invoke } from '@/shared/ipc/invoke';
+import { invoke } from '@/core/ipc/invoke';
 import { computed, Injectable, resource, signal } from '@angular/core';
 import type { TransactionType } from '@shared/enums';
 import type {

@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-import { RecurringForm } from './recurring-form';
-import Transactions from './transactions';
-import { TransactionsForm } from './transactions-form';
+import { RecurringForm } from './pages/recurring-form/recurring-form';
+import TransactionsList from './pages/transactions-list/transactions-list';
+import { TransactionsForm } from './pages/transactions-form/transactions-form';
 
 const routes: Routes = [
   {
     path: '',
-    component: Transactions,
+    component: TransactionsList,
   },
   {
     path: 'new',
