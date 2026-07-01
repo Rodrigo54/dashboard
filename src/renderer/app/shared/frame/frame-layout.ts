@@ -6,6 +6,7 @@ import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component'
 import { LayoutImports } from '@/shared/zard/components/layout';
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { AuthService } from '@renderer/app/features/auth/auth.service';
 import { AppData } from '@shared/types';
 import { FrameSidebar } from './frame-sidebar';
 import { FrameTitle } from './frame-title';
@@ -86,7 +87,7 @@ import { FrameService } from './frame.service';
 })
 export class FrameLayout {
   frame = inject(FrameService);
-  // #authService = inject(AuthService);
+  readonly #auth = inject(AuthService);
   router = inject(Router);
 
   readonly appData = resource<AppData, unknown>({
@@ -102,7 +103,7 @@ export class FrameLayout {
   });
 
   async logoff(): Promise<void> {
-    // await this.#authService.logout();
-    this.router.navigate(['/auth/login']);
+    await this.#auth.logout();
+    this.router.navigate(['/auth/welcome']);
   }
 }
