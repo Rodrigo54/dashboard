@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardIcon } from '@/shared/zard/components/icon/icons';
 import { LayoutImports } from '@/shared/zard/components/layout';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FrameProfile } from './frame-profile';
 import { FrameService } from './frame.service';
 
@@ -83,10 +83,12 @@ export class FrameSidebar {
   frame = inject(FrameService);
   sidebarCollapsed = this.frame.sidebarCollapsed;
   mainMenuItems: MenuItem[] = [
-    { icon: 'inbox', label: 'Inbox', link: '/inbox' },
-    { icon: 'calendar', label: 'Calendário', link: '/calendar' },
     { icon: 'landmark', label: 'Contas', link: '/accounts' },
     { icon: 'book-open', label: 'Transações', link: '/transactions' },
+    { icon: 'file-text', label: 'Importar Extrato', link: '/import' },
+
+    { icon: 'inbox', label: 'Inbox', link: '/inbox' },
+    { icon: 'calendar', label: 'Calendário', link: '/calendar' },
     { icon: 'search', label: 'Buscar', link: '/search' },
     { icon: 'folder', label: 'Projetos', link: '/projects' },
   ];
