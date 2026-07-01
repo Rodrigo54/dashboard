@@ -20,10 +20,9 @@ export type CrudAction = 'create' | 'save' | 'read' | 'update' | 'remove' | 'lis
  * com `@action('...')`).
  */
 export interface ControllerChannelMap {
-  ping: CrudAction | 'timestamp';
   auth: 'check' | 'login' | 'register' | 'logout' | 'me';
-  appdata: 'read';
-  environment: 'read';
+  application: 'env' | 'info';
+  notes: 'list' | 'create';
   accounts: CrudAction | 'types' | 'providers' | 'currencies';
   transactions: CrudAction | 'types' | 'categories';
   recurring: Exclude<CrudAction, 'save'> | 'frequencies' | 'pause' | 'resume' | 'materialize';
