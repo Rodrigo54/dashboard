@@ -72,6 +72,19 @@ export class TransactionsService {
     this.month.set(next.getMonth() + 1);
   }
 
+  /** Volta a listagem para o mês atual. */
+  goToToday(): void {
+    const today = new Date();
+    this.year.set(today.getFullYear());
+    this.month.set(today.getMonth() + 1);
+  }
+
+  /** Verdadeiro quando o mês exibido é o mês atual. */
+  readonly isCurrentMonth = computed(() => {
+    const today = new Date();
+    return this.year() === today.getFullYear() && this.month() === today.getMonth() + 1;
+  });
+
   findOne(id: UUID): Promise<Transaction> {
     return invoke<Transaction>('transactions:read', id);
   }

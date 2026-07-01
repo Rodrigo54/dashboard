@@ -60,7 +60,18 @@ type Scope = 'all' | 'recurring';
           </button>
         </div>
         <div class="bg-border h-6 w-px"></div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1">
+          <button
+            z-button
+            zType="ghost"
+            zSize="sm"
+            [disabled]="service.isCurrentMonth()"
+            (click)="service.goToToday()"
+            aria-label="Voltar para o mês atual"
+          >
+            <i z-icon zType="arrow-left"></i>
+            Hoje
+          </button>
           <button
             z-button
             zType="ghost"
@@ -70,9 +81,6 @@ type Scope = 'all' | 'recurring';
           >
             <i z-icon zType="chevron-left"></i>
           </button>
-          <span class="min-w-36 text-center font-medium capitalize">{{
-            service.monthLabel()
-          }}</span>
           <button
             z-button
             zType="ghost"
@@ -82,6 +90,7 @@ type Scope = 'all' | 'recurring';
           >
             <i z-icon zType="chevron-right"></i>
           </button>
+          <span class="ml-2 text-base font-semibold capitalize">{{ service.monthLabel() }}</span>
         </div>
       </div>
       <div class="flex items-center gap-2">
