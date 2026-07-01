@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   RECURRING_FREQUENCIES,
+  RECURRING_SOURCES,
   RECURRING_STATUSES,
   RECURRING_TYPES,
   TASK_PRIORITIES,
@@ -46,6 +47,8 @@ export const recurringSchema = z.object({
   endDate: z.coerce.date().nullish(),
   nextDate: z.coerce.date().nullish(),
   status: z.enum(keysOf(RECURRING_STATUSES)),
+  source: z.enum(keysOf(RECURRING_SOURCES)).default('manual'),
+  autoMaterialize: z.boolean().default(true),
   executionCount: z.number().int(),
   ...timestamps,
 });
@@ -58,6 +61,10 @@ export const createRecurringSchema = z.object({
   recurringPattern: recurringPatternSchema,
   startDate: z.coerce.date(),
   endDate: z.coerce.date().optional(),
+  // Omitidos assumem os defaults do banco (`manual` / auto-materializar). A
+  // detecção de extratos passa explicitamente `imported` / `false`.
+  source: z.enum(keysOf(RECURRING_SOURCES)).optional(),
+  autoMaterialize: z.boolean().optional(),
 });
 
 // `endDate: null` limpa a data fim (volta a ser uma recorrência sem término).

@@ -16,6 +16,8 @@ export const transactionSchema = z.object({
   budgetId: guid().nullish(),
   goalId: guid().nullish(),
   recurringId: guid().nullish(),
+  // Impressão digital da linha de extrato importada (null se criada à mão).
+  importFingerprint: z.string().nullish(),
   tags: z.array(z.guid()).default([]),
   ...timestamps,
 });

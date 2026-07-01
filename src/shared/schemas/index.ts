@@ -20,5 +20,6 @@ export * from './project.schema';
 export * from './task.schema';
 export * from './tag.schema';
 export * from './recurring.schema';
+export * from './import.schema';
 export * from './note.schema';
 export * from './task-comment.schema';
