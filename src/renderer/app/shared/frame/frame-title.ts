@@ -1,4 +1,4 @@
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { WindowControlsService } from './window-controls.service';
 

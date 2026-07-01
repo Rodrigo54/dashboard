@@ -1,9 +1,9 @@
-import { invoke } from '@/shared/ipc/invoke';
-import { ZardBreadcrumbImports } from '@/shared/ui/zard/components/breadcrumb';
-import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
-import { ZardDividerComponent } from '@/shared/ui/zard/components/divider';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
-import { LayoutImports } from '@/shared/ui/zard/components/layout';
+import { invoke } from '@/core/ipc/invoke';
+import { ZardBreadcrumbImports } from '@/shared/zard/components/breadcrumb';
+import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { ZardDividerComponent } from '@/shared/zard/components/divider';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { LayoutImports } from '@/shared/zard/components/layout';
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AppData } from '@shared/types';

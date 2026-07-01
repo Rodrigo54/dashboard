@@ -1,6 +1,6 @@
-import { invoke } from '@/shared/ipc/invoke';
-import { ZardAvatarComponent } from '@/shared/ui/zard/components/avatar';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
+import { invoke } from '@/core/ipc/invoke';
+import { ZardAvatarComponent } from '@/shared/zard/components/avatar';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
 import { PublicUser } from '@renderer/app/features/auth/auth.service';
 import { FrameService } from './frame.service';

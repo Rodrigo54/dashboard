@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
-import { ZardIcon } from '@/shared/ui/zard/components/icon/icons';
-import { LayoutImports } from '@/shared/ui/zard/components/layout';
+import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { ZardIcon } from '@/shared/zard/components/icon/icons';
+import { LayoutImports } from '@/shared/zard/components/layout';
 import { FrameProfile } from './frame-profile';
 import { FrameService } from './frame.service';
 
