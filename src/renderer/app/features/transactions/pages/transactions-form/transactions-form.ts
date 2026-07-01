@@ -60,7 +60,140 @@ export interface TransactionFormModel {
     ZardSelectImports,
     CurrencyInputComponent,
   ],
-  templateUrl: './transactions-form.html',
+  template: `
+    <div>
+      <app-frame-header>
+        <z-icon slot="icon" zSize="4xl" zType="arrow-right-left"></z-icon>
+        <h1 slot="title">{{ isEdit() ? 'Editar Transação' : 'Nova Transação' }}</h1>
+        <p slot="subtitle">
+          {{ isEdit() ? 'Atualize os detalhes da transação' : 'Registre uma receita ou despesa' }}
+        </p>
+      </app-frame-header>
+      <app-frame-paper>
+        <div class="w-full">
+          <form (ngSubmit)="onSubmit()" class="grid grid-cols-6 gap-8">
+            <z-form-field class="col-span-6">
+              <label for="description" z-form-label>Descrição</label>
+              <z-form-control [errorMessage]="errorOf(transactionForm.description())">
+                <input
+                  z-input
+                  type="text"
+                  id="description"
+                  [formField]="transactionForm.description"
+                  placeholder="Ex.: Salário, Aluguel, Mercado"
+                />
+              </z-form-control>
+            </z-form-field>
+
+            <z-form-field class="col-span-3">
+              <label for="accountId" z-form-label>Conta</label>
+              <z-form-control [errorMessage]="errorOf(transactionForm.accountId())">
+                <z-select zPlaceholder="Escolha a conta" [formField]="transactionForm.accountId">
+                  @for (account of accountsService.accounts.value(); track account.id) {
+                    <z-select-item [zValue]="account.id">{{ account.name }}</z-select-item>
+                  }
+                </z-select>
+              </z-form-control>
+            </z-form-field>
+
+            <z-form-field class="col-span-3">
+              <label for="type" z-form-label>Tipo</label>
+              <z-form-control>
+                <z-select zPlaceholder="Escolha o tipo" [formField]="transactionForm.type">
+                  @for (type of transactionsService.types.value(); track type.value) {
+                    <z-select-item [zValue]="type.value">{{ type.label }}</z-select-item>
+                  }
+                </z-select>
+              </z-form-control>
+            </z-form-field>
+
+            <z-form-field class="col-span-2">
+              <label for="category" z-form-label>Categoria</label>
+              <z-form-control [errorMessage]="errorOf(transactionForm.category())">
+                <z-select zPlaceholder="Escolha a categoria" [formField]="transactionForm.category">
+                  @for (category of categoryOptions(); track category.value) {
+                    <z-select-item [zValue]="category.value">{{ category.label }}</z-select-item>
+                  }
+                </z-select>
+              </z-form-control>
+            </z-form-field>
+
+            <z-form-field class="col-span-2">
+              <label for="amount" z-form-label>Valor</label>
+              <z-form-control [errorMessage]="errorOf(transactionForm.amount())">
+                <app-currency-input
+                  id="amount"
+                  [formField]="transactionForm.amount"
+                  [zCurrency]="currencySymbol()"
+                />
+              </z-form-control>
+            </z-form-field>
+
+            <z-form-field class="col-span-2">
+              <label for="date" z-form-label>Data</label>
+              <z-form-control [errorMessage]="errorOf(transactionForm.date())">
+                <input z-input type="date" id="date" [formField]="transactionForm.date" />
+              </z-form-control>
+            </z-form-field>
+
+            @if (!isEdit()) {
+              <div class="col-span-6 flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="repeat"
+                  class="accent-primary size-4"
+                  [formField]="transactionForm.repeat"
+                />
+                <label for="repeat" class="cursor-pointer select-none">
+                  Repetir esta transação automaticamente
+                </label>
+              </div>
+
+              @if (model().repeat) {
+                <z-form-field class="col-span-3">
+                  <label for="frequency" z-form-label>Frequência</label>
+                  <z-form-control>
+                    <z-select
+                      zPlaceholder="Escolha a frequência"
+                      [formField]="transactionForm.frequency"
+                    >
+                      @for (
+                        frequency of recurringService.frequencies.value();
+                        track frequency.value
+                      ) {
+                        <z-select-item [zValue]="frequency.value">{{
+                          frequency.label
+                        }}</z-select-item>
+                      }
+                    </z-select>
+                  </z-form-control>
+                </z-form-field>
+
+                <z-form-field class="col-span-3">
+                  <label for="endDate" z-form-label>Repetir até (opcional)</label>
+                  <z-form-control>
+                    <input z-input type="date" id="endDate" [formField]="transactionForm.endDate" />
+                  </z-form-control>
+                </z-form-field>
+              }
+            }
+
+            <div class="col-span-6 flex flex-row-reverse gap-6">
+              <button
+                type="submit"
+                z-button
+                zType="default"
+                [disabled]="transactionForm().invalid()"
+              >
+                {{ isEdit() ? 'Salvar' : 'Criar Transação' }}
+              </button>
+              <button type="button" z-button zType="outline" (click)="cancel()">Cancelar</button>
+            </div>
+          </form>
+        </div>
+      </app-frame-paper>
+    </div>
+  `,
   styles: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

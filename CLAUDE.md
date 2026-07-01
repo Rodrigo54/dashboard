@@ -269,6 +269,14 @@ existir.
   obrigatório no Electron, onde a parte antes do `#` não muda e funciona via
   `file://` no build de produção (sem servidor para o fallback de SPA). As rotas
   protegidas ficam sob o `FrameLayout` com `authGuard`.
+- **Template inline é a preferência** (`template:` com template string),
+  não `templateUrl` + `.html` separado — mantém componente e marcação juntos
+  num único arquivo, mais fácil de navegar. O limite de **400 linhas por
+  arquivo** (ESLint `max-lines`, veja abaixo) continua valendo por cima disso:
+  se o componente com o template inline ultrapassar o limite, é sinal de que
+  ele deveria ser quebrado em componentes menores (ex.: extrair uma tabela ou
+  seção repetida para um componente filho na própria pasta da tela) — não
+  simplesmente mover a marcação para um `.html` pra escapar da contagem.
 - **Serviços de feature** preferem `signal`/`computed` para estado e
   `resource(...)` para dados assíncronos de IPC (recarregue com `.reload()` após
   mutações). Todo acesso ao IPC passa pelo helper `invoke<T>` de
