@@ -141,8 +141,8 @@ type Scope = 'all' | 'recurring';
             <th z-table-head>Descrição</th>
             <th z-table-head>Conta</th>
             <th z-table-head>Categoria</th>
-            <th z-table-head class="text-right">Valor</th>
-            <th z-table-head class="text-right">Ações</th>
+            <th z-table-head class="text-right!">Valor</th>
+            <th z-table-head class="text-center!">Ações</th>
           </tr>
         </thead>
         <tbody z-table-body>
@@ -178,7 +178,7 @@ type Scope = 'all' | 'recurring';
                 {{ signedAmount(row) | currency: accountCurrency(row.accountId) }}
               </td>
               <td z-table-cell>
-                <div class="flex flex-row items-center justify-end gap-2">
+                <div class="flex flex-row items-center justify-center gap-2">
                   @if (row.kind === 'forecast' && row.rule; as rule) {
                     @if (rule.status === 'active') {
                       <button
