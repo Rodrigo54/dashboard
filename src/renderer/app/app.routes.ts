@@ -1,4 +1,12 @@
-import { PreloadAllModules, provideRouter, Routes, withHashLocation, withPreloading, withRouterConfig, withViewTransitions } from '@angular/router';
+import {
+  PreloadAllModules,
+  provideRouter,
+  Routes,
+  withHashLocation,
+  withPreloading,
+  withRouterConfig,
+  withViewTransitions,
+} from '@angular/router';
 import { authGuard } from './features/auth/auth.guard';
 import { FrameLayout } from './shared/ui/frame/frame-layout';
 
@@ -15,6 +23,10 @@ export const routes: Routes = [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', loadChildren: () => import('./features/home/home.routes') },
       { path: 'accounts', loadChildren: () => import('./features/accounts/accounts.routes') },
+      {
+        path: 'transactions',
+        loadChildren: () => import('./features/transactions/transactions.routes'),
+      },
     ],
   },
   {
