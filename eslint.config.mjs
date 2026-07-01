@@ -84,7 +84,7 @@ export default tseslint.config(
   // Anexa-se a elementos HTML nativos (table[z-table], input[z-input]...) e usa
   // utilitários genéricos — relaxa regras de seletor/`any` para a lib vendorizada.
   {
-    files: ['src/renderer/app/shared/ui/zard/**/*.ts'],
+    files: ['src/renderer/app/shared/zard/**/*.ts'],
     rules: {
       '@angular-eslint/component-selector': 'off',
       '@angular-eslint/directive-selector': 'off',

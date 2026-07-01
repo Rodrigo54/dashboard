@@ -9,9 +9,9 @@
   },
   "baseUrl": "src/renderer/app",
   "aliases": {
-    "components": "@/shared/ui/zard/components",
-    "utils": "@/shared/ui/zard/utils",
-    "core": "@/shared/ui/zard/core",
-    "services": "@/shared/ui/zard/services"
+    "components": "@/shared/zard/components",
+    "utils": "@/shared/zard/utils",
+    "core": "@/shared/zard/core",
+    "services": "@/shared/zard/services"
   }
 }
