@@ -1,8 +1,9 @@
-import { desc } from 'drizzle-orm';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import * as path from 'node:path';
-import { initControllers } from './controllers/controllers.providers';
-import { initDb, schema } from './database/database.module';
+import { initControllers } from './core/controllers.providers';
+import { initServices } from './core/services.providers';
+import { registerWindowControls } from './core/window-controls';
+import { initDb } from './database/database.module';
 import { getEnvironment } from './environment/environment.module';
 
 const env = getEnvironment();
@@ -40,37 +41,12 @@ function createWindow(): void {
   }
 }
 
-function registerWindowControls(): void {
-  const windowFrom = (event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent) =>
-    BrowserWindow.fromWebContents(event.sender);
-
-  ipcMain.on('window:minimize', (event) => windowFrom(event)?.minimize());
-
-  ipcMain.on('window:maximize-toggle', (event) => {
-    const win = windowFrom(event);
-    if (!win) return;
-    if (win.isMaximized()) win.unmaximize();
-    else win.maximize();
-  });
-
-  ipcMain.on('window:close', (event) => windowFrom(event)?.close());
-
-  ipcMain.handle('window:is-maximized', (event) => windowFrom(event)?.isMaximized() ?? false);
-}
-
 app.whenReady().then(() => {
-  const db = initDb();
+  initDb();
 
+  initServices();
   initControllers();
   registerWindowControls();
-
-  ipcMain.handle('notes:list', () =>
-    db.select().from(schema.notes).orderBy(desc(schema.notes.createdAt)).all(),
-  );
-
-  ipcMain.handle('notes:create', (_event, note: schema.NewNote) =>
-    db.insert(schema.notes).values(note).returning().get(),
-  );
 
   createWindow();
 
