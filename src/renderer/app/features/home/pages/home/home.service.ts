@@ -1,8 +1,8 @@
 import { Injectable, resource } from '@angular/core';
 import type { AppData } from '@shared/types';
 
-import { invoke } from '@/shared/ipc/invoke';
-import type { PublicUser } from '../auth/auth.service';
+import { invoke } from '@/core/ipc/invoke';
+import type { PublicUser } from '../../../auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class HomeService {

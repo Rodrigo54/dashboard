@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../auth/auth.service';
-import { HomeService } from '../home.service';
+import { AuthService } from '../../../auth/auth.service';
+import { HomeService } from './home.service';
 
 @Component({
   imports: [],
@@ -89,5 +89,4 @@ export class HomePage {
     console.log('Logout successful');
     this.#router.navigate(['/login']);
   }
-
 }
