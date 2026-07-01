@@ -8,8 +8,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, resource } from '
 import { Router, RouterOutlet } from '@angular/router';
 import { AppData } from '@shared/types';
 import { FrameSidebar } from './frame-sidebar';
-import { FrameService } from './frame.service';
 import { FrameTitle } from './frame-title';
+import { FrameService } from './frame.service';
 
 @Component({
   selector: 'app-frame-layout',
@@ -27,55 +27,57 @@ import { FrameTitle } from './frame-title';
     <div class="flex h-screen w-screen flex-col overflow-hidden">
       <app-frame-title />
       <z-layout class="min-h-0 flex-1 overflow-hidden">
-      <!-- Sidebar -->
-      <z-sidebar
-        [zWidth]="250"
-        [zCollapsible]="true"
-        [zCollapsed]="frame.sidebarCollapsed()"
-        [zCollapsedWidth]="70"
-        (zCollapsedChange)="frame.onCollapsedChange($event)"
-      >
-        <app-frame-sidebar />
-      </z-sidebar>
-      <z-layout class="overflow-auto">
-        <z-header class="w-full bg-primary">
-          <div class="flex items-center text-primary-foreground w-full">
-            <button
-              type="button"
-              z-button
-              zType="ghost"
-              zSize="sm"
-              class="-ml-2"
-              (click)="frame.toggleSidebar()"
-            >
-              <z-icon zType="panel-left" />
-            </button>
-            <z-divider zOrientation="vertical" class="bg-primary-foreground ml-2 h-4" />
-            <z-breadcrumb zWrap="wrap" zAlign="start">
-              <z-breadcrumb-item zColor="primary" [routerLink]="['/home']">Home</z-breadcrumb-item>
-              <z-breadcrumb-item zColor="primary">
-                <span aria-current="page">Components</span>
-              </z-breadcrumb-item>
-            </z-breadcrumb>
-            <div class="ml-auto">
-              <button type="button" z-button zType="ghost" zSize="sm" (click)="logoff()">
-                <z-icon zType="log-out" />
+        <!-- Sidebar -->
+        <z-sidebar
+          [zWidth]="250"
+          [zCollapsible]="true"
+          [zCollapsed]="frame.sidebarCollapsed()"
+          [zCollapsedWidth]="70"
+          (zCollapsedChange)="frame.onCollapsedChange($event)"
+        >
+          <app-frame-sidebar />
+        </z-sidebar>
+        <z-layout class="overflow-auto">
+          <z-header class="w-full bg-primary">
+            <div class="flex items-center text-primary-foreground w-full">
+              <button
+                type="button"
+                z-button
+                zType="ghost"
+                zSize="sm"
+                class="-ml-2"
+                (click)="frame.toggleSidebar()"
+              >
+                <z-icon zType="panel-left" />
               </button>
+              <z-divider zOrientation="vertical" class="bg-primary-foreground ml-2 h-4" />
+              <z-breadcrumb zWrap="wrap" zAlign="start">
+                <z-breadcrumb-item zColor="primary" [routerLink]="['/home']">
+                  Home
+                </z-breadcrumb-item>
+                <z-breadcrumb-item zColor="primary">
+                  <span aria-current="page">Components</span>
+                </z-breadcrumb-item>
+              </z-breadcrumb>
+              <div class="ml-auto">
+                <button type="button" z-button zType="ghost" zSize="sm" (click)="logoff()">
+                  <z-icon zType="log-out" />
+                </button>
+              </div>
             </div>
-          </div>
-        </z-header>
-        <z-content class="min-h-0">
-          <div class="h-full">
-            <div class="h-64 bg-primary z-0"></div>
-            <div class="p-4 z-10 -mt-64">
-              <router-outlet />
+          </z-header>
+          <z-content class="min-h-0">
+            <div class="h-full">
+              <div class="h-64 bg-primary z-0"></div>
+              <div class="p-4 z-10 -mt-64">
+                <router-outlet />
+              </div>
             </div>
-          </div>
-        </z-content>
-        <z-footer class="w-full bg-card text-card-foreground">
-          <span>{{ appVersion() }}</span>
-        </z-footer>
-      </z-layout>
+          </z-content>
+          <z-footer class="w-full bg-card text-card-foreground">
+            <span>{{ appVersion() }}</span>
+          </z-footer>
+        </z-layout>
       </z-layout>
     </div>
   `,
@@ -88,7 +90,7 @@ export class FrameLayout {
   router = inject(Router);
 
   readonly appData = resource<AppData, unknown>({
-    loader: () => invoke<AppData>('appdata:read'),
+    loader: () => invoke<AppData>('application:info'),
   });
 
   appVersion = computed(() => {
