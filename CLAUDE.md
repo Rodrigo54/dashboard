@@ -257,6 +257,8 @@ Conventional commits com emojis (use a skill `/commit`):
 💄 style(escopo): descrição
 ```
 
+Nunca inclua `Co-Authored-By` na mensagem de commit.
+
 ## Documentação (specs/)
 
 A documentação detalhada vive em `specs/` e **deve ser mantida em sincronia com
