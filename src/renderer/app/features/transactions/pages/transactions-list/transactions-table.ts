@@ -10,10 +10,10 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { RouterLink } from '@angular/router';
 import type { TransactionType } from '@shared/enums';
 import type { Recurring, Transaction, UUID } from '@shared/types';
-import { byDateThenForecast, transactionToRow, type LedgerRow } from './ledger-row';
-import { forecastRows } from './recurring-forecast';
 import { RecurringService } from '../../shared/recurring.service';
 import { TransactionsService } from '../../shared/transactions.service';
+import { byDateThenForecast, transactionToRow, type LedgerRow } from './ledger-row';
+import { forecastRows } from './recurring-forecast';
 
 type Scope = 'all' | 'recurring';
 
@@ -99,7 +99,7 @@ type Scope = 'all' | 'recurring';
           zPlaceholder="Todas as contas"
           (zSelectionChange)="onAccountFilter($event)"
         >
-          <z-select-item zValue="">Todas as contas</z-select-item>
+          <z-select-item zValue="all">Todas as contas</z-select-item>
           @for (account of accountsService.accounts.value(); track account.id) {
             <z-select-item [zValue]="account.id">{{ account.name }}</z-select-item>
           }
@@ -109,7 +109,7 @@ type Scope = 'all' | 'recurring';
           zPlaceholder="Todos os tipos"
           (zSelectionChange)="onTypeFilter($event)"
         >
-          <z-select-item zValue="">Todos os tipos</z-select-item>
+          <z-select-item zValue="all">Todos os tipos</z-select-item>
           @for (type of service.types.value(); track type.value) {
             <z-select-item [zValue]="type.value">{{ type.label }}</z-select-item>
           }
@@ -294,11 +294,13 @@ export class TransactionsTable {
   );
 
   protected onAccountFilter(value: string | string[]): void {
-    this.service.accountFilter.set((value as string) === '' ? undefined : (value as UUID));
+    this.service.accountFilter.set((value as string) === 'all' ? undefined : (value as UUID));
   }
 
   protected onTypeFilter(value: string | string[]): void {
-    this.service.typeFilter.set((value as string) === '' ? undefined : (value as TransactionType));
+    this.service.typeFilter.set(
+      (value as string) === 'all' ? undefined : (value as TransactionType),
+    );
   }
 
   protected accountName(accountId: string): string {

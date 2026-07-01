@@ -22,7 +22,11 @@ import { TransactionsTable } from './transactions-table';
         <z-icon slot="icon" zSize="4xl" zType="arrow-right-left"></z-icon>
         <h1 slot="title">Transações</h1>
         <p slot="subtitle">Registre receitas e despesas, recorrentes ou avulsas</p>
-        <div slot="actions">
+        <div slot="actions" class="flex gap-2">
+          <button z-button zType="outline" routerLink="/import">
+            Importar Extrato
+            <i z-icon zType="file-text"></i>
+          </button>
           <button z-button zType="outline" routerLink="/transactions/new">
             Nova Transação
             <i z-icon zType="plus"></i>
