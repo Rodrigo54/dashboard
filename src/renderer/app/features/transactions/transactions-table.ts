@@ -257,32 +257,30 @@ export class TransactionsTable {
 
   protected readonly scope = signal<Scope>('all');
 
-  /** Extrato unificado: transações do mês e, no filtro de recorrência, as previsões das regras. */
+  /**
+   * Extrato unificado, sempre com transações e previsões das regras. Em "Tudo"
+   * lista todas as transações; em "Recorrências", apenas as originadas de regra.
+   */
   protected readonly rows = computed<LedgerRow[]>(() => {
     const transactions = this.service.transactions.value() ?? [];
     const base = transactions.map(transactionToRow);
-    if (this.scope() === 'all') return base;
+    const real = this.scope() === 'recurring' ? base.filter((row) => row.recurring) : base;
 
-    const created = base.filter((row) => row.recurring);
     const forecasts = forecastRows(this.recurringService.rules.value() ?? [], transactions, {
       year: this.service.year(),
       month: this.service.month(),
       accountId: this.service.accountFilter(),
       type: this.service.typeFilter(),
     });
-    return [...created, ...forecasts].sort(byDateThenForecast);
+    return [...real, ...forecasts].sort(byDateThenForecast);
   });
 
   protected readonly isLoading = computed(
-    () =>
-      this.service.transactions.isLoading() ||
-      (this.scope() === 'recurring' && this.recurringService.rules.isLoading()),
+    () => this.service.transactions.isLoading() || this.recurringService.rules.isLoading(),
   );
 
   protected readonly hasError = computed(
-    () =>
-      !!this.service.transactions.error() ||
-      (this.scope() === 'recurring' && !!this.recurringService.rules.error()),
+    () => !!this.service.transactions.error() || !!this.recurringService.rules.error(),
   );
 
   protected readonly emptyTitle = computed(() =>
