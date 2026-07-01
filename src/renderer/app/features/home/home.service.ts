@@ -11,6 +11,6 @@ export class HomeService {
   });
 
   readonly appData = resource<AppData, unknown>({
-    loader: () => invoke<AppData>('appdata:read'),
+    loader: () => invoke<AppData>('application:info'),
   });
 }
