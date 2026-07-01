@@ -20,7 +20,7 @@ export type CrudAction = 'create' | 'save' | 'read' | 'update' | 'remove' | 'lis
  * com `@action('...')`).
  */
 export interface ControllerChannelMap {
-  auth: 'check' | 'login' | 'register' | 'logout' | 'me';
+  auth: 'check' | 'listUsers' | 'login' | 'register' | 'logout' | 'me';
   application: 'env' | 'info';
   notes: 'list' | 'create';
   accounts: CrudAction | 'types' | 'providers' | 'currencies';

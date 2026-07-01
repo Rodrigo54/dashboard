@@ -163,3 +163,10 @@
   border-radius: 5px;
   background: var(--muted);
 }
+
+/* Smooth timing for all page transitions (shared-element morphs use browser defaults) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

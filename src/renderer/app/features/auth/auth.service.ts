@@ -3,7 +3,7 @@ import { computed, Injectable, signal } from '@angular/core';
 import { type IpcResponse, unwrap } from '@/core/ipc/invoke';
 
 export interface PublicUser {
-  id: number;
+  id: string;
   name: string;
   email: string;
   avatar: string | null;
@@ -18,9 +18,9 @@ export class AuthService {
   readonly currentUser = signal<PublicUser | null>(null);
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
-  async checkFirstAccess(): Promise<boolean> {
-    const res = await window.electron.invoke<IpcResponse<{ hasUsers: boolean }>>('auth:check');
-    return !unwrap(res).hasUsers;
+  async listUsers(): Promise<PublicUser[]> {
+    const res = await window.electron.invoke<IpcResponse<PublicUser[]>>('auth:listUsers');
+    return unwrap(res);
   }
 
   async loadCurrentUser(): Promise<PublicUser | null> {

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { getDb, schema } from '../../database/database.module';
 import { inject } from '../../core/services.providers';
@@ -20,6 +20,18 @@ export class AuthController {
     const db = getDb();
     const user = db.select({ id: schema.users.id }).from(schema.users).limit(1).get();
     return { hasUsers: user !== undefined };
+  }
+
+  @action('listUsers')
+  async listUsers(): Promise<PublicUser[]> {
+    const db = getDb();
+    const rows = db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.isActive, true))
+      .orderBy(asc(schema.users.name))
+      .all();
+    return rows.map(({ passwordHash: _, ...u }) => u);
   }
 
   @action('login')

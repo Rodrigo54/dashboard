@@ -1,3 +1,4 @@
+import { ZardAvatarComponent } from '@/shared/zard/components/avatar';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import {
   ZardFormControlComponent,
@@ -7,15 +8,17 @@ import {
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { email, FieldState, form, FormField, required, submit } from '@angular/forms/signals';
-import { Router, RouterLink } from '@angular/router';
+import { FieldState, form, FormField, required, submit } from '@angular/forms/signals';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth.service';
+import { getInitials } from '../../auth.utils';
 
 @Component({
   selector: 'app-login-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
+    ZardAvatarComponent,
     ZardButtonComponent,
     ZardIconComponent,
     ZardFormFieldComponent,
@@ -26,17 +29,22 @@ import { AuthService } from '../../auth.service';
   ],
   template: `
     <div class="flex items-center justify-center min-h-screen">
-      <div class="flex flex-col gap-6 w-full max-w-sm px-4">
-        <div class="bg-card rounded-xl shadow p-6 flex flex-col gap-4">
-          <div class="flex flex-col items-center gap-2 text-center">
-            <div
-              class="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground"
-            >
-              <z-icon zType="layout-dashboard" zSize="2xl" />
+      <div class="flex flex-col gap-6 w-full max-w-xs px-4">
+        <div class="bg-card rounded-xl shadow p-6 flex flex-col gap-5">
+          <div class="flex flex-col items-center gap-3 text-center">
+            <z-avatar
+              [style.view-transition-name]="'avatar-' + profileUid"
+              [zSrc]="profileAvatar"
+              [zFallback]="initials(profileName)"
+              [zAlt]="profileName"
+              zSize="xl"
+            />
+            <div>
+              <p class="font-semibold text-foreground leading-none">{{ profileName }}</p>
+              <p class="text-sm text-muted-foreground mt-1">{{ profileEmail }}</p>
             </div>
-            <h1 class="text-2xl font-bold text-foreground">Entrar</h1>
-            <p class="text-muted-foreground text-sm">Acesse sua conta do Dashboard</p>
           </div>
+
           @if (errorMessage()) {
             <div
               class="rounded-md bg-destructive/10 border border-destructive/30 text-destructive text-sm px-3 py-2"
@@ -47,49 +55,31 @@ import { AuthService } from '../../auth.service';
 
           <form (submit)="onSubmit($event)" class="flex flex-col gap-4">
             <z-form-field>
-              <label z-form-label [for]="'email'">E-mail</label>
-              <z-form-control [errorMessage]="getErrorMessage(loginForm.email())">
-                <input
-                  z-input
-                  type="email"
-                  id="email"
-                  placeholder="voce@exemplo.com"
-                  [formField]="loginForm.email"
-                />
-              </z-form-control>
-            </z-form-field>
-
-            <z-form-field>
-              <label z-form-label [for]="'password'">Senha</label>
+              <label z-form-label for="password">Senha</label>
               <z-form-control [errorMessage]="getErrorMessage(loginForm.password())">
                 <input
                   z-input
                   type="password"
                   id="password"
                   placeholder="••••••••"
+                 
                   [formField]="loginForm.password"
                 />
               </z-form-control>
             </z-form-field>
 
-            <button
-              z-button
-              zType="default"
-              type="submit"
-              class="w-full mt-2"
-              [zLoading]="loading()"
-            >
+            <button z-button zType="default" type="submit" class="w-full" [zLoading]="loading()">
               <z-icon zType="log-in" />
               Entrar
             </button>
           </form>
-          <p class="text-center text-sm text-muted-foreground">
-            Primeiro acesso?
+
+          <p class="text-center text-sm">
             <a
-              [routerLink]="['/auth/register']"
-              class="text-primary underline-offset-4 hover:underline"
+              [routerLink]="['/auth/welcome']"
+              class="text-muted-foreground hover:text-foreground transition-colors"
             >
-              Criar conta
+              ← Entrar com outra conta
             </a>
           </p>
         </div>
@@ -102,26 +92,35 @@ export default class LoginPage {
   readonly #auth = inject(AuthService);
   readonly #router = inject(Router);
 
+  private readonly snapshot = inject(ActivatedRoute).snapshot;
+
+  protected readonly profileEmail =
+    (this.snapshot.queryParams['email'] as string | undefined) ?? '';
+  protected readonly profileName = (this.snapshot.queryParams['name'] as string | undefined) ?? '';
+  protected readonly profileAvatar =
+    (this.snapshot.queryParams['avatar'] as string | undefined) ?? '';
+  protected readonly profileUid = (this.snapshot.queryParams['uid'] as string | undefined) ?? '';
+  protected readonly initials = getInitials;
+
+  constructor() {
+    if (!this.snapshot.queryParams['email']) {
+      this.#router.navigate(['/auth/welcome']);
+    }
+  }
+
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal('');
 
-  protected readonly model = signal({ email: 'rodrigo@gmail.com', password: '12345678' });
+  protected readonly model = signal({ email: this.profileEmail, password: '' });
 
   protected readonly loginForm = form(this.model, (s) => {
-    required(s.email, { message: 'E-mail é obrigatório' });
-    email(s.email, { message: 'E-mail inválido' });
     required(s.password, { message: 'Senha é obrigatória' });
   });
 
   protected getErrorMessage(field: FieldState<string>): string {
-    if (!field.touched()) {
-      return '';
-    }
+    if (!field.touched()) return '';
     const errors = field.errors();
-    if (errors.length > 0) {
-      return errors[0].message || '';
-    }
-    return '';
+    return errors.length > 0 ? (errors[0].message ?? '') : '';
   }
 
   protected onSubmit(event: Event): void {
