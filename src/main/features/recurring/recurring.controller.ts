@@ -9,21 +9,20 @@ import {
 import type { CreateRecurring, TransactionTemplate, UpdateRecurring, UUID } from '@shared/types';
 import { and, desc, eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { getDb, schema } from '../database/database.module';
+import { getDb, schema } from '../../database/database.module';
+import { inject } from '../../core/services.providers';
+import { RecurringMaterializerService } from './recurring-materializer.service';
+import { TransactionRulesService } from '../transactions/transaction-rules.service';
 import {
-  materializeRecurringTransactions,
-  materializeRuleUntil,
-} from '../services/recurring-materializer';
-import { assertSupported } from '../services/transaction-rules';
-import { action, Controller, create, list, read, remove, update } from './controller.decorator';
-import { requireCurrentUser } from './session';
-
-/** Narra o template como o de transação e valida o escopo atual. */
-function parseTransactionTemplate(template: unknown): TransactionTemplate {
-  const parsed = transactionTemplateSchema.parse(template);
-  assertSupported(parsed.type, parsed.category);
-  return parsed;
-}
+  action,
+  Controller,
+  create,
+  list,
+  read,
+  remove,
+  update,
+} from '../../core/controller.decorator';
+import { requireCurrentUser } from '../../core/session';
 
 /**
  * CRUD das regras de recorrência de transações. Esta feature gerencia apenas
@@ -32,6 +31,16 @@ function parseTransactionTemplate(template: unknown): TransactionTemplate {
  */
 @Controller('recurring')
 export class RecurringController {
+  private readonly materializer = inject(RecurringMaterializerService);
+  private readonly rules = inject(TransactionRulesService);
+
+  /** Narra o template como o de transação e valida o escopo atual. */
+  private parseTransactionTemplate(template: unknown): TransactionTemplate {
+    const parsed = transactionTemplateSchema.parse(template);
+    this.rules.assertSupported(parsed.type, parsed.category);
+    return parsed;
+  }
+
   @action('frequencies')
   async getFrequencies() {
     return enumOptions(RECURRING_FREQUENCIES);
@@ -69,7 +78,7 @@ export class RecurringController {
     if (data.type !== 'transaction') {
       throw new Error('Apenas recorrências de transação são suportadas');
     }
-    const template = parseTransactionTemplate(data.template);
+    const template = this.parseTransactionTemplate(data.template);
     const user = requireCurrentUser();
     const db = getDb();
 
@@ -80,7 +89,7 @@ export class RecurringController {
       .get();
 
     // Ocorrências já vencidas (startDate <= hoje) viram transações na hora.
-    materializeRecurringTransactions(user.id);
+    this.materializer.materializeRecurringTransactions(user.id);
     return this.findOne(rule.id);
   }
 
@@ -92,7 +101,7 @@ export class RecurringController {
       throw new Error('Apenas recorrências de transação são suportadas');
     }
     const template =
-      data.template === undefined ? undefined : parseTransactionTemplate(data.template);
+      data.template === undefined ? undefined : this.parseTransactionTemplate(data.template);
     const user = requireCurrentUser();
     const db = getDb();
     const existing = await this.findOne(id);
@@ -125,7 +134,7 @@ export class RecurringController {
       .where(eq(schema.recurring.id, id))
       .run();
 
-    materializeRecurringTransactions(user.id);
+    this.materializer.materializeRecurringTransactions(user.id);
     return this.findOne(id);
   }
 
@@ -168,7 +177,7 @@ export class RecurringController {
       .where(eq(schema.recurring.id, existing.id))
       .run();
 
-    materializeRecurringTransactions(user.id);
+    this.materializer.materializeRecurringTransactions(user.id);
     return this.findOne(existing.id);
   }
 
@@ -186,7 +195,7 @@ export class RecurringController {
     const until = new Date(date);
     until.setHours(23, 59, 59, 999);
 
-    const created = materializeRuleUntil(user.id, id, until);
+    const created = this.materializer.materializeRuleUntil(user.id, id, until);
     return { id, created };
   }
 
