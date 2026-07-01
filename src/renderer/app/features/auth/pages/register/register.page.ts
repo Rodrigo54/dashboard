@@ -1,11 +1,11 @@
-import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
+import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import {
   ZardFormControlComponent,
   ZardFormFieldComponent,
   ZardFormLabelComponent,
-} from '@/shared/ui/zard/components/form/form.component';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
-import { ZardInputDirective } from '@/shared/ui/zard/components/input/input.directive';
+} from '@/shared/zard/components/form/form.component';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { email, FieldState, form, FormField, minLength, required, submit, validate } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';

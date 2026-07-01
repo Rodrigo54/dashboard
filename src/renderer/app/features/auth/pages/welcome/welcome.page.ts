@@ -1,5 +1,5 @@
-import { ZardButtonComponent } from '@/shared/ui/zard/components/button/button.component';
-import { ZardIconComponent } from '@/shared/ui/zard/components/icon/icon.component';
+import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth.service';

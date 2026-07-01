@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 
-import { type IpcResponse, unwrap } from '@/shared/ipc/invoke';
+import { type IpcResponse, unwrap } from '@/core/ipc/invoke';
 
 export interface PublicUser {
   id: number;

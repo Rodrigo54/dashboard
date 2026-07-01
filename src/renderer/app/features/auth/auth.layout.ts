@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FrameTitle } from '@/shared/ui/frame/frame-title';
+import { FrameTitle } from '@/shared/frame/frame-title';
 
 /**
  * Layout das páginas de autenticação. Exibe a imagem
