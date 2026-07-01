@@ -28,6 +28,10 @@ export const transactions = sqliteTable('transactions', {
   budgetId: text('budget_id').references(() => budgets.id, { onDelete: 'set null' }),
   goalId: text('goal_id').references(() => goals.id, { onDelete: 'set null' }),
   recurringId: text('recurring_id').references(() => recurring.id, { onDelete: 'set null' }),
+  // Impressão digital determinística da linha do extrato importado (inclui o
+  // índice de ocorrência para tolerar linhas legitimamente repetidas). Null em
+  // transações criadas manualmente. Usada para deduplicar reimportações.
+  importFingerprint: text('import_fingerprint'),
   tags: tagIds(),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
