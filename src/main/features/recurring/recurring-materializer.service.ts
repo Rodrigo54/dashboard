@@ -28,6 +28,9 @@ export class RecurringMaterializerService {
           eq(schema.recurring.userId, userId),
           eq(schema.recurring.type, 'transaction'),
           eq(schema.recurring.status, 'active'),
+          // Regras importadas (autoMaterialize=false) só aparecem como previsão;
+          // suas ocorrências reais chegam pela importação, não pelo materializador.
+          eq(schema.recurring.autoMaterialize, true),
         ),
       )
       .all();
