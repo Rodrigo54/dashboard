@@ -1,4 +1,4 @@
-import { provideZard } from '@/shared/ui/zard/core';
+import { provideZard } from '@/shared/zard/core';
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,

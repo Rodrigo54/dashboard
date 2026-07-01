@@ -8,7 +8,7 @@ import {
   withViewTransitions,
 } from '@angular/router';
 import { authGuard } from './features/auth/auth.guard';
-import { FrameLayout } from './shared/ui/frame/frame-layout';
+import { FrameLayout } from './shared/frame/frame-layout';
 
 export const routes: Routes = [
   {
