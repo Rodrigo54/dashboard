@@ -1,23 +1,20 @@
 import { ipcMain } from 'electron';
-import { AccountsController } from './accounts.controller';
-import { AppDataController } from './appdata.controller';
-import { AuthController } from './auth.controller';
-import { getControllerActions, getControllerName } from './controller.decorator';
-import { EnvironmentController } from './environment.controller';
-import { RecurringController } from './recurring.controller';
-import { TransactionsController } from './transactions.controller';
+import {
+  getControllerActions,
+  getControllerName,
+  getRegisteredControllers,
+} from './controller.decorator';
 
-const controllers = [
-  AuthController,
-  AppDataController,
-  AccountsController,
-  EnvironmentController,
-  TransactionsController,
-  RecurringController,
-];
+// Avalia todos os módulos `*.controller.ts` sob `features/` para que seus
+// decorators `@Controller` rodem e as classes se auto-registrem
+// (`getRegisteredControllers`). Sem este import um controller que ninguém mais
+// importa nunca chegaria ao IPC. `import.meta.glob` (eager) é resolvido em
+// build-time pelo Vite e vira imports estáticos — não há varredura de disco em
+// runtime.
+import.meta.glob('../features/**/*.controller.ts', { eager: true });
 
 export function initControllers() {
-  for (const Controller of controllers) {
+  for (const Controller of getRegisteredControllers()) {
     const instance = new Controller() as unknown as Record<
       string | symbol,
       (payload?: unknown) => Promise<unknown>

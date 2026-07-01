@@ -14,9 +14,14 @@ export type ControllerClass = (new (...args: any[]) => object) & { readonly name
 /** Mapa de ação de IPC -> chave do método que a implementa. */
 export type ActionMap = Record<string, string | symbol>;
 
+/** Todo controller `@Controller(...)` se acumula aqui ao ser avaliado (auto-registro). */
+const registeredControllers: ControllerClass[] = [];
+
 /**
- * Decorator de classe que registra o nome de IPC de um controller.
- * Usa decorators padrão do ECMAScript (sem `experimentalDecorators`).
+ * Decorator de classe que registra o nome de IPC de um controller e o adiciona à
+ * lista de controllers conhecidos. Usa decorators padrão do ECMAScript (sem
+ * `experimentalDecorators`). O auto-registro só acontece quando o módulo da
+ * classe é avaliado — veja como `controllers.providers.ts` garante isso.
  */
 export function Controller(name: string) {
   return function <T extends ControllerClass>(target: T, _context: ClassDecoratorContext): T {
@@ -26,8 +31,14 @@ export function Controller(name: string) {
       writable: false,
       configurable: false,
     });
+    registeredControllers.push(target);
     return target;
   };
+}
+
+/** Classes decoradas com `@Controller(...)` já avaliadas, na ordem de carga. */
+export function getRegisteredControllers(): readonly ControllerClass[] {
+  return registeredControllers;
 }
 
 /** Recupera o nome registrado por `@Controller(...)`. */
