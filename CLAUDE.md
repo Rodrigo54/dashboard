@@ -70,7 +70,10 @@ compartilham runtime; só atravessam a fronteira tipos e a ponte de IPC.
   `externalizeDepsPlugin`. O `src/main/tsconfig.json` usa `moduleResolution:
 Bundler` + `noEmit` (só type-check; o Vite emite). **Imports relativos não
   precisam de extensão `.js`** — o bundler resolve os `.ts`. (Há `.js` legados
-  que ainda funcionam; remoção em massa é um follow-up opcional.)
+  que ainda funcionam; remoção em massa é um follow-up opcional.) Organizado em
+  `core/` (wiring de IPC/DI, sem domínio) e `features/*` (um diretório por
+  domínio), além de `database/` e `environment/`. Veja "Estrutura do processo
+  main" abaixo.
 - **`src/renderer/`** — app Angular 22 zoneless (componentes standalone),
   compilado pelo `@analogjs/vite-plugin-angular` sob o Vite, saída em
   `out/renderer/`. O entry é o `src/renderer/index.html` (com
@@ -101,21 +104,43 @@ estreita:
   (minimizar/maximizar/fechar).
 - `src/renderer/electron.d.ts` tipa a superfície de `window.electron`.
 
+### Estrutura do processo main (`core/` + `features/`)
+
+O `src/main/` é organizado em duas árvores, além de `database/` e `environment/`:
+
+- **`src/main/core/`** — a infraestrutura de wiring de IPC/DI, sem domínio:
+  `controller.decorator.ts` e `service.decorator.ts` (os decorators),
+  `controllers.providers.ts` e `services.providers.ts` (registro + `inject`),
+  `session.ts` (sessão do usuário autenticado) e `window-controls.ts`
+  (`registerWindowControls`, os handlers `window:*` da janela frameless — ficam
+  fora do pipeline de controllers porque dependem do `event.sender`, não de um
+  `payload`).
+- **`src/main/features/<feature>/`** — um diretório por domínio, com o
+  `<feature>.controller.ts` e os `*.service.ts` daquela feature. Hoje: `auth`,
+  `accounts`, `transactions`, `recurring`, `application` (metadados de app-level:
+  environment + appData) e `notes`. Services compartilhados moram na feature
+  "dona" e são importados cross-feature quando preciso (o registry de DI é por
+  **nome**, então `inject()` independe do path do arquivo).
+
 ### IPC via controllers (decorators)
 
 Os handlers de IPC do main são organizados como **controllers** decorados, não
-como `ipcMain.handle` avulsos (`src/main/controllers/`):
+como `ipcMain.handle` avulsos (`main.ts` fica só com bootstrap + janela):
 
 - `@Controller('<nome>')` registra o prefixo de IPC da classe; os métodos são
   decorados com `@action('<ação>')` ou com os atalhos CRUD prontos
   (`@create`/`@save`/`@read`/`@update`/`@remove`/`@list`). O nome do método pode
   diferir da ação (ex.: `findOne` → `read`). Usa decorators **padrão do ECMAScript**
   (stage 3, via `Symbol.metadata`) — **não** `experimentalDecorators`.
-- `controllers.providers.ts` (`initControllers()`, chamado em `app.whenReady`)
-  instancia cada controller e registra um `ipcMain.handle('<nome>:<ação>')` por
-  método, envolvendo o retorno no envelope `{ success, result } | { success, error }`.
-- A sessão do usuário autenticado vive em `controllers/session.ts` (estado único
-  do processo main): `auth` grava com `setCurrentUser`, os demais leem com
+- **Auto-registro por glob**: `core/controllers.providers.ts` (`initControllers()`,
+  chamado em `app.whenReady`) avalia todos os controllers em build-time via
+  `import.meta.glob('../features/**/*.controller.ts', { eager: true })` — cada
+  classe se auto-registra pelo `@Controller`. Depois instancia cada uma e registra
+  um `ipcMain.handle('<nome>:<ação>')` por método, envolvendo o retorno no envelope
+  `{ success, result } | { success, error }`. **Basta o arquivo casar com o glob**
+  (`features/**/*.controller.ts`) — não há lista manual de controllers.
+- A sessão do usuário autenticado vive em `core/session.ts` (estado único do
+  processo main): `auth` grava com `setCurrentUser`, os demais leem com
   `requireCurrentUser()` para resolver o `userId`.
 - No renderer, use o helper `invoke<T>(channel, payload)` de
   `app/shared/ipc/invoke.ts`, que já desempacota o envelope (lança em
@@ -124,10 +149,27 @@ como `ipcMain.handle` avulsos (`src/main/controllers/`):
   `ControllerChannelMap` (`<controller>: <ações>`). Como os literais dos decorators
   somem em runtime, esse mapa é **mantido à mão** — uma linha por controller.
 
+### Services (injeção de dependência)
+
+Lógica de domínio reutilizável entre controllers vive em **services** decorados
+com `@Service('<nome>')` (arquivos `*.service.ts` dentro da feature dona):
+
+- `core/services.providers.ts` (`initServices()`, chamado em `app.whenReady`
+  **antes** de `initControllers()`) descobre os services por
+  `import.meta.glob('../features/**/*.service.ts', { eager: true })`, instancia
+  cada um e os registra num `registry` por nome.
+- Consuma um service com `inject(ServiceClass)` (estilo Angular): devolve um proxy
+  de resolução **preguiçosa** (só consulta o registry no primeiro acesso), então
+  pode ser usado direto em campo de classe e suporta dependências circulares.
+- Ex.: `account-balance` (mutação de saldo, em `accounts`) e `transaction-rules`
+  (regras de transação, em `transactions`) são compartilhados por `transactions` e
+  `recurring`; `recurring-materializer` (em `recurring`) materializa recorrências e
+  é usado pelo próprio `recurring` e no login (`auth`).
+
 Para adicionar um recurso de IPC: crie/edite um controller com `@Controller` +
-ações, registre a classe no array de `controllers.providers.ts`, declare o canal
-em `ControllerChannelMap` e consuma no renderer via `invoke<T>(...)`. Valide todo
-payload de entrada com um schema Zod de `@shared/schemas`.
+ações em `features/<feature>/`, declare o canal em `ControllerChannelMap` e consuma
+no renderer via `invoke<T>(...)`. Extraia lógica reutilizável para um `@Service` na
+feature dona. Valide todo payload de entrada com um schema Zod de `@shared/schemas`.
 
 ### Environments (environments/\*.yml)
 
@@ -154,8 +196,9 @@ existir.
   não usado sai por tree-shaking e não há leitura de disco em runtime. Consuma
   com `getEnvironment()` (completo, só no main) ou `getPublicEnvironment()`
   (sem `security`); o barrel é `environment.module.ts`.
-- O renderer recebe o environment pelo canal `environment:read`
-  (`controllers/environment.controller.ts`) e o consome via `EnvironmentService`
+- O renderer recebe o environment pelo canal `application:env`
+  (`features/application/application.controller.ts`, que também expõe `application:info`
+  com os metadados de runtime do app) e o consome via `EnvironmentService`
   (`app/shared/environment/environment.service.ts`, `resource` + computeds
   `appName`/`appVersion`/`isDevelopment`/`logLevel`). **O bloco `security`
   nunca atravessa o IPC** — o controller envia o parse de
