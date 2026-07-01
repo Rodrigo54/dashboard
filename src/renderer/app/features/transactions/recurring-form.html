@@ -1,0 +1,114 @@
+<div>
+  <app-frame-header>
+    <z-icon slot="icon" zSize="4xl" zType="repeat"></z-icon>
+    <h1 slot="title">Editar Recorrência</h1>
+    <p slot="subtitle">As alterações valem para os próximos lançamentos; os já gerados não mudam</p>
+  </app-frame-header>
+  <app-frame-paper>
+    <div class="w-full">
+      <form (ngSubmit)="onSubmit()" class="grid grid-cols-6 gap-8">
+        <z-form-field class="col-span-3">
+          <label for="name" z-form-label>Nome</label>
+          <z-form-control [errorMessage]="errorOf(recurringForm.name())">
+            <input
+              z-input
+              type="text"
+              id="name"
+              [formField]="recurringForm.name"
+              placeholder="Ex.: Salário, Aluguel"
+            />
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="col-span-3">
+          <label for="description" z-form-label>Descrição dos lançamentos</label>
+          <z-form-control [errorMessage]="errorOf(recurringForm.description())">
+            <input
+              z-input
+              type="text"
+              id="description"
+              [formField]="recurringForm.description"
+              placeholder="Descrição usada nas transações geradas"
+            />
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="col-span-3">
+          <label for="accountId" z-form-label>Conta</label>
+          <z-form-control [errorMessage]="errorOf(recurringForm.accountId())">
+            <z-select zPlaceholder="Escolha a conta" [formField]="recurringForm.accountId">
+              @for (account of accountsService.accounts.value(); track account.id) {
+                <z-select-item [zValue]="account.id">{{ account.name }}</z-select-item>
+              }
+            </z-select>
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="col-span-3">
+          <label for="type" z-form-label>Tipo</label>
+          <z-form-control>
+            <z-select zPlaceholder="Escolha o tipo" [formField]="recurringForm.type">
+              @for (type of transactionsService.types.value(); track type.value) {
+                <z-select-item [zValue]="type.value">{{ type.label }}</z-select-item>
+              }
+            </z-select>
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="col-span-2">
+          <label for="category" z-form-label>Categoria</label>
+          <z-form-control [errorMessage]="errorOf(recurringForm.category())">
+            <z-select zPlaceholder="Escolha a categoria" [formField]="recurringForm.category">
+              @for (category of categoryOptions(); track category.value) {
+                <z-select-item [zValue]="category.value">{{ category.label }}</z-select-item>
+              }
+            </z-select>
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="col-span-2">
+          <label for="amount" z-form-label>Valor</label>
+          <z-form-control [errorMessage]="errorOf(recurringForm.amount())">
+            <app-currency-input
+              id="amount"
+              [formField]="recurringForm.amount"
+              [zCurrency]="currencySymbol()"
+            />
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="col-span-2">
+          <label for="frequency" z-form-label>Frequência</label>
+          <z-form-control>
+            <z-select zPlaceholder="Escolha a frequência" [formField]="recurringForm.frequency">
+              @for (frequency of recurringService.frequencies.value(); track frequency.value) {
+                <z-select-item [zValue]="frequency.value">{{ frequency.label }}</z-select-item>
+              }
+            </z-select>
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="col-span-3">
+          <label for="startDate" z-form-label>Início</label>
+          <z-form-control [errorMessage]="errorOf(recurringForm.startDate())">
+            <input z-input type="date" id="startDate" [formField]="recurringForm.startDate" />
+          </z-form-control>
+        </z-form-field>
+
+        <z-form-field class="col-span-3">
+          <label for="endDate" z-form-label>Repetir até (opcional)</label>
+          <z-form-control>
+            <input z-input type="date" id="endDate" [formField]="recurringForm.endDate" />
+          </z-form-control>
+        </z-form-field>
+
+        <div class="col-span-6 flex flex-row-reverse gap-6">
+          <button type="submit" z-button zType="default" [disabled]="recurringForm().invalid()">
+            Salvar
+          </button>
+          <button type="button" z-button zType="outline" (click)="cancel()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </app-frame-paper>
+</div>
