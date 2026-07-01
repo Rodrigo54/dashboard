@@ -10,7 +10,7 @@ O Dashboard é um aplicativo desktop em Electron com um renderer em Angular 22
 processos (main/preload/renderer) é unificado pelo **electron-vite**, com o
 Angular compilado pelo `@analogjs/vite-plugin-angular`. A UI usa **Tailwind CSS
 4** + o design system **zard** (componentes portados, vendorizados em
-`src/renderer/app/shared/ui/zard`). O gerenciador de pacotes é o **bun**
+`src/renderer/app/shared/zard`). O gerenciador de pacotes é o **bun**
 (`bun@1.3.11`); `ng` e `drizzle-kit` estão configurados para usá-lo.
 
 ## Comandos
@@ -78,9 +78,10 @@ Bundler` + `noEmit` (só type-check; o Vite emite). **Imports relativos não
   compilado pelo `@analogjs/vite-plugin-angular` sob o Vite, saída em
   `out/renderer/`. O entry é o `src/renderer/index.html` (com
   `<script type="module" src="/main.ts">`); a detecção de mudança usa
-  `provideZonelessChangeDetection()` (**sem zone.js**). Organizado por feature em
-  `app/features/*` (`auth`, `home`, `accounts`), com o design system **zard** e a
-  ponte de IPC isolados em `app/shared/*`. As rotas raiz ficam em
+  `provideZonelessChangeDetection()` (**sem zone.js**). Organizado em `core/`
+  (infra transversal: IPC, environment), `features/*` (`auth`, `home`,
+  `accounts`, `transactions`) e `shared/` (blocos de UI neutros ao domínio:
+  `frame`, `zard`, `currency-input`). As rotas raiz ficam em
   `app/app.routes.ts` (lazy `loadChildren` por feature, `authGuard`, hash
   routing); a configuração em `app/app.config.ts`. O `angular.json` é mantido
   **apenas** para `ng test`/schematics. Veja "Renderer" abaixo.
@@ -236,25 +237,51 @@ existir.
 
 ### Renderer (Angular)
 
-- **Organização por feature** em `app/features/*`. Cada feature tem suas
-  `*.routes.ts` (lazy via `loadChildren`), um `*.service.ts` injetável
-  (`providedIn: 'root'`) que fala IPC, e seus componentes/páginas. `auth` define
-  ainda `auth.guard.ts` (`authGuard`) e seu próprio layout.
+- **`app/core/`** — infraestrutura transversal, sem domínio: `ipc/` (helper
+  `invoke<T>` que fala com o preload) e `environment/` (`EnvironmentService`,
+  consome o canal `application:env`). Nada aqui importa de `features/*`.
+- **Organização por feature** em `app/features/*` (`auth`, `home`, `accounts`,
+  `transactions`), por **proximidade de uso**, não por tipo — sem pastas
+  genéricas `components/`, `services/`, `models/`:
+  - `<feature>.routes.ts` na raiz da feature (lazy via `loadChildren`).
+  - `pages/<entidade>-<papel>/` — uma pasta por tela, nome no **plural da
+    entidade do banco** (`accounts`, `transactions`, `recurring`) + sufixo de
+    papel: `-list` (leitura de coleção), `-form` (criação e edição, uma tela
+    serve as duas rotas) e `-view` (leitura de um registro). Componentes/utils
+    filhos usados só por aquela tela vivem **dentro** da pasta da tela (ex.:
+    `transactions-table.ts`, `ledger-row.ts` e `recurring-forecast.ts` moram
+    em `transactions/pages/transactions-list/`, pois só a lista os usa).
+  - `shared/` interno à feature — o que cruza **2+ telas** da mesma feature:
+    o `*.service.ts` que fala IPC, models/payloads compartilhados. Ex.:
+    `transactions/shared/` guarda `transactions.service.ts`,
+    `recurring.service.ts`, `date-input.utils.ts` e
+    `transactions-payloads.ts`, usados tanto por `transactions-form` quanto
+    por `recurring-form`.
+  - Sub-domínios fortemente acoplados na UI não viram feature própria mesmo
+    quando são controllers separados no main: `recurring` é sub-conceito de
+    `transactions` no renderer (o extrato mistura transações reais com
+    previsões de recorrência), não uma feature irmã.
+  - Guards/services que dependem de estado de domínio ficam na feature dona,
+    não em `core/`: `auth/auth.guard.ts` (`authGuard`) importa o `AuthService`
+    da própria feature — movê-lo para `core/` inverteria a dependência
+    (`core` não importa de `features/*`).
 - **Roteamento**: `app.routes.ts` usa **hash routing** (`withHashLocation`) —
   obrigatório no Electron, onde a parte antes do `#` não muda e funciona via
   `file://` no build de produção (sem servidor para o fallback de SPA). As rotas
   protegidas ficam sob o `FrameLayout` com `authGuard`.
 - **Serviços de feature** preferem `signal`/`computed` para estado e
   `resource(...)` para dados assíncronos de IPC (recarregue com `.reload()` após
-  mutações). Todo acesso ao IPC passa pelo helper `invoke<T>` (não use
-  `window.electron.invoke` direto).
-- **Design system zard** (`app/shared/ui/zard/`) — componentes portados e
-  vendorizados (botões, layout, tabela, select, etc.), com seletores prefixados
-  `z-`. Estilização com **Tailwind CSS 4** (plugin `@tailwindcss/vite`). Tem regras
-  de ESLint próprias (veja abaixo); trate como código de terceiros — não reescreva
-  no estilo do app.
-- A janela é **frameless** (`frame: false`); a moldura/título custom vive em
-  `app/shared/ui/frame/` e usa `window.electron.window.*` para os controles.
+  mutações). Todo acesso ao IPC passa pelo helper `invoke<T>` de
+  `app/core/ipc/invoke.ts` (não use `window.electron.invoke` direto).
+- **`app/shared/`** — blocos de UI neutros ao domínio, organizados **por
+  bloco/tema** (sem nível `ui/` intermediário, que seria pasta por tipo):
+  `shared/frame/` (moldura/título da janela frameless — a janela é
+  **frameless**, `frame: false` — usa `window.electron.window.*` para os
+  controles), `shared/zard/` (design system portado e vendorizado — botões,
+  layout, tabela, select etc., seletores prefixados `z-`; tem regras de
+  ESLint próprias, veja abaixo; trate como código de terceiros — não
+  reescreva no estilo do app) e `shared/currency-input/`. Estilização com
+  **Tailwind CSS 4** (plugin `@tailwindcss/vite`).
 
 ### Path aliases
 
