@@ -13,9 +13,10 @@ import {
 } from '@shared/schemas';
 import type { CreateTransaction, UpdateTransaction, UUID } from '@shared/types';
 import { and, desc, eq, gte, lt, type SQL } from 'drizzle-orm';
-import { getDb, schema } from '../database/database.module';
-import { applyBalanceDelta, signedAmount } from '../services/account-balance';
-import { assertSupported } from '../services/transaction-rules';
+import { getDb, schema } from '../../database/database.module';
+import { inject } from '../../core/services.providers';
+import { AccountBalanceService } from '../accounts/account-balance.service';
+import { TransactionRulesService } from './transaction-rules.service';
 import {
   action,
   Controller,
@@ -25,11 +26,14 @@ import {
   remove,
   save,
   update,
-} from './controller.decorator';
-import { requireCurrentUser } from './session';
+} from '../../core/controller.decorator';
+import { requireCurrentUser } from '../../core/session';
 
 @Controller('transactions')
 export class TransactionsController {
+  private readonly balance = inject(AccountBalanceService);
+  private readonly rules = inject(TransactionRulesService);
+
   @action('types')
   async getTypes() {
     return enumOptions(TRANSACTION_TYPES).filter((option) => option.value !== 'transfer');
@@ -84,7 +88,7 @@ export class TransactionsController {
   @create
   async create(rawData: unknown): Promise<schema.Transaction> {
     const data: CreateTransaction = createTransactionSchema.parse(rawData);
-    assertSupported(data.type, data.category);
+    this.rules.assertSupported(data.type, data.category);
     const user = requireCurrentUser();
     const db = getDb();
     return db.transaction((tx) => {
@@ -93,7 +97,12 @@ export class TransactionsController {
         .values({ ...data, userId: user.id })
         .returning()
         .get();
-      applyBalanceDelta(tx, user.id, data.accountId, signedAmount(data.type, data.amount));
+      this.balance.applyBalanceDelta(
+        tx,
+        user.id,
+        data.accountId,
+        this.balance.signedAmount(data.type, data.amount),
+      );
       return inserted;
     });
   }
@@ -113,16 +122,21 @@ export class TransactionsController {
       if (!existing) throw new Error('Transação não encontrada');
 
       const merged = { ...existing, ...data };
-      assertSupported(merged.type, merged.category);
+      this.rules.assertSupported(merged.type, merged.category);
 
       // Reverte o efeito antigo e aplica o novo (cobre troca de conta/tipo/valor).
-      applyBalanceDelta(
+      this.balance.applyBalanceDelta(
         tx,
         user.id,
         existing.accountId,
-        negateDecimal(signedAmount(existing.type, existing.amount)),
+        negateDecimal(this.balance.signedAmount(existing.type, existing.amount)),
       );
-      applyBalanceDelta(tx, user.id, merged.accountId, signedAmount(merged.type, merged.amount));
+      this.balance.applyBalanceDelta(
+        tx,
+        user.id,
+        merged.accountId,
+        this.balance.signedAmount(merged.type, merged.amount),
+      );
 
       return tx
         .update(schema.transactions)
@@ -153,11 +167,11 @@ export class TransactionsController {
         .get();
       if (!existing) throw new Error('Transação não encontrada');
 
-      applyBalanceDelta(
+      this.balance.applyBalanceDelta(
         tx,
         user.id,
         existing.accountId,
-        negateDecimal(signedAmount(existing.type, existing.amount)),
+        negateDecimal(this.balance.signedAmount(existing.type, existing.amount)),
       );
       tx.delete(schema.transactions).where(eq(schema.transactions.id, id)).run();
       return { id: existing.id as UUID };
