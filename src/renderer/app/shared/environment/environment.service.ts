@@ -11,7 +11,7 @@ import { invoke } from '@/shared/ipc/invoke';
 @Injectable({ providedIn: 'root' })
 export class EnvironmentService {
   readonly environment = resource<PublicEnvironment, unknown>({
-    loader: () => invoke<PublicEnvironment>('environment:read'),
+    loader: () => invoke<PublicEnvironment>('application:env'),
   });
 
   readonly appName = computed(() => this.environment.value()?.app.name ?? '');
