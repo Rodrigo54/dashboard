@@ -2,9 +2,18 @@ import { ACCOUNT_PROVIDERS, ACCOUNT_TYPES, CURRENCIES, enumOptions } from '@shar
 import { createAccountSchema, updateAccountSchema, uuidSchema } from '@shared/schemas';
 import type { CreateAccount, UpdateAccount, UUID } from '@shared/types';
 import { and, eq } from 'drizzle-orm';
-import { getDb, schema } from '../database/database.module';
-import { action, Controller, create, list, read, remove, save, update } from './controller.decorator';
-import { requireCurrentUser } from './session';
+import { getDb, schema } from '../../database/database.module';
+import {
+  action,
+  Controller,
+  create,
+  list,
+  read,
+  remove,
+  save,
+  update,
+} from '../../core/controller.decorator';
+import { requireCurrentUser } from '../../core/session';
 
 @Controller('accounts')
 export class AccountsController {
