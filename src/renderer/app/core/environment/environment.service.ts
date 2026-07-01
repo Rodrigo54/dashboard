@@ -1,7 +1,7 @@
 import { computed, Injectable, resource } from '@angular/core';
 import type { PublicEnvironment } from '@shared/types';
 
-import { invoke } from '@/shared/ipc/invoke';
+import { invoke } from '@/core/ipc/invoke';
 
 /**
  * Expõe ao renderer o environment ativo (environments/*.yml), carregado uma
