@@ -228,6 +228,21 @@ export const RECURRING_STATUSES = {
 export type RecurringStatus = keyof typeof RECURRING_STATUSES;
 
 // ------------------------------------
+// Recurring Source
+// ------------------------------------
+
+// Origem da regra de recorrência. `manual` é criada pelo usuário e materializa
+// ocorrências vencidas no login; `imported` nasce da detecção sobre extratos e
+// nunca materializa (fica só como previsão) — as ocorrências reais chegam pela
+// própria importação, com valor real.
+export const RECURRING_SOURCES = {
+  manual: 'Manual',
+  imported: 'Importada',
+} as const;
+
+export type RecurringSource = keyof typeof RECURRING_SOURCES;
+
+// ------------------------------------
 // Tag Type
 // ------------------------------------
 

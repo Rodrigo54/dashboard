@@ -1,4 +1,10 @@
 import { z } from 'zod';
+import type {
+  AccountProvider,
+  RecurringFrequency,
+  TransactionCategory,
+  TransactionType,
+} from '../enums';
 import {
   // Accounts
   accountSchema,
@@ -30,6 +36,11 @@ import {
   // Projects
   projectSchema,
   recurringPatternSchema,
+  // Import
+  importPreviewSchema,
+  importCommitItemSchema,
+  importCommitSchema,
+  confirmDetectedRecurrenceSchema,
   // Recurring
   recurringSchema,
   // Tags
@@ -135,6 +146,110 @@ export type UpdateRecurring = z.infer<typeof updateRecurringSchema>;
 export type RecurringPattern = z.infer<typeof recurringPatternSchema>;
 export type TransactionTemplate = z.infer<typeof transactionTemplateSchema>;
 export type TaskTemplate = z.infer<typeof taskTemplateSchema>;
+
+// ============================================================
+// Import (extratos PDF)
+// ============================================================
+
+export type ImportPreviewRequest = z.infer<typeof importPreviewSchema>;
+export type ImportCommitItem = z.infer<typeof importCommitItemSchema>;
+export type ImportCommitRequest = z.infer<typeof importCommitSchema>;
+
+/** Linha crua reconstruída por um parser de banco, antes do enriquecimento. */
+export interface ParsedStatementLine {
+  date: Date;
+  /** Descrição crua da linha, como aparece no extrato. */
+  description: string;
+  /** Valor absoluto (decimal positivo em string). */
+  amount: string;
+  type: TransactionType;
+}
+
+/** Recorrência existente casada a uma linha importada durante o staging. */
+export interface ImportMatch {
+  recurringId: string;
+  recurringName: string;
+  /** Data da ocorrência prevista que casou com esta linha. */
+  occurrenceDate: Date;
+  /**
+   * Id da linha já materializada por essa regra no período; presente quando a
+   * importação deve reconciliar (update in-place) em vez de inserir.
+   */
+  materializedTransactionId?: string;
+}
+
+/** Linha do extrato enriquecida para revisão do usuário no staging. */
+export interface StagedTransaction {
+  /** Chave estável para trilhas do renderer (deriva do fingerprint). */
+  key: string;
+  date: Date;
+  description: string;
+  amount: string;
+  type: TransactionType;
+  /** Conta sugerida (aprendida/dica); o usuário confirma. */
+  suggestedAccountId?: string;
+  suggestedCategory: TransactionCategory;
+  fingerprint: string;
+  /** Já existe transação idêntica importada antes (rededuplicação). */
+  duplicate: boolean;
+  /** Marcada para gravar; estornos e duplicados vêm desmarcados. */
+  include: boolean;
+  /** Parte de um par de estorno (crédito+débito que se anulam). */
+  reversal: boolean;
+  match?: ImportMatch;
+}
+
+/** Reconciliação do parse pelas linhas de saldo do extrato. */
+export interface ImportReconciliation {
+  openingBalance?: string;
+  closingBalance?: string;
+  computedClosing?: string;
+  /** true quando saldo inicial + movimentos = saldo final informado. */
+  balanced: boolean;
+}
+
+/** Resposta de `import:preview`: o staging completo para revisão. */
+export interface ImportPreview {
+  bank: AccountProvider | 'unknown';
+  fileName: string;
+  rows: StagedTransaction[];
+  reconciliation: ImportReconciliation;
+}
+
+/** Resultado de `import:commit`. */
+export interface ImportCommitResult {
+  inserted: number;
+  reconciled: number;
+  skipped: number;
+}
+
+export type ConfirmDetectedRecurrence = z.infer<typeof confirmDetectedRecurrenceSchema>;
+
+/** Recorrência candidata sugerida pela detecção sobre o histórico. */
+export interface DetectedRecurrence {
+  /** Chave estável da sugestão (deriva do cluster). */
+  key: string;
+  /** Descrição representativa (mais frequente do grupo). */
+  description: string;
+  accountId: string;
+  type: TransactionType;
+  category: TransactionCategory;
+  frequency: RecurringFrequency;
+  interval: number;
+  /** Dia do mês dominante (frequência mensal). */
+  dayOfMonth?: number;
+  /** Dia da semana dominante 0-6 (frequência semanal). */
+  dayOfWeek?: number;
+  averageAmount: string;
+  minAmount: string;
+  maxAmount: string;
+  /** Nº de ocorrências que sustentam o padrão. */
+  occurrences: number;
+  /** Data da primeira ocorrência (âncora do startDate). */
+  startDate: Date;
+  /** Ids das transações do grupo, para o vínculo retroativo. */
+  transactionIds: string[];
+}
 
 // ============================================================
 // Notes
