@@ -1,11 +1,20 @@
 import { eq } from 'drizzle-orm';
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
-import { getDb, schema } from '../database/database.module';
-import { action, Controller } from './controller.decorator';
-import { clearCurrentUser, getCurrentUser, setCurrentUser, type PublicUser } from './session';
+import { getDb, schema } from '../../database/database.module';
+import { inject } from '../../core/services.providers';
+import { RecurringMaterializerService } from '../recurring/recurring-materializer.service';
+import { action, Controller } from '../../core/controller.decorator';
+import {
+  clearCurrentUser,
+  getCurrentUser,
+  setCurrentUser,
+  type PublicUser,
+} from '../../core/session';
 
 @Controller('auth')
 export class AuthController {
+  private readonly materializer = inject(RecurringMaterializerService);
+
   @action('check')
   async check(): Promise<{ hasUsers: boolean }> {
     const db = getDb();
@@ -30,6 +39,14 @@ export class AuthController {
 
     const { passwordHash: _, ...publicUser } = user;
     setCurrentUser(publicUser);
+
+    // Catch-up das recorrências vencidas; uma falha aqui não pode impedir o login.
+    try {
+      this.materializer.materializeRecurringTransactions(publicUser.id);
+    } catch (error) {
+      console.error('[recurring] Falha no catch-up pós-login:', error);
+    }
+
     return publicUser;
   }
 
