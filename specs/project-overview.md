@@ -47,6 +47,10 @@ BRL.
 
 - **auth** — login local (hash de senha no banco); a sessão vive no processo
   main. O login também dispara a materialização de recorrências vencidas.
+- **profile** — edição do usuário logado em `/profile`: nome, avatar (arquivo
+  copiado para `userData/avatars` e servido pelo protocol handler `avatar://`)
+  e troca de senha exigindo a atual. E-mail é somente leitura (credencial de
+  login); `role`/`isActive` ficam fora (administração).
 - **accounts** — CRUD de contas (corrente, poupança, crédito, investimento,
   dinheiro), com saldo mantido transacionalmente.
 - **transactions** — extrato unificado: transações reais + previsões de

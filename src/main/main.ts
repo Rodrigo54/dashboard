@@ -5,10 +5,14 @@ import { initServices } from './core/services.providers';
 import { registerWindowControls } from './core/window-controls';
 import { initDb } from './database/database.module';
 import { getEnvironment } from './environment/environment.module';
+import { registerAvatarProtocol, registerAvatarScheme } from './features/profile/avatar.protocol';
 
 const env = getEnvironment();
 // O id técnico define a pasta de userData — precisa rodar antes do app ready.
 app.setName(env.app.id);
+
+// Schemes privilegiados só podem ser declarados antes do app ready.
+registerAvatarScheme();
 
 const isDev = !app.isPackaged;
 
@@ -43,6 +47,7 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   initDb();
+  registerAvatarProtocol();
 
   initServices();
   initControllers();

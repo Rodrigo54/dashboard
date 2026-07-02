@@ -34,7 +34,7 @@ Bundler` + `noEmit` (só type-check; o Vite emite). **Imports relativos não
   `<script type="module" src="/main.ts">`); a detecção de mudança usa
   `provideZonelessChangeDetection()` (**sem zone.js**). Organizado em `core/`
   (infra transversal: IPC, environment), `features/*` (`auth`, `home`,
-  `accounts`, `transactions`, `import`) e `shared/` (blocos de UI neutros ao
+  `accounts`, `transactions`, `import`, `profile`) e `shared/` (blocos de UI neutros ao
   domínio: `frame`, `zard`, `currency-input`). As rotas raiz ficam em
   `app/app.routes.ts` (lazy `loadChildren` por feature, `authGuard`, hash
   routing); a configuração em `app/app.config.ts`. O `angular.json` é mantido
@@ -74,7 +74,10 @@ O `src/main/` é organizado em duas árvores, além de `database/` e `environmen
 - **`src/main/features/<feature>/`** — um diretório por domínio, com o
   `<feature>.controller.ts` e os `*.service.ts` daquela feature. Hoje: `auth`,
   `accounts`, `transactions`, `recurring`, `import` (importação de extratos
-  PDF), `application` (metadados de app-level: environment + appData) e
+  PDF), `profile` (edição do usuário logado: nome, avatar e senha; inclui o
+  protocol handler `avatar://` que serve `userData/avatars` — scheme
+  privilegiado registrado antes do `app.whenReady` em `main.ts`),
+  `application` (metadados de app-level: environment + appData) e
   `notes`. Services compartilhados moram na feature "dona" e são importados
   cross-feature quando preciso (o registry de DI é por **nome**, então
   `inject()` independe do path do arquivo).
@@ -205,7 +208,7 @@ O modo do build decide o environment carregado: `dev` embute
   `invoke<T>` que fala com o preload) e `environment/` (`EnvironmentService`,
   consome o canal `application:env`). Nada aqui importa de `features/*`.
 - **Organização por feature** em `app/features/*` (`auth`, `home`, `accounts`,
-  `transactions`, `import`), por **proximidade de uso**, não por tipo — sem
+  `transactions`, `import`, `profile`), por **proximidade de uso**, não por tipo — sem
   pastas genéricas `components/`, `services/`, `models/`:
   - `<feature>.routes.ts` na raiz da feature (lazy via `loadChildren`).
   - `pages/<entidade>-<papel>/` — uma pasta por tela, nome no **plural da

@@ -21,6 +21,7 @@ export type CrudAction = 'create' | 'save' | 'read' | 'update' | 'remove' | 'lis
  */
 export interface ControllerChannelMap {
   auth: 'check' | 'listUsers' | 'login' | 'register' | 'logout' | 'me';
+  profile: 'update' | 'changePassword' | 'updateAvatar';
   application: 'env' | 'info';
   notes: 'list' | 'create';
   accounts: CrudAction | 'types' | 'providers' | 'currencies';

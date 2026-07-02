@@ -1,8 +1,9 @@
-import { invoke } from '@/core/ipc/invoke';
 import { ZardAvatarComponent } from '@/shared/zard/components/avatar';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
-import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
-import { PublicUser } from '@renderer/app/features/auth/auth.service';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '@renderer/app/features/auth/auth.service';
+import { avatarUrl, getInitials } from '@renderer/app/features/auth/auth.utils';
 import { FrameService } from './frame.service';
 
 @Component({
@@ -13,17 +14,18 @@ import { FrameService } from './frame.service';
       class="text-primary-foreground flex items-center justify-center"
       [class]="sidebarCollapsed() ? 'py-10' : 'pt-6'"
     >
-      <div [class]="avatarClasses()">
+      <button type="button" [class]="avatarClasses()" (click)="openProfile()">
         <z-avatar
-          zSrc="https://rodrigoalves.dev/img/profile-photo.webp"
-          zAlt="Image"
+          [zSrc]="userAvatar()"
+          [zFallback]="userInitials()"
+          [zAlt]="userName()"
           [zSize]="'default'"
           [zPriority]="true"
           class="cursor-pointer"
         />
 
         @if (!sidebarCollapsed()) {
-          <div class="w-25">
+          <div class="w-25 text-left">
             <span class="font-medium text-ellipsis overflow-hidden whitespace-nowrap">
               {{ userName() }}
             </span>
@@ -34,7 +36,7 @@ import { FrameService } from './frame.service';
 
           <z-icon zType="chevrons-up-down" class="my-auto" />
         }
-      </div>
+      </button>
     </div>
   `,
   styles: `
@@ -46,6 +48,9 @@ import { FrameService } from './frame.service';
 })
 export class FrameProfile {
   frame = inject(FrameService);
+  readonly #auth = inject(AuthService);
+  readonly #router = inject(Router);
+
   sidebarCollapsed = this.frame.sidebarCollapsed;
 
   avatarClasses = computed(() => {
@@ -57,10 +62,12 @@ export class FrameProfile {
     return `${baseClasses} ${sizeClasses}`;
   });
 
-  readonly userProfile = resource<PublicUser | null, unknown>({
-    loader: () => invoke<PublicUser | null>('auth:me'),
-  });
+  userName = computed(() => this.#auth.currentUser()?.name ?? '');
+  userEmail = computed(() => this.#auth.currentUser()?.email ?? '');
+  userInitials = computed(() => getInitials(this.userName()));
+  userAvatar = computed(() => avatarUrl(this.#auth.currentUser()));
 
-  userName = computed(() => this.userProfile.value()?.name);
-  userEmail = computed(() => this.userProfile.value()?.email);
+  openProfile(): void {
+    void this.#router.navigate(['/profile']);
+  }
 }

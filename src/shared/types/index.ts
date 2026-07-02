@@ -62,6 +62,9 @@ import {
   updateTransactionSchema,
   // Users
   userSchema,
+  updateProfileSchema,
+  changePasswordSchema,
+  updateAvatarSchema,
   uuidSchema,
   // Environment
   environmentNameSchema,
@@ -78,6 +81,9 @@ export type UUID = z.infer<typeof uuidSchema>;
 export type User = z.infer<typeof userSchema>;
 export type CreateUser = z.infer<typeof createUserSchema>;
 export type Login = z.infer<typeof loginSchema>;
+export type UpdateProfile = z.infer<typeof updateProfileSchema>;
+export type ChangePassword = z.infer<typeof changePasswordSchema>;
+export type UpdateAvatar = z.infer<typeof updateAvatarSchema>;
 
 // ============================================================
 // Accounts

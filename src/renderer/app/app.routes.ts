@@ -28,6 +28,7 @@ export const routes: Routes = [
         loadChildren: () => import('./features/transactions/transactions.routes'),
       },
       { path: 'import', loadChildren: () => import('./features/import/import.routes') },
+      { path: 'profile', loadChildren: () => import('./features/profile/profile.routes') },
     ],
   },
   {

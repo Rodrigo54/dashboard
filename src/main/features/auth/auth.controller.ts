@@ -1,5 +1,4 @@
 import { asc, eq } from 'drizzle-orm';
-import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { getDb, schema } from '../../database/database.module';
 import { inject } from '../../core/services.providers';
 import { RecurringMaterializerService } from '../recurring/recurring-materializer.service';
@@ -8,8 +7,10 @@ import {
   clearCurrentUser,
   getCurrentUser,
   setCurrentUser,
+  toPublicUser,
   type PublicUser,
 } from '../../core/session';
+import { hashPassword, verifyPassword } from './password.utils';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +32,7 @@ export class AuthController {
       .where(eq(schema.users.isActive, true))
       .orderBy(asc(schema.users.name))
       .all();
-    return rows.map(({ passwordHash: _, ...u }) => u);
+    return rows.map(toPublicUser);
   }
 
   @action('login')
@@ -41,15 +42,11 @@ export class AuthController {
 
     if (!user) throw new Error('Credenciais inválidas');
     if (!user.isActive) throw new Error('Usuário inativo');
-
-    const [salt, storedHex] = user.passwordHash.split(':');
-    const inputHex = scryptSync(payload.password, salt, 64).toString('hex');
-
-    if (!timingSafeEqual(Buffer.from(storedHex, 'hex'), Buffer.from(inputHex, 'hex'))) {
+    if (!verifyPassword(payload.password, user.passwordHash)) {
       throw new Error('Credenciais inválidas');
     }
 
-    const { passwordHash: _, ...publicUser } = user;
+    const publicUser = toPublicUser(user);
     setCurrentUser(publicUser);
 
     // Catch-up das recorrências vencidas; uma falha aqui não pode impedir o login.
@@ -73,17 +70,17 @@ export class AuthController {
 
     if (existing) throw new Error('E-mail já cadastrado');
 
-    const salt = randomBytes(16).toString('hex');
-    const hash = scryptSync(payload.password, salt, 64).toString('hex');
-    const passwordHash = `${salt}:${hash}`;
-
     const newUser = db
       .insert(schema.users)
-      .values({ name: payload.name, email: payload.email, passwordHash })
+      .values({
+        name: payload.name,
+        email: payload.email,
+        passwordHash: hashPassword(payload.password),
+      })
       .returning()
       .get();
 
-    const { passwordHash: _, ...publicUser } = newUser;
+    const publicUser = toPublicUser(newUser);
     setCurrentUser(publicUser);
     return publicUser;
   }

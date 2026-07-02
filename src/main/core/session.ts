@@ -3,6 +3,12 @@ import type { schema } from '../database/database.module';
 /** Usuário autenticado sem o hash de senha — formato exposto pela ponte de IPC. */
 export type PublicUser = Omit<schema.User, 'passwordHash'>;
 
+/** Remove a credencial de uma linha de `users` antes de expô-la via IPC. */
+export function toPublicUser(user: schema.User): PublicUser {
+  const { passwordHash: _passwordHash, ...publicUser } = user;
+  return publicUser;
+}
+
 // Sessão única do processo main. Compartilhada entre controllers (auth grava,
 // os demais leem para resolver o `userId` do usuário atual) em vez de viver
 // privada dentro de um único controller.
