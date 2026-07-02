@@ -4,7 +4,7 @@ import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component'
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService, type PublicUser } from '../../auth.service';
-import { getInitials } from '../../auth.utils';
+import { avatarUrl, getInitials } from '../../auth.utils';
 
 @Component({
   selector: 'app-welcome-page',
@@ -52,7 +52,7 @@ import { getInitials } from '../../auth.utils';
                 >
                   <z-avatar
                     [style.view-transition-name]="'avatar-' + user.id"
-                    [zSrc]="user.avatar ?? ''"
+                    [zSrc]="avatar(user)"
                     [zFallback]="initials(user.name)"
                     [zAlt]="user.name"
                     zSize="sm"
@@ -83,6 +83,7 @@ export default class WelcomePage {
   readonly #router = inject(Router);
 
   protected readonly initials = getInitials;
+  protected readonly avatar = avatarUrl;
 
   protected readonly users = resource({
     loader: async () => {
@@ -101,7 +102,9 @@ export default class WelcomePage {
         email: user.email,
         uid: user.id,
         name: user.name,
-        ...(user.avatar ? { avatar: user.avatar } : {}),
+        // A URL avatar:// (protocol handler do main) — o caminho bruto do banco
+        // seria bloqueado como local resource no renderer.
+        ...(user.avatar ? { avatar: avatarUrl(user) } : {}),
       },
     });
   }
