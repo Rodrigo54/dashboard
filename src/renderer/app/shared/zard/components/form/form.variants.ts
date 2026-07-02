@@ -1,6 +1,9 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 
-export const formFieldVariants = cva('grid gap-3');
+// content-start: sem ele, quando o field é esticado pela célula do grid pai
+// (irmão mais alto na mesma linha), o align-content:stretch default distribui a
+// folga entre as linhas internas e desalinha o input em relação aos vizinhos.
+export const formFieldVariants = cva('grid gap-3 content-start');
 
 export const formLabelVariants = cva(
   'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
