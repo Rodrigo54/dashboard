@@ -16,7 +16,7 @@ import {
   lucideTrash,
 } from '@ng-icons/lucide';
 import { ZardSelectImports } from '@/shared/zard/components/select';
-import { ZardTableImports } from '@/shared/zard/components/table';
+import { HlmTableImports } from '@/shared/spartan/table';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -41,7 +41,7 @@ type Scope = 'all' | 'recurring';
     CurrencyPipe,
     DatePipe,
     ...ZardSelectImports,
-    ...ZardTableImports,
+    ...HlmTableImports,
   ],
   providers: [
     provideIcons({
@@ -161,24 +161,24 @@ type Scope = 'all' | 'recurring';
         </hlm-empty-content>
       </hlm-empty>
     } @else {
-      <table z-table>
-        <thead z-table-header>
-          <tr z-table-row>
-            <th z-table-head>Data</th>
-            <th z-table-head>Descrição</th>
-            <th z-table-head>Conta</th>
-            <th z-table-head>Categoria</th>
-            <th z-table-head class="text-right!">Valor</th>
-            <th z-table-head class="text-center!">Ações</th>
+      <table hlmTable>
+        <thead hlmTHead>
+          <tr hlmTr>
+            <th hlmTh>Data</th>
+            <th hlmTh>Descrição</th>
+            <th hlmTh>Conta</th>
+            <th hlmTh>Categoria</th>
+            <th hlmTh class="text-right!">Valor</th>
+            <th hlmTh class="text-center!">Ações</th>
           </tr>
         </thead>
-        <tbody z-table-body>
+        <tbody hlmTBody>
           @for (row of rows(); track row.key) {
-            <tr z-table-row [class]="row.kind === 'forecast' ? 'bg-muted/20' : ''">
-              <td z-table-cell class="tabular-nums" [class]="dateCellClass(row)">
+            <tr hlmTr [class]="row.kind === 'forecast' ? 'bg-muted/20' : ''">
+              <td hlmTd class="tabular-nums" [class]="dateCellClass(row)">
                 {{ row.date | date: 'dd/MM/yyyy' }}
               </td>
-              <td z-table-cell class="font-medium">
+              <td hlmTd class="font-medium">
                 <span class="flex items-center gap-2">
                   {{ row.description }}
                   @if (row.kind === 'forecast') {
@@ -197,16 +197,16 @@ type Scope = 'all' | 'recurring';
                   }
                 </span>
               </td>
-              <td z-table-cell [class.text-muted-foreground]="row.kind === 'forecast'">
+              <td hlmTd [class.text-muted-foreground]="row.kind === 'forecast'">
                 {{ accountName(row.accountId) }}
               </td>
-              <td z-table-cell [class.text-muted-foreground]="row.kind === 'forecast'">
+              <td hlmTd [class.text-muted-foreground]="row.kind === 'forecast'">
                 {{ categoryLabel(row) }}
               </td>
-              <td z-table-cell class="text-right tabular-nums" [class]="amountClass(row)">
+              <td hlmTd class="text-right tabular-nums" [class]="amountClass(row)">
                 {{ signedAmount(row) | currency: accountCurrency(row.accountId) }}
               </td>
-              <td z-table-cell>
+              <td hlmTd>
                 <div class="flex flex-row items-center justify-center gap-2">
                   @if (row.kind === 'forecast' && row.rule; as rule) {
                     @if (rule.status === 'active') {

@@ -5,7 +5,7 @@ import { HlmButton } from '@/shared/spartan/button';
 import { HlmEmptyImports } from '@/shared/spartan/empty';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLandmark, lucidePlus, lucideSquarePen, lucideTrash } from '@ng-icons/lucide';
-import { ZardTableImports } from '@/shared/zard/components/table';
+import { HlmTableImports } from '@/shared/spartan/table';
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -23,7 +23,7 @@ import { AccountsService } from '../../shared/accounts.service';
     HlmBadge,
     ...HlmEmptyImports,
     CurrencyPipe,
-    ...ZardTableImports,
+    ...HlmTableImports,
   ],
   providers: [provideIcons({ lucideLandmark, lucidePlus, lucideSquarePen, lucideTrash })],
   template: `
@@ -60,28 +60,28 @@ import { AccountsService } from '../../shared/accounts.service';
             </hlm-empty-content>
           </hlm-empty>
         } @else {
-          <table z-table>
-            <thead z-table-header>
-              <tr z-table-row>
-                <th z-table-head>Nome</th>
-                <th z-table-head>Tipo</th>
-                <th z-table-head>Provedor</th>
-                <th z-table-head class="text-right">Saldo</th>
-                <th z-table-head class="text-right">Ações</th>
+          <table hlmTable>
+            <thead hlmTHead>
+              <tr hlmTr>
+                <th hlmTh>Nome</th>
+                <th hlmTh>Tipo</th>
+                <th hlmTh>Provedor</th>
+                <th hlmTh class="text-right">Saldo</th>
+                <th hlmTh class="text-right">Ações</th>
               </tr>
             </thead>
-            <tbody z-table-body>
+            <tbody hlmTBody>
               @for (account of accounts.value(); track account.id) {
-                <tr z-table-row>
-                  <td z-table-cell class="font-medium">{{ account.name }}</td>
-                  <td z-table-cell>
+                <tr hlmTr>
+                  <td hlmTd class="font-medium">{{ account.name }}</td>
+                  <td hlmTd>
                     <span hlmBadge variant="secondary">{{ typeLabel(account.type) }}</span>
                   </td>
-                  <td z-table-cell>{{ providerLabel(account.accountProvider) }}</td>
-                  <td z-table-cell class="text-left tabular-nums">
+                  <td hlmTd>{{ providerLabel(account.accountProvider) }}</td>
+                  <td hlmTd class="text-left tabular-nums">
                     {{ account.balance | currency: account.currency }}
                   </td>
-                  <td z-table-cell>
+                  <td hlmTd>
                     <div class="flex flex-row items-center gap-2 ">
                       <button
                         hlmBtn

@@ -1,5 +1,5 @@
 import { HlmBadge } from '@/shared/spartan/badge';
-import { ZardTableImports } from '@/shared/zard/components/table';
+import { HlmTableImports } from '@/shared/spartan/table';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import type { CategoryOptions } from '@/features/transactions/shared/transactions.service';
@@ -18,22 +18,22 @@ export interface CellEdit {
  */
 @Component({
   selector: 'app-import-staging-table',
-  imports: [HlmBadge, CurrencyPipe, DatePipe, ...ZardTableImports],
+  imports: [HlmBadge, CurrencyPipe, DatePipe, ...HlmTableImports],
   template: `
-    <table z-table>
-      <thead z-table-header>
-        <tr z-table-row>
-          <th z-table-head class="w-10 text-center!">Incluir</th>
-          <th z-table-head>Data</th>
-          <th z-table-head>Descrição</th>
-          <th z-table-head>Categoria</th>
-          <th z-table-head class="text-right!">Valor</th>
+    <table hlmTable>
+      <thead hlmTHead>
+        <tr hlmTr>
+          <th hlmTh class="w-10 text-center!">Incluir</th>
+          <th hlmTh>Data</th>
+          <th hlmTh>Descrição</th>
+          <th hlmTh>Categoria</th>
+          <th hlmTh class="text-right!">Valor</th>
         </tr>
       </thead>
-      <tbody z-table-body>
+      <tbody hlmTBody>
         @for (row of rows(); track row.staged.key; let i = $index) {
-          <tr z-table-row [class]="row.include ? '' : 'opacity-50'">
-            <td z-table-cell class="text-center">
+          <tr hlmTr [class]="row.include ? '' : 'opacity-50'">
+            <td hlmTd class="text-center">
               <input
                 type="checkbox"
                 class="accent-primary size-4"
@@ -42,8 +42,8 @@ export interface CellEdit {
                 [attr.aria-label]="'Incluir ' + row.staged.description"
               />
             </td>
-            <td z-table-cell class="tabular-nums">{{ row.staged.date | date: 'dd/MM/yyyy' }}</td>
-            <td z-table-cell class="font-medium">
+            <td hlmTd class="tabular-nums">{{ row.staged.date | date: 'dd/MM/yyyy' }}</td>
+            <td hlmTd class="font-medium">
               <span class="flex flex-wrap items-center gap-2">
                 {{ row.staged.description }}
                 @if (row.staged.duplicate) {
@@ -60,7 +60,7 @@ export interface CellEdit {
                 }
               </span>
             </td>
-            <td z-table-cell>
+            <td hlmTd>
               <select
                 class="border-border bg-background w-40 rounded-md border px-2 py-1 text-sm"
                 [value]="row.category"
@@ -74,7 +74,7 @@ export interface CellEdit {
                 }
               </select>
             </td>
-            <td z-table-cell class="text-right tabular-nums" [class]="amountClass(row)">
+            <td hlmTd class="text-right tabular-nums" [class]="amountClass(row)">
               {{ signedAmount(row) | currency: 'BRL' }}
             </td>
           </tr>
