@@ -1,4 +1,4 @@
-import { ZardAvatarComponent } from '@/shared/zard/components/avatar';
+import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
@@ -9,7 +9,14 @@ import { avatarUrl, getInitials } from '../../auth.utils';
 @Component({
   selector: 'app-welcome-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ZardAvatarComponent, ZardButtonComponent, ZardIconComponent, RouterLink],
+  imports: [
+    HlmAvatar,
+    HlmAvatarImage,
+    HlmAvatarFallback,
+    ZardButtonComponent,
+    ZardIconComponent,
+    RouterLink,
+  ],
   template: `
     <div class="flex items-center justify-center min-h-screen">
       <div class="flex flex-col items-center gap-6 w-full max-w-xs px-4">
@@ -50,13 +57,12 @@ import { avatarUrl, getInitials } from '../../auth.utils';
                   class="flex w-full items-center gap-3 px-4 py-2.5 hover:bg-accent hover:text-accent-foreground transition-colors"
                   (click)="selectUser(user)"
                 >
-                  <z-avatar
-                    [style.view-transition-name]="'avatar-' + user.id"
-                    [zSrc]="avatar(user)"
-                    [zFallback]="initials(user.name)"
-                    [zAlt]="user.name"
-                    zSize="sm"
-                  />
+                  <hlm-avatar [style.view-transition-name]="'avatar-' + user.id">
+                    @if (avatar(user); as src) {
+                      <img hlmAvatarImage [src]="src" [alt]="user.name" />
+                    }
+                    <span hlmAvatarFallback>{{ initials(user.name) }}</span>
+                  </hlm-avatar>
                   <div class="flex-1 min-w-0 text-left">
                     <p class="text-sm font-medium leading-none truncate">{{ user.name }}</p>
                     <p class="text-xs text-muted-foreground mt-0.5 truncate">{{ user.email }}</p>

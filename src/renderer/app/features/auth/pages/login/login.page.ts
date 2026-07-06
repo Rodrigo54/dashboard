@@ -1,4 +1,4 @@
-import { ZardAvatarComponent } from '@/shared/zard/components/avatar';
+import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import {
   ZardFormControlComponent,
@@ -18,7 +18,9 @@ import { getInitials } from '../../auth.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
-    ZardAvatarComponent,
+    HlmAvatar,
+    HlmAvatarImage,
+    HlmAvatarFallback,
     ZardButtonComponent,
     ZardIconComponent,
     ZardFormFieldComponent,
@@ -32,13 +34,12 @@ import { getInitials } from '../../auth.utils';
       <div class="flex flex-col gap-6 w-full max-w-xs px-4">
         <div class="bg-card rounded-xl shadow p-6 flex flex-col gap-5">
           <div class="flex flex-col items-center gap-3 text-center">
-            <z-avatar
-              [style.view-transition-name]="'avatar-' + profileUid"
-              [zSrc]="profileAvatar"
-              [zFallback]="initials(profileName)"
-              [zAlt]="profileName"
-              zSize="xl"
-            />
+            <hlm-avatar [style.view-transition-name]="'avatar-' + profileUid" class="size-16">
+              @if (profileAvatar) {
+                <img hlmAvatarImage [src]="profileAvatar" [alt]="profileName" />
+              }
+              <span hlmAvatarFallback class="text-lg">{{ initials(profileName) }}</span>
+            </hlm-avatar>
             <div>
               <p class="font-semibold text-foreground leading-none">{{ profileName }}</p>
               <p class="text-sm text-muted-foreground mt-1">{{ profileEmail }}</p>
@@ -62,7 +63,6 @@ import { getInitials } from '../../auth.utils';
                   type="password"
                   id="password"
                   placeholder="••••••••"
-                 
                   [formField]="loginForm.password"
                 />
               </z-form-control>

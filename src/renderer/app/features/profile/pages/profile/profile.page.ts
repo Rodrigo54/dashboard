@@ -1,6 +1,6 @@
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
-import { ZardAvatarComponent } from '@/shared/zard/components/avatar';
+import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { HlmSeparator } from '@/shared/spartan/separator';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
@@ -40,7 +40,9 @@ const passwordFormSchema = changePasswordSchema
     FormField,
     FrameHeader,
     FramePaper,
-    ZardAvatarComponent,
+    HlmAvatar,
+    HlmAvatarImage,
+    HlmAvatarFallback,
     ZardButtonComponent,
     HlmSeparator,
     ZardFormModule,
@@ -66,12 +68,12 @@ const passwordFormSchema = changePasswordSchema
                   class="size-16 rounded-full object-cover"
                 />
               } @else {
-                <z-avatar
-                  [zSrc]="currentAvatarUrl()"
-                  [zFallback]="initials()"
-                  [zAlt]="userName()"
-                  [zSize]="64"
-                />
+                <hlm-avatar class="size-16">
+                  @if (currentAvatarUrl(); as src) {
+                    <img hlmAvatarImage [src]="src" [alt]="userName()" />
+                  }
+                  <span hlmAvatarFallback class="text-lg">{{ initials() }}</span>
+                </hlm-avatar>
               }
               <div class="flex flex-col gap-2">
                 <button type="button" z-button zType="outline" (click)="avatarInput.click()">

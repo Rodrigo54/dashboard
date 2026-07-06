@@ -1,4 +1,4 @@
-import { ZardAvatarComponent } from '@/shared/zard/components/avatar';
+import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -8,21 +8,19 @@ import { FrameService } from './frame.service';
 
 @Component({
   selector: 'app-frame-profile',
-  imports: [ZardAvatarComponent, ZardIconComponent],
+  imports: [HlmAvatar, HlmAvatarImage, HlmAvatarFallback, ZardIconComponent],
   template: `
     <div
       class="text-primary-foreground flex items-center justify-center"
       [class]="sidebarCollapsed() ? 'py-10' : 'pt-6'"
     >
       <button type="button" [class]="avatarClasses()" (click)="openProfile()">
-        <z-avatar
-          [zSrc]="userAvatar()"
-          [zFallback]="userInitials()"
-          [zAlt]="userName()"
-          [zSize]="'default'"
-          [zPriority]="true"
-          class="cursor-pointer"
-        />
+        <hlm-avatar size="lg" class="cursor-pointer">
+          @if (userAvatar(); as src) {
+            <img hlmAvatarImage [src]="src" [alt]="userName()" />
+          }
+          <span hlmAvatarFallback>{{ userInitials() }}</span>
+        </hlm-avatar>
 
         @if (!sidebarCollapsed()) {
           <div class="w-25 text-left">

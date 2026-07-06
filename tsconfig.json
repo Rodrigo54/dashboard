@@ -21,7 +21,8 @@
       "@/shared/spartan/separator": ["./src/renderer/app/shared/spartan/separator/src/index.ts"],
       "@/shared/spartan/spinner": ["./src/renderer/app/shared/spartan/spinner/src/index.ts"],
       "@/shared/spartan/empty": ["./src/renderer/app/shared/spartan/empty/src/index.ts"],
-      "@/shared/spartan/breadcrumb": ["./src/renderer/app/shared/spartan/breadcrumb/src/index.ts"]
+      "@/shared/spartan/breadcrumb": ["./src/renderer/app/shared/spartan/breadcrumb/src/index.ts"],
+      "@/shared/spartan/avatar": ["./src/renderer/app/shared/spartan/avatar/src/index.ts"]
     }
   },
   "angularCompilerOptions": {
