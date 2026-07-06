@@ -1,4 +1,4 @@
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
 import { LayoutImports } from '@/shared/zard/components/layout';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -28,7 +28,7 @@ interface MenuItem {
 
 @Component({
   selector: 'app-frame-sidebar',
-  imports: [LayoutImports, ZardButtonComponent, NgIcon, FrameProfile, RouterLink],
+  imports: [LayoutImports, HlmButton, NgIcon, FrameProfile, RouterLink],
   providers: [
     provideIcons({
       lucideBell,
@@ -62,10 +62,9 @@ interface MenuItem {
             @for (item of profileMenuItems; track item.label) {
               <button
                 type="button"
-                z-button
-                zType="ghost"
+                hlmBtn
+                variant="ghost"
                 [class]="sidebarCollapsed() ? ' justify-center mx-auto' : ' justify-start'"
-                zPosition="right"
                 [routerLink]="item.link"
               >
                 <ng-icon
@@ -90,10 +89,9 @@ interface MenuItem {
           @for (item of mainMenuItems; track item.label) {
             <button
               type="button"
-              z-button
-              zType="ghost"
+              hlmBtn
+              variant="ghost"
               [class]="sidebarCollapsed() ? ' justify-center mx-auto' : ' justify-start'"
-              zPosition="right"
               [routerLink]="item.link"
             >
               <ng-icon

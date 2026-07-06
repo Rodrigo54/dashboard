@@ -1,7 +1,8 @@
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
+import { HlmSpinner } from '@/shared/spartan/spinner';
 import { HlmSeparator } from '@/shared/spartan/separator';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -44,7 +45,8 @@ const passwordFormSchema = changePasswordSchema
     HlmAvatar,
     HlmAvatarImage,
     HlmAvatarFallback,
-    ZardButtonComponent,
+    HlmButton,
+    HlmSpinner,
     HlmSeparator,
     ZardFormModule,
     NgIcon,
@@ -78,7 +80,7 @@ const passwordFormSchema = changePasswordSchema
                 </hlm-avatar>
               }
               <div class="flex flex-col gap-2">
-                <button type="button" z-button zType="outline" (click)="avatarInput.click()">
+                <button type="button" hlmBtn variant="outline" (click)="avatarInput.click()">
                   <ng-icon name="lucideImageUp" class="text-[length:--spacing(3.5)]" />
                   Trocar foto
                 </button>
@@ -137,11 +139,13 @@ const passwordFormSchema = changePasswordSchema
             <div class="col-span-6 flex flex-row-reverse">
               <button
                 type="submit"
-                z-button
-                zType="default"
-                [zLoading]="profileLoading()"
-                [disabled]="profileForm().invalid()"
+                hlmBtn
+                variant="default"
+                [disabled]="profileLoading() || profileForm().invalid()"
               >
+                @if (profileLoading()) {
+                  <hlm-spinner />
+                }
                 Salvar
               </button>
             </div>
@@ -214,11 +218,13 @@ const passwordFormSchema = changePasswordSchema
             <div class="col-span-6 flex flex-row-reverse">
               <button
                 type="submit"
-                z-button
-                zType="default"
-                [zLoading]="passwordLoading()"
-                [disabled]="passwordForm().invalid()"
+                hlmBtn
+                variant="default"
+                [disabled]="passwordLoading() || passwordForm().invalid()"
               >
+                @if (passwordLoading()) {
+                  <hlm-spinner />
+                }
                 Alterar senha
               </button>
             </div>

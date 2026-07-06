@@ -1,7 +1,7 @@
 import { CurrencyInputComponent } from '@/shared/currency-input';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import { ZardSelectImports } from '@/shared/zard/components/select';
@@ -33,7 +33,7 @@ import { AccountsService } from '../../shared/accounts.service';
     ZardFormModule,
     NgIcon,
     ZardInputDirective,
-    ZardButtonComponent,
+    HlmButton,
     ZardSelectImports,
     CurrencyInputComponent,
   ],
@@ -119,10 +119,10 @@ import { AccountsService } from '../../shared/accounts.service';
             </z-form-field>
 
             <div class="col-span-6 flex flex-row-reverse gap-6">
-              <button type="submit" z-button zType="default" [disabled]="accountForm().invalid()">
+              <button type="submit" hlmBtn variant="default" [disabled]="accountForm().invalid()">
                 {{ isEdit() ? 'Salvar' : 'Criar Conta' }}
               </button>
-              <button type="button" z-button zType="outline" (click)="cancel()">Cancelar</button>
+              <button type="button" hlmBtn variant="outline" (click)="cancel()">Cancelar</button>
             </div>
           </form>
         </div>

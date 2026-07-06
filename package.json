@@ -39,7 +39,6 @@
     "date-fns": "^4.4.0",
     "drizzle-orm": "^1.0.0-beta.22",
     "fastest-levenshtein": "^1.0.16",
-    "lucide-angular": "^1.0.0",
     "pdfjs-dist": "^6.1.200",
     "rrule": "^2.8.1",
     "rxjs": "~7.8.0",

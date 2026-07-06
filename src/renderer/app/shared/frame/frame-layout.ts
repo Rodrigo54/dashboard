@@ -1,6 +1,6 @@
 import { invoke } from '@/core/ipc/invoke';
 import { HlmBreadcrumbImports } from '@/shared/spartan/breadcrumb';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
 import { HlmSeparator } from '@/shared/spartan/separator';
 import { LayoutImports } from '@/shared/zard/components/layout';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -18,7 +18,7 @@ import { FrameService } from './frame.service';
   imports: [
     LayoutImports,
     HlmBreadcrumbImports,
-    ZardButtonComponent,
+    HlmButton,
     NgIcon,
     HlmSeparator,
     FrameSidebar,
@@ -45,9 +45,9 @@ import { FrameService } from './frame.service';
             <div class="flex items-center text-primary-foreground w-full">
               <button
                 type="button"
-                z-button
-                zType="ghost"
-                zSize="sm"
+                hlmBtn
+                variant="ghost"
+                size="icon-sm"
                 class="-ml-2"
                 (click)="frame.toggleSidebar()"
               >
@@ -71,7 +71,7 @@ import { FrameService } from './frame.service';
                 </ol>
               </nav>
               <div class="ml-auto">
-                <button type="button" z-button zType="ghost" zSize="sm" (click)="logoff()">
+                <button type="button" hlmBtn variant="ghost" size="icon-sm" (click)="logoff()">
                   <ng-icon name="lucideLogOut" class="text-[length:--spacing(3.5)]" />
                 </button>
               </div>

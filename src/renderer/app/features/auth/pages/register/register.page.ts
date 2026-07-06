@@ -1,4 +1,5 @@
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
+import { HlmSpinner } from '@/shared/spartan/spinner';
 import {
   ZardFormControlComponent,
   ZardFormFieldComponent,
@@ -26,7 +27,8 @@ import { AuthService } from '../../auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
-    ZardButtonComponent,
+    HlmButton,
+    HlmSpinner,
     NgIcon,
     ZardFormFieldComponent,
     ZardFormControlComponent,
@@ -111,13 +113,17 @@ import { AuthService } from '../../auth.service';
             </z-form-field>
 
             <button
-              z-button
-              zType="default"
+              hlmBtn
+              variant="default"
               type="submit"
               class="w-full mt-2"
-              [zLoading]="loading()"
+              [disabled]="loading()"
             >
-              <ng-icon name="lucideUserPlus" class="text-[length:--spacing(3.5)]" />
+              @if (loading()) {
+                <hlm-spinner />
+              } @else {
+                <ng-icon name="lucideUserPlus" class="text-[length:--spacing(3.5)]" />
+              }
               Criar conta
             </button>
           </form>

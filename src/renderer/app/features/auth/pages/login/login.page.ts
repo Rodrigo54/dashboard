@@ -1,5 +1,6 @@
 import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
+import { HlmSpinner } from '@/shared/spartan/spinner';
 import {
   ZardFormControlComponent,
   ZardFormFieldComponent,
@@ -22,7 +23,8 @@ import { getInitials } from '../../auth.utils';
     HlmAvatar,
     HlmAvatarImage,
     HlmAvatarFallback,
-    ZardButtonComponent,
+    HlmButton,
+    HlmSpinner,
     NgIcon,
     ZardFormFieldComponent,
     ZardFormControlComponent,
@@ -70,8 +72,12 @@ import { getInitials } from '../../auth.utils';
               </z-form-control>
             </z-form-field>
 
-            <button z-button zType="default" type="submit" class="w-full" [zLoading]="loading()">
-              <ng-icon name="lucideLogIn" class="text-[length:--spacing(3.5)]" />
+            <button hlmBtn variant="default" type="submit" class="w-full" [disabled]="loading()">
+              @if (loading()) {
+                <hlm-spinner />
+              } @else {
+                <ng-icon name="lucideLogIn" class="text-[length:--spacing(3.5)]" />
+              }
               Entrar
             </button>
           </form>

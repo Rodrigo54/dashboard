@@ -3,7 +3,7 @@ import { RecurringService } from '@/features/transactions/shared/recurring.servi
 import { TransactionsService } from '@/features/transactions/shared/transactions.service';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideCircleCheck, lucideFileText, lucideRepeat } from '@ng-icons/lucide';
 import { HlmSpinner } from '@/shared/spartan/spinner';
@@ -22,7 +22,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
     FramePaper,
     RouterLink,
     NgIcon,
-    ZardButtonComponent,
+    HlmButton,
     HlmSpinner,
     ImportStagingTable,
   ],
@@ -34,7 +34,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
         <h1 slot="title">Importar Extrato</h1>
         <p slot="subtitle">Extraia transações de um PDF de extrato (Banco do Brasil ou Itaú)</p>
         <div slot="actions">
-          <button z-button zType="outline" routerLink="/transactions">
+          <button hlmBtn variant="outline" routerLink="/transactions">
             <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
             Voltar
           </button>
@@ -58,8 +58,8 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
               </p>
             </div>
             <div class="flex gap-3">
-              <button z-button zType="outline" (click)="reset()">Importar outro</button>
-              <button z-button zType="default" routerLink="/transactions">Ver transações</button>
+              <button hlmBtn variant="outline" (click)="reset()">Importar outro</button>
+              <button hlmBtn variant="default" routerLink="/transactions">Ver transações</button>
             </div>
           </div>
         } @else if (preview(); as pv) {
@@ -88,10 +88,10 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
               </select>
             </label>
             <div class="flex gap-3">
-              <button z-button zType="outline" (click)="reset()">Cancelar</button>
+              <button hlmBtn variant="outline" (click)="reset()">Cancelar</button>
               <button
-                z-button
-                zType="default"
+                hlmBtn
+                variant="default"
                 [disabled]="includedCount() === 0 || !accountId()"
                 (click)="confirm()"
               >
@@ -142,7 +142,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
             />
           </label>
           <div class="mt-6 flex justify-center">
-            <button z-button zType="ghost" routerLink="/import/recurrences">
+            <button hlmBtn variant="ghost" routerLink="/import/recurrences">
               <ng-icon name="lucideRepeat" class="text-[length:--spacing(3.5)]" />
               Detectar recorrências no histórico
             </button>

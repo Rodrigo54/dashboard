@@ -4,7 +4,7 @@ import { TransactionsService } from '@/features/transactions/shared/transactions
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmBadge } from '@/shared/spartan/badge';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideRepeat } from '@ng-icons/lucide';
 import { HlmSpinner } from '@/shared/spartan/spinner';
@@ -23,7 +23,7 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
     FramePaper,
     RouterLink,
     NgIcon,
-    ZardButtonComponent,
+    HlmButton,
     HlmBadge,
     HlmSpinner,
     CurrencyPipe,
@@ -37,7 +37,7 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
         <h1 slot="title">Recorrências Detectadas</h1>
         <p slot="subtitle">Padrões encontrados no seu histórico de transações</p>
         <div slot="actions">
-          <button z-button zType="outline" routerLink="/import">
+          <button hlmBtn variant="outline" routerLink="/import">
             <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
             Voltar
           </button>
@@ -78,11 +78,11 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
                   </p>
                 </div>
                 <div class="flex gap-2">
-                  <button z-button zType="ghost" zSize="sm" (click)="dismiss(item)">Ignorar</button>
+                  <button hlmBtn variant="ghost" size="sm" (click)="dismiss(item)">Ignorar</button>
                   <button
-                    z-button
-                    zType="default"
-                    zSize="sm"
+                    hlmBtn
+                    variant="default"
+                    size="sm"
                     [disabled]="pending().has(item.key)"
                     (click)="confirm(item)"
                   >

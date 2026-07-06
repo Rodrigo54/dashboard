@@ -1,6 +1,6 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { HlmBadge } from '@/shared/spartan/badge';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
 import { HlmEmptyImports } from '@/shared/spartan/empty';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -35,7 +35,7 @@ type Scope = 'all' | 'recurring';
   imports: [
     RouterLink,
     NgIcon,
-    ZardButtonComponent,
+    HlmButton,
     HlmBadge,
     ...HlmEmptyImports,
     CurrencyPipe,
@@ -66,18 +66,18 @@ type Scope = 'all' | 'recurring';
           aria-label="Filtrar lançamentos"
         >
           <button
-            z-button
-            zSize="sm"
-            [zType]="scope() === 'all' ? 'secondary' : 'ghost'"
+            hlmBtn
+            size="sm"
+            [variant]="scope() === 'all' ? 'secondary' : 'ghost'"
             [attr.aria-pressed]="scope() === 'all'"
             (click)="scope.set('all')"
           >
             Tudo
           </button>
           <button
-            z-button
-            zSize="sm"
-            [zType]="scope() === 'recurring' ? 'secondary' : 'ghost'"
+            hlmBtn
+            size="sm"
+            [variant]="scope() === 'recurring' ? 'secondary' : 'ghost'"
             [attr.aria-pressed]="scope() === 'recurring'"
             (click)="scope.set('recurring')"
           >
@@ -88,9 +88,9 @@ type Scope = 'all' | 'recurring';
         <div class="bg-border h-6 w-px"></div>
         <div class="flex items-center gap-1">
           <button
-            z-button
-            zType="ghost"
-            zSize="sm"
+            hlmBtn
+            variant="ghost"
+            size="sm"
             [disabled]="service.isCurrentMonth()"
             (click)="service.goToToday()"
             aria-label="Voltar para o mês atual"
@@ -99,18 +99,18 @@ type Scope = 'all' | 'recurring';
             Hoje
           </button>
           <button
-            z-button
-            zType="ghost"
-            zSize="sm"
+            hlmBtn
+            variant="ghost"
+            size="icon-sm"
             (click)="service.previousMonth()"
             aria-label="Mês anterior"
           >
             <ng-icon name="lucideChevronLeft" class="text-[length:--spacing(3.5)]" />
           </button>
           <button
-            z-button
-            zType="ghost"
-            zSize="sm"
+            hlmBtn
+            variant="ghost"
+            size="icon-sm"
             (click)="service.nextMonth()"
             aria-label="Próximo mês"
           >
@@ -154,7 +154,7 @@ type Scope = 'all' | 'recurring';
           <p hlmEmptyDescription>{{ emptyDescription() }}</p>
         </hlm-empty-header>
         <hlm-empty-content>
-          <button z-button zType="default" routerLink="/transactions/new">
+          <button hlmBtn variant="default" routerLink="/transactions/new">
             Nova Transação
             <ng-icon name="lucidePlus" class="text-[length:--spacing(3.5)]" />
           </button>
@@ -211,18 +211,18 @@ type Scope = 'all' | 'recurring';
                   @if (row.kind === 'forecast' && row.rule; as rule) {
                     @if (rule.status === 'active') {
                       <button
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
+                        hlmBtn
+                        variant="ghost"
+                        size="icon-sm"
                         (click)="materialize(row)"
                         aria-label="Lançar agora"
                       >
                         <ng-icon name="lucideCircleCheck" class="text-[length:--spacing(3.5)]" />
                       </button>
                       <button
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
+                        hlmBtn
+                        variant="ghost"
+                        size="icon-sm"
                         (click)="pause(rule)"
                         aria-label="Pausar recorrência"
                       >
@@ -230,9 +230,9 @@ type Scope = 'all' | 'recurring';
                       </button>
                     } @else {
                       <button
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
+                        hlmBtn
+                        variant="ghost"
+                        size="icon-sm"
                         (click)="resume(rule)"
                         aria-label="Retomar recorrência"
                       >
@@ -240,9 +240,9 @@ type Scope = 'all' | 'recurring';
                       </button>
                     }
                     <button
-                      z-button
-                      zType="ghost"
-                      zSize="sm"
+                      hlmBtn
+                      variant="ghost"
+                      size="icon-sm"
                       [routerLink]="['/transactions/recurring', rule.id]"
                       aria-label="Editar recorrência"
                     >
@@ -250,18 +250,18 @@ type Scope = 'all' | 'recurring';
                     </button>
                   } @else if (row.transaction; as transaction) {
                     <button
-                      z-button
-                      zType="ghost"
-                      zSize="sm"
+                      hlmBtn
+                      variant="ghost"
+                      size="icon-sm"
                       [routerLink]="['/transactions', transaction.id]"
                       aria-label="Editar transação"
                     >
                       <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
                     </button>
                     <button
-                      z-button
-                      zType="ghost"
-                      zSize="sm"
+                      hlmBtn
+                      variant="ghost"
+                      size="icon-sm"
                       (click)="remove(transaction)"
                       aria-label="Apagar transação"
                     >

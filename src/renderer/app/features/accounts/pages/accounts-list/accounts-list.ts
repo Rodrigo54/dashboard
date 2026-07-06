@@ -1,7 +1,7 @@
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmBadge } from '@/shared/spartan/badge';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
 import { HlmEmptyImports } from '@/shared/spartan/empty';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLandmark, lucidePlus, lucideSquarePen, lucideTrash } from '@ng-icons/lucide';
@@ -19,7 +19,7 @@ import { AccountsService } from '../../shared/accounts.service';
     FramePaper,
     RouterLink,
     NgIcon,
-    ZardButtonComponent,
+    HlmButton,
     HlmBadge,
     ...HlmEmptyImports,
     CurrencyPipe,
@@ -33,7 +33,7 @@ import { AccountsService } from '../../shared/accounts.service';
         <h1 slot="title">Contas Bancárias</h1>
         <p slot="subtitle">Gerencie suas contas e configurações</p>
         <div slot="actions">
-          <button z-button zType="outline" routerLink="/accounts/new">
+          <button hlmBtn variant="outline" routerLink="/accounts/new">
             Adicionar Conta
             <ng-icon name="lucidePlus" class="text-[length:--spacing(3.5)]" />
           </button>
@@ -53,7 +53,7 @@ import { AccountsService } from '../../shared/accounts.service';
               </p>
             </hlm-empty-header>
             <hlm-empty-content>
-              <button z-button zType="default" routerLink="/accounts/new">
+              <button hlmBtn variant="default" routerLink="/accounts/new">
                 Adicionar Conta
                 <ng-icon name="lucidePlus" class="text-[length:--spacing(3.5)]" />
               </button>
@@ -84,18 +84,18 @@ import { AccountsService } from '../../shared/accounts.service';
                   <td z-table-cell>
                     <div class="flex flex-row items-center gap-2 ">
                       <button
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
+                        hlmBtn
+                        variant="ghost"
+                        size="icon-sm"
                         [routerLink]="['/accounts', account.id]"
                         aria-label="Editar conta"
                       >
                         <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
                       </button>
                       <button
-                        z-button
-                        zType="ghost"
-                        zSize="sm"
+                        hlmBtn
+                        variant="ghost"
+                        size="icon-sm"
                         (click)="remove(account)"
                         aria-label="Apagar conta"
                       >

@@ -1,6 +1,6 @@
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowRightLeft, lucideFileText, lucidePlus } from '@ng-icons/lucide';
@@ -9,7 +9,7 @@ import { TransactionsTable } from './transactions-table';
 
 @Component({
   selector: 'app-transactions',
-  imports: [FrameHeader, FramePaper, RouterLink, NgIcon, ZardButtonComponent, TransactionsTable],
+  imports: [FrameHeader, FramePaper, RouterLink, NgIcon, HlmButton, TransactionsTable],
   providers: [provideIcons({ lucideArrowRightLeft, lucideFileText, lucidePlus })],
   template: `
     <div>
@@ -18,11 +18,11 @@ import { TransactionsTable } from './transactions-table';
         <h1 slot="title">Transações</h1>
         <p slot="subtitle">Registre receitas e despesas, recorrentes ou avulsas</p>
         <div slot="actions" class="flex gap-2">
-          <button z-button zType="outline" routerLink="/import">
+          <button hlmBtn variant="outline" routerLink="/import">
             Importar Extrato
             <ng-icon name="lucideFileText" class="text-[length:--spacing(3.5)]" />
           </button>
-          <button z-button zType="outline" routerLink="/transactions/new">
+          <button hlmBtn variant="outline" routerLink="/transactions/new">
             Nova Transação
             <ng-icon name="lucidePlus" class="text-[length:--spacing(3.5)]" />
           </button>

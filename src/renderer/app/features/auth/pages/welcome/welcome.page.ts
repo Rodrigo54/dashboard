@@ -1,5 +1,5 @@
 import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
-import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
+import { HlmButton } from '@/shared/spartan/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronRight, lucideLayoutDashboard, lucideUserPlus } from '@ng-icons/lucide';
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
@@ -10,7 +10,7 @@ import { avatarUrl, getInitials } from '../../auth.utils';
 @Component({
   selector: 'app-welcome-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HlmAvatar, HlmAvatarImage, HlmAvatarFallback, ZardButtonComponent, NgIcon, RouterLink],
+  imports: [HlmAvatar, HlmAvatarImage, HlmAvatarFallback, HlmButton, NgIcon, RouterLink],
   providers: [provideIcons({ lucideChevronRight, lucideLayoutDashboard, lucideUserPlus })],
   template: `
     <div class="flex items-center justify-center min-h-screen">
@@ -33,7 +33,7 @@ import { avatarUrl, getInitials } from '../../auth.utils';
             <p class="text-center text-sm text-muted-foreground">
               Configure sua conta para começar
             </p>
-            <button z-button zType="default" class="w-full" [routerLink]="['/auth/register']">
+            <button hlmBtn variant="default" class="w-full" [routerLink]="['/auth/register']">
               <ng-icon name="lucideUserPlus" class="text-[length:--spacing(3.5)]" />
               Criar conta
             </button>
@@ -70,7 +70,7 @@ import { avatarUrl, getInitials } from '../../auth.utils';
               }
             </div>
             <div class="border-t border-border px-4 pb-4 pt-3">
-              <button z-button zType="ghost" class="w-full" [routerLink]="['/auth/register']">
+              <button hlmBtn variant="ghost" class="w-full" [routerLink]="['/auth/register']">
                 <ng-icon name="lucideUserPlus" class="text-[length:--spacing(3.5)]" />
                 Criar nova conta
               </button>
