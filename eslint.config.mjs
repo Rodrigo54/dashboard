@@ -85,6 +85,9 @@ export default tseslint.config(
   // utilitários próprios; relaxa as mesmas regras da lib vendorizada.
   {
     files: ['src/renderer/app/shared/spartan/**/*.ts'],
+    // O código gerado traz eslint-disable inline que fica redundante com as
+    // isenções abaixo; não reportar para manter o helm 100% regenerável.
+    linterOptions: { reportUnusedDisableDirectives: 'off' },
     rules: {
       '@angular-eslint/component-selector': 'off',
       '@angular-eslint/directive-selector': 'off',

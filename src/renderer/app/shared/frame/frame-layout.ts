@@ -1,5 +1,5 @@
 import { invoke } from '@/core/ipc/invoke';
-import { ZardBreadcrumbImports } from '@/shared/zard/components/breadcrumb';
+import { HlmBreadcrumbImports } from '@/shared/spartan/breadcrumb';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { HlmSeparator } from '@/shared/spartan/separator';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
@@ -16,7 +16,7 @@ import { FrameService } from './frame.service';
   selector: 'app-frame-layout',
   imports: [
     LayoutImports,
-    ZardBreadcrumbImports,
+    HlmBreadcrumbImports,
     ZardButtonComponent,
     ZardIconComponent,
     HlmSeparator,
@@ -52,14 +52,19 @@ import { FrameService } from './frame.service';
                 <z-icon zType="panel-left" />
               </button>
               <hlm-separator orientation="vertical" class="bg-primary-foreground ml-2 h-4" />
-              <z-breadcrumb zWrap="wrap" zAlign="start">
-                <z-breadcrumb-item zColor="primary" [routerLink]="['/home']">
-                  Home
-                </z-breadcrumb-item>
-                <z-breadcrumb-item zColor="primary">
-                  <span aria-current="page">Components</span>
-                </z-breadcrumb-item>
-              </z-breadcrumb>
+              <nav hlmBreadcrumb>
+                <ol hlmBreadcrumbList class="text-primary-foreground/80">
+                  <li hlmBreadcrumbItem>
+                    <a hlmBreadcrumbLink class="hover:text-primary-foreground" [link]="['/home']">
+                      Home
+                    </a>
+                  </li>
+                  <li hlmBreadcrumbSeparator></li>
+                  <li hlmBreadcrumbItem>
+                    <span hlmBreadcrumbPage class="text-primary-foreground">Components</span>
+                  </li>
+                </ol>
+              </nav>
               <div class="ml-auto">
                 <button type="button" z-button zType="ghost" zSize="sm" (click)="logoff()">
                   <z-icon zType="log-out" />
