@@ -1,4 +1,5 @@
 import { FrameHeader } from '@/shared/frame/frame-header';
+import { FrameHeaderButton } from '@/shared/frame/frame-header-button';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmBadge } from '@/shared/spartan/badge';
 import { HlmButton } from '@/shared/spartan/button';
@@ -16,6 +17,7 @@ import { AccountsService } from '../../shared/accounts.service';
   selector: 'app-accounts',
   imports: [
     FrameHeader,
+    FrameHeaderButton,
     FramePaper,
     RouterLink,
     NgIcon,
@@ -33,7 +35,7 @@ import { AccountsService } from '../../shared/accounts.service';
         <h1 slot="title">Contas Bancárias</h1>
         <p slot="subtitle">Gerencie suas contas e configurações</p>
         <div slot="actions">
-          <button hlmBtn variant="outline" routerLink="/accounts/new">
+          <button appFrameHeaderButton routerLink="/accounts/new">
             Adicionar Conta
             <ng-icon name="lucidePlus" class="text-[length:--spacing(3.5)]" />
           </button>

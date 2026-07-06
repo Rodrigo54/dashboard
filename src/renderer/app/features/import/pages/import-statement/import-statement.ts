@@ -2,6 +2,7 @@ import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { RecurringService } from '@/features/transactions/shared/recurring.service';
 import { TransactionsService } from '@/features/transactions/shared/transactions.service';
 import { FrameHeader } from '@/shared/frame/frame-header';
+import { FrameHeaderButton } from '@/shared/frame/frame-header-button';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -19,6 +20,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
   selector: 'app-import-statement',
   imports: [
     FrameHeader,
+    FrameHeaderButton,
     FramePaper,
     RouterLink,
     NgIcon,
@@ -34,7 +36,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
         <h1 slot="title">Importar Extrato</h1>
         <p slot="subtitle">Extraia transações de um PDF de extrato (Banco do Brasil ou Itaú)</p>
         <div slot="actions">
-          <button hlmBtn variant="outline" routerLink="/transactions">
+          <button appFrameHeaderButton routerLink="/transactions">
             <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
             Voltar
           </button>

@@ -2,8 +2,6 @@
 @import 'tailwindcss';
 @import '@spartan-ng/brain/hlm-tailwind-preset.css';
 
-@custom-variant dark (&:is(.dark *));
-
 :root {
   --radius: 0.625rem;
   --background: oklch(93.403% 0.00011 271.152);

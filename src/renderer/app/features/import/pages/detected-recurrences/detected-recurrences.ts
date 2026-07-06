@@ -2,6 +2,7 @@ import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { RecurringService } from '@/features/transactions/shared/recurring.service';
 import { TransactionsService } from '@/features/transactions/shared/transactions.service';
 import { FrameHeader } from '@/shared/frame/frame-header';
+import { FrameHeaderButton } from '@/shared/frame/frame-header-button';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmBadge } from '@/shared/spartan/badge';
 import { HlmButton } from '@/shared/spartan/button';
@@ -20,6 +21,7 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
   selector: 'app-detected-recurrences',
   imports: [
     FrameHeader,
+    FrameHeaderButton,
     FramePaper,
     RouterLink,
     NgIcon,
@@ -37,7 +39,7 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
         <h1 slot="title">Recorrências Detectadas</h1>
         <p slot="subtitle">Padrões encontrados no seu histórico de transações</p>
         <div slot="actions">
-          <button hlmBtn variant="outline" routerLink="/import">
+          <button appFrameHeaderButton routerLink="/import">
             <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
             Voltar
           </button>
