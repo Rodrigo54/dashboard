@@ -5,7 +5,7 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
-import { ZardLoaderComponent } from '@/shared/zard/components/loader/loader.component';
+import { HlmSpinner } from '@/shared/spartan/spinner';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ACCOUNT_PROVIDERS } from '@shared/enums';
@@ -22,7 +22,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
     RouterLink,
     ZardIconComponent,
     ZardButtonComponent,
-    ZardLoaderComponent,
+    HlmSpinner,
     ImportStagingTable,
   ],
   template: `
@@ -42,7 +42,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
       <app-frame-paper>
         @if (loading()) {
           <div class="flex flex-col items-center gap-3 py-12">
-            <z-loader />
+            <hlm-spinner class="text-[length:--spacing(6)]" />
             <p class="text-muted-foreground">Processando o extrato...</p>
           </div>
         } @else if (result(); as res) {

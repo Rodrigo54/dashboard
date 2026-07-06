@@ -29,11 +29,11 @@ import {
 } from './input-group.variants';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import type { ZardInputSizeVariants } from '@/shared/zard/components/input/input.variants';
-import { ZardLoaderComponent } from '@/shared/zard/components/loader/loader.component';
+import { HlmSpinner } from '@/shared/spartan/spinner';
 
 @Component({
   selector: 'z-input-group',
-  imports: [ZardStringTemplateOutletDirective, ZardLoaderComponent, ZardIdDirective],
+  imports: [ZardStringTemplateOutletDirective, HlmSpinner, ZardIdDirective],
   template: `
     <ng-container zardId="input-group" #z="zardId">
       @let addonBefore = zAddonBefore();
@@ -51,7 +51,7 @@ import { ZardLoaderComponent } from '@/shared/zard/components/loader/loader.comp
         <ng-content select="input[z-input], textarea[z-input]" />
 
         @if (zLoading()) {
-          <z-loader zSize="sm" />
+          <hlm-spinner />
         }
       </div>
 

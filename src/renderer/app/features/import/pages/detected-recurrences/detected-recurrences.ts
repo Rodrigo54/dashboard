@@ -6,7 +6,7 @@ import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
-import { ZardLoaderComponent } from '@/shared/zard/components/loader/loader.component';
+import { HlmSpinner } from '@/shared/spartan/spinner';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -24,7 +24,7 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
     ZardIconComponent,
     ZardButtonComponent,
     HlmBadge,
-    ZardLoaderComponent,
+    HlmSpinner,
     CurrencyPipe,
     DatePipe,
   ],
@@ -45,7 +45,7 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
       <app-frame-paper>
         @if (loading()) {
           <div class="flex flex-col items-center gap-3 py-12">
-            <z-loader />
+            <hlm-spinner class="text-[length:--spacing(6)]" />
             <p class="text-muted-foreground">Analisando o histórico...</p>
           </div>
         } @else if (error()) {
