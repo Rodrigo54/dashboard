@@ -53,7 +53,7 @@ import { FrameService } from './frame.service';
               </button>
               <hlm-separator
                 orientation="vertical"
-                class="bg-primary-foreground ml-2 h-4 self-center"
+                class="bg-primary-foreground mr-2 h-4 data-vertical:self-center"
               />
               <nav hlmBreadcrumb>
                 <ol hlmBreadcrumbList class="text-primary-foreground/80">
