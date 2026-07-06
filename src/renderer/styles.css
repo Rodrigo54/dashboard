@@ -1,6 +1,6 @@
 @layer ng-icon, theme, base, components, utilities;
 @import 'tailwindcss';
-@plugin "tailwindcss-animate";
+@import '@spartan-ng/brain/hlm-tailwind-preset.css';
 
 @custom-variant dark (&:is(.dark *));
 

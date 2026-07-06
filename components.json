@@ -1,17 +1,5 @@
 {
-  "$schema": "https://zardui.com/schema.json",
-  "style": "css",
-  "appConfigFile": "src/renderer/app/app.config.ts",
-  "packageManager": "bun",
-  "tailwind": {
-    "css": "src/renderer/styles.css",
-    "baseColor": "slate"
-  },
-  "baseUrl": "src/renderer/app",
-  "aliases": {
-    "components": "@/shared/zard/components",
-    "utils": "@/shared/zard/utils",
-    "core": "@/shared/zard/core",
-    "services": "@/shared/zard/services"
-  }
+  "componentsPath": "src/renderer/app/shared/spartan",
+  "importAlias": "@/shared/spartan",
+  "style": "nova"
 }
