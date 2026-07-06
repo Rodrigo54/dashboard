@@ -2,7 +2,7 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
-import { ZardEmptyComponent } from '@/shared/zard/components/empty';
+import { HlmEmptyImports } from '@/shared/spartan/empty';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardTableImports } from '@/shared/zard/components/table';
 import { CurrencyPipe } from '@angular/common';
@@ -20,7 +20,7 @@ import { AccountsService } from '../../shared/accounts.service';
     ZardIconComponent,
     ZardButtonComponent,
     HlmBadge,
-    ZardEmptyComponent,
+    ...HlmEmptyImports,
     CurrencyPipe,
     ...ZardTableImports,
   ],
@@ -43,17 +43,20 @@ import { AccountsService } from '../../shared/accounts.service';
         } @else if (accounts.error()) {
           <p class="text-destructive py-8 text-center">Não foi possível carregar as contas.</p>
         } @else if (!accounts.value()?.length) {
-          <z-empty
-            zTitle="Nenhuma conta cadastrada"
-            zDescription="Adicione sua primeira conta bancária para começar a organizar suas finanças."
-            [zActions]="[addAction]"
-          ></z-empty>
-          <ng-template #addAction>
-            <button z-button zType="default" routerLink="/accounts/new">
-              Adicionar Conta
-              <i z-icon zType="plus"></i>
-            </button>
-          </ng-template>
+          <hlm-empty>
+            <hlm-empty-header>
+              <h3 hlmEmptyTitle>Nenhuma conta cadastrada</h3>
+              <p hlmEmptyDescription>
+                Adicione sua primeira conta bancária para começar a organizar suas finanças.
+              </p>
+            </hlm-empty-header>
+            <hlm-empty-content>
+              <button z-button zType="default" routerLink="/accounts/new">
+                Adicionar Conta
+                <i z-icon zType="plus"></i>
+              </button>
+            </hlm-empty-content>
+          </hlm-empty>
         } @else {
           <table z-table>
             <thead z-table-header>

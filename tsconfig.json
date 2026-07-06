@@ -19,7 +19,8 @@
       "@/shared/spartan/badge": ["./src/renderer/app/shared/spartan/badge/src/index.ts"],
       "@/shared/spartan/utils": ["./src/renderer/app/shared/spartan/utils/src/index.ts"],
       "@/shared/spartan/separator": ["./src/renderer/app/shared/spartan/separator/src/index.ts"],
-      "@/shared/spartan/spinner": ["./src/renderer/app/shared/spartan/spinner/src/index.ts"]
+      "@/shared/spartan/spinner": ["./src/renderer/app/shared/spartan/spinner/src/index.ts"],
+      "@/shared/spartan/empty": ["./src/renderer/app/shared/spartan/empty/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

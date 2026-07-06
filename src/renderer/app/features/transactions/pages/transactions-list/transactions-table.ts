@@ -1,7 +1,7 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
-import { ZardEmptyComponent } from '@/shared/zard/components/empty';
+import { HlmEmptyImports } from '@/shared/spartan/empty';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardSelectImports } from '@/shared/zard/components/select';
 import { ZardTableImports } from '@/shared/zard/components/table';
@@ -25,7 +25,7 @@ type Scope = 'all' | 'recurring';
     ZardIconComponent,
     ZardButtonComponent,
     HlmBadge,
-    ZardEmptyComponent,
+    ...HlmEmptyImports,
     CurrencyPipe,
     DatePipe,
     ...ZardSelectImports,
@@ -122,17 +122,18 @@ type Scope = 'all' | 'recurring';
     } @else if (hasError()) {
       <p class="text-destructive py-8 text-center">Não foi possível carregar os lançamentos.</p>
     } @else if (!rows().length) {
-      <z-empty
-        [zTitle]="emptyTitle()"
-        [zDescription]="emptyDescription()"
-        [zActions]="[addAction]"
-      ></z-empty>
-      <ng-template #addAction>
-        <button z-button zType="default" routerLink="/transactions/new">
-          Nova Transação
-          <i z-icon zType="plus"></i>
-        </button>
-      </ng-template>
+      <hlm-empty>
+        <hlm-empty-header>
+          <h3 hlmEmptyTitle>{{ emptyTitle() }}</h3>
+          <p hlmEmptyDescription>{{ emptyDescription() }}</p>
+        </hlm-empty-header>
+        <hlm-empty-content>
+          <button z-button zType="default" routerLink="/transactions/new">
+            Nova Transação
+            <i z-icon zType="plus"></i>
+          </button>
+        </hlm-empty-content>
+      </hlm-empty>
     } @else {
       <table z-table>
         <thead z-table-header>
