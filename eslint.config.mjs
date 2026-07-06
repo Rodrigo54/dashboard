@@ -91,6 +91,7 @@ export default tseslint.config(
     rules: {
       '@angular-eslint/component-selector': 'off',
       '@angular-eslint/directive-selector': 'off',
+      '@angular-eslint/no-input-rename': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       'max-lines': 'off',
       'max-lines-per-function': 'off',

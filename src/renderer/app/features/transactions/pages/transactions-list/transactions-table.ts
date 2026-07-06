@@ -15,7 +15,7 @@ import {
   lucideSquarePen,
   lucideTrash,
 } from '@ng-icons/lucide';
-import { ZardSelectImports } from '@/shared/zard/components/select';
+import { HlmSelectImports } from '@/shared/spartan/select';
 import { HlmTableImports } from '@/shared/spartan/table';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
@@ -40,7 +40,7 @@ type Scope = 'all' | 'recurring';
     ...HlmEmptyImports,
     CurrencyPipe,
     DatePipe,
-    ...ZardSelectImports,
+    ...HlmSelectImports,
     ...HlmTableImports,
   ],
   providers: [
@@ -120,26 +120,32 @@ type Scope = 'all' | 'recurring';
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <z-select
-          class="w-44"
-          zPlaceholder="Todas as contas"
-          (zSelectionChange)="onAccountFilter($event)"
-        >
-          <z-select-item zValue="all">Todas as contas</z-select-item>
-          @for (account of accountsService.accounts.value(); track account.id) {
-            <z-select-item [zValue]="account.id">{{ account.name }}</z-select-item>
-          }
-        </z-select>
-        <z-select
-          class="w-36"
-          zPlaceholder="Todos os tipos"
-          (zSelectionChange)="onTypeFilter($event)"
-        >
-          <z-select-item zValue="all">Todos os tipos</z-select-item>
-          @for (type of service.types.value(); track type.value) {
-            <z-select-item [zValue]="type.value">{{ type.label }}</z-select-item>
-          }
-        </z-select>
+        <hlm-select class="w-44" (valueChange)="onAccountFilter($event)">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value placeholder="Todas as contas" />
+          </hlm-select-trigger>
+          <ng-template hlmSelectPortal>
+            <hlm-select-content>
+              <hlm-select-item value="all">Todas as contas</hlm-select-item>
+              @for (account of accountsService.accounts.value(); track account.id) {
+                <hlm-select-item [value]="account.id">{{ account.name }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </ng-template>
+        </hlm-select>
+        <hlm-select class="w-36" (valueChange)="onTypeFilter($event)">
+          <hlm-select-trigger class="w-full">
+            <hlm-select-value placeholder="Todos os tipos" />
+          </hlm-select-trigger>
+          <ng-template hlmSelectPortal>
+            <hlm-select-content>
+              <hlm-select-item value="all">Todos os tipos</hlm-select-item>
+              @for (type of service.types.value(); track type.value) {
+                <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
+              }
+            </hlm-select-content>
+          </ng-template>
+        </hlm-select>
       </div>
     </div>
 
@@ -325,14 +331,12 @@ export class TransactionsTable {
       : 'Registre uma receita ou despesa para vê-la aqui.',
   );
 
-  protected onAccountFilter(value: string | string[]): void {
-    this.service.accountFilter.set((value as string) === 'all' ? undefined : (value as UUID));
+  protected onAccountFilter(value: string | undefined): void {
+    this.service.accountFilter.set(value === 'all' ? undefined : (value as UUID));
   }
 
-  protected onTypeFilter(value: string | string[]): void {
-    this.service.typeFilter.set(
-      (value as string) === 'all' ? undefined : (value as TransactionType),
-    );
+  protected onTypeFilter(value: string | undefined): void {
+    this.service.typeFilter.set(value === 'all' ? undefined : (value as TransactionType));
   }
 
   protected accountName(accountId: string): string {

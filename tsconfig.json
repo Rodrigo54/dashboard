@@ -29,7 +29,8 @@
       "@/shared/spartan/input-group": [
         "./src/renderer/app/shared/spartan/input-group/src/index.ts"
       ],
-      "@/shared/spartan/textarea": ["./src/renderer/app/shared/spartan/textarea/src/index.ts"]
+      "@/shared/spartan/textarea": ["./src/renderer/app/shared/spartan/textarea/src/index.ts"],
+      "@/shared/spartan/select": ["./src/renderer/app/shared/spartan/select/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

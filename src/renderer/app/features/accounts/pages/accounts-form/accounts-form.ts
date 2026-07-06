@@ -4,7 +4,7 @@ import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
 import { HlmInput } from '@/shared/spartan/input';
-import { ZardSelectImports } from '@/shared/zard/components/select';
+import { HlmSelectImports } from '@/shared/spartan/select';
 import { CURRENCY_SYMBOLS } from '@shared/enums';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -34,7 +34,7 @@ import { AccountsService } from '../../shared/accounts.service';
     NgIcon,
     HlmInput,
     HlmButton,
-    ZardSelectImports,
+    HlmSelectImports,
     CurrencyInputComponent,
   ],
   providers: [provideIcons({ lucideLandmark })],
@@ -77,34 +77,56 @@ import { AccountsService } from '../../shared/accounts.service';
             <z-form-field class="col-span-2">
               <label for="accountType" z-form-label>Tipo</label>
               <z-form-control>
-                <z-select zPlaceholder="Escolha o tipo de conta" [formField]="accountForm.type">
-                  @for (type of accountsService.accountTypes.value(); track type.value) {
-                    <z-select-item [zValue]="type.value">{{ type.label }}</z-select-item>
-                  }
-                </z-select>
+                <hlm-select [formField]="accountForm.type">
+                  <hlm-select-trigger class="w-full">
+                    <hlm-select-value placeholder="Escolha o tipo de conta" />
+                  </hlm-select-trigger>
+                  <ng-template hlmSelectPortal>
+                    <hlm-select-content>
+                      @for (type of accountsService.accountTypes.value(); track type.value) {
+                        <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
+                      }
+                    </hlm-select-content>
+                  </ng-template>
+                </hlm-select>
               </z-form-control>
             </z-form-field>
             <z-form-field class="col-span-2">
               <label for="accountProvider" z-form-label>Provedor</label>
               <z-form-control [errorMessage]="errorOf(accountForm.accountProvider!())">
-                <z-select
-                  zPlaceholder="Escolha o provedor da conta"
-                  [formField]="accountForm.accountProvider!"
-                >
-                  @for (provider of accountsService.providers.value(); track provider.value) {
-                    <z-select-item [zValue]="provider.value">{{ provider.label }}</z-select-item>
-                  }
-                </z-select>
+                <hlm-select [formField]="accountForm.accountProvider!">
+                  <hlm-select-trigger class="w-full">
+                    <hlm-select-value placeholder="Escolha o provedor da conta" />
+                  </hlm-select-trigger>
+                  <ng-template hlmSelectPortal>
+                    <hlm-select-content>
+                      @for (provider of accountsService.providers.value(); track provider.value) {
+                        <hlm-select-item [value]="provider.value">{{
+                          provider.label
+                        }}</hlm-select-item>
+                      }
+                    </hlm-select-content>
+                  </ng-template>
+                </hlm-select>
               </z-form-control>
             </z-form-field>
             <z-form-field class="col-span-2">
               <label for="currency" z-form-label>Moeda</label>
               <z-form-control [errorMessage]="errorOf(accountForm.currency())">
-                <z-select zPlaceholder="Escolha a moeda" [formField]="accountForm.currency">
-                  @for (currency of accountsService.currencies.value(); track currency.value) {
-                    <z-select-item [zValue]="currency.value">{{ currency.label }}</z-select-item>
-                  }
-                </z-select>
+                <hlm-select [formField]="accountForm.currency">
+                  <hlm-select-trigger class="w-full">
+                    <hlm-select-value placeholder="Escolha a moeda" />
+                  </hlm-select-trigger>
+                  <ng-template hlmSelectPortal>
+                    <hlm-select-content>
+                      @for (currency of accountsService.currencies.value(); track currency.value) {
+                        <hlm-select-item [value]="currency.value">{{
+                          currency.label
+                        }}</hlm-select-item>
+                      }
+                    </hlm-select-content>
+                  </ng-template>
+                </hlm-select>
               </z-form-control>
             </z-form-field>
             <z-form-field class="col-span-6">

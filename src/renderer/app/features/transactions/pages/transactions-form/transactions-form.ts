@@ -5,7 +5,7 @@ import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
 import { HlmInput } from '@/shared/spartan/input';
-import { ZardSelectImports } from '@/shared/zard/components/select';
+import { HlmSelectImports } from '@/shared/spartan/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowRightLeft } from '@ng-icons/lucide';
 import {
@@ -58,7 +58,7 @@ export interface TransactionFormModel {
     NgIcon,
     HlmInput,
     HlmButton,
-    ZardSelectImports,
+    HlmSelectImports,
     CurrencyInputComponent,
   ],
   providers: [provideIcons({ lucideArrowRightLeft })],
@@ -90,33 +90,56 @@ export interface TransactionFormModel {
             <z-form-field class="col-span-3">
               <label for="accountId" z-form-label>Conta</label>
               <z-form-control [errorMessage]="errorOf(transactionForm.accountId())">
-                <z-select zPlaceholder="Escolha a conta" [formField]="transactionForm.accountId">
-                  @for (account of accountsService.accounts.value(); track account.id) {
-                    <z-select-item [zValue]="account.id">{{ account.name }}</z-select-item>
-                  }
-                </z-select>
+                <hlm-select [formField]="transactionForm.accountId">
+                  <hlm-select-trigger class="w-full">
+                    <hlm-select-value placeholder="Escolha a conta" />
+                  </hlm-select-trigger>
+                  <ng-template hlmSelectPortal>
+                    <hlm-select-content>
+                      @for (account of accountsService.accounts.value(); track account.id) {
+                        <hlm-select-item [value]="account.id">{{ account.name }}</hlm-select-item>
+                      }
+                    </hlm-select-content>
+                  </ng-template>
+                </hlm-select>
               </z-form-control>
             </z-form-field>
 
             <z-form-field class="col-span-3">
               <label for="type" z-form-label>Tipo</label>
               <z-form-control>
-                <z-select zPlaceholder="Escolha o tipo" [formField]="transactionForm.type">
-                  @for (type of transactionsService.types.value(); track type.value) {
-                    <z-select-item [zValue]="type.value">{{ type.label }}</z-select-item>
-                  }
-                </z-select>
+                <hlm-select [formField]="transactionForm.type">
+                  <hlm-select-trigger class="w-full">
+                    <hlm-select-value placeholder="Escolha o tipo" />
+                  </hlm-select-trigger>
+                  <ng-template hlmSelectPortal>
+                    <hlm-select-content>
+                      @for (type of transactionsService.types.value(); track type.value) {
+                        <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
+                      }
+                    </hlm-select-content>
+                  </ng-template>
+                </hlm-select>
               </z-form-control>
             </z-form-field>
 
             <z-form-field class="col-span-2">
               <label for="category" z-form-label>Categoria</label>
               <z-form-control [errorMessage]="errorOf(transactionForm.category())">
-                <z-select zPlaceholder="Escolha a categoria" [formField]="transactionForm.category">
-                  @for (category of categoryOptions(); track category.value) {
-                    <z-select-item [zValue]="category.value">{{ category.label }}</z-select-item>
-                  }
-                </z-select>
+                <hlm-select [formField]="transactionForm.category">
+                  <hlm-select-trigger class="w-full">
+                    <hlm-select-value placeholder="Escolha a categoria" />
+                  </hlm-select-trigger>
+                  <ng-template hlmSelectPortal>
+                    <hlm-select-content>
+                      @for (category of categoryOptions(); track category.value) {
+                        <hlm-select-item [value]="category.value">{{
+                          category.label
+                        }}</hlm-select-item>
+                      }
+                    </hlm-select-content>
+                  </ng-template>
+                </hlm-select>
               </z-form-control>
             </z-form-field>
 
@@ -155,19 +178,23 @@ export interface TransactionFormModel {
                 <z-form-field class="col-span-3">
                   <label for="frequency" z-form-label>Frequência</label>
                   <z-form-control>
-                    <z-select
-                      zPlaceholder="Escolha a frequência"
-                      [formField]="transactionForm.frequency"
-                    >
-                      @for (
-                        frequency of recurringService.frequencies.value();
-                        track frequency.value
-                      ) {
-                        <z-select-item [zValue]="frequency.value">{{
-                          frequency.label
-                        }}</z-select-item>
-                      }
-                    </z-select>
+                    <hlm-select [formField]="transactionForm.frequency">
+                      <hlm-select-trigger class="w-full">
+                        <hlm-select-value placeholder="Escolha a frequência" />
+                      </hlm-select-trigger>
+                      <ng-template hlmSelectPortal>
+                        <hlm-select-content>
+                          @for (
+                            frequency of recurringService.frequencies.value();
+                            track frequency.value
+                          ) {
+                            <hlm-select-item [value]="frequency.value">{{
+                              frequency.label
+                            }}</hlm-select-item>
+                          }
+                        </hlm-select-content>
+                      </ng-template>
+                    </hlm-select>
                   </z-form-control>
                 </z-form-field>
 
