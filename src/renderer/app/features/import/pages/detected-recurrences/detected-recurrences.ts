@@ -3,7 +3,7 @@ import { RecurringService } from '@/features/transactions/shared/recurring.servi
 import { TransactionsService } from '@/features/transactions/shared/transactions.service';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
-import { ZardBadgeComponent } from '@/shared/zard/components/badge/badge.component';
+import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardLoaderComponent } from '@/shared/zard/components/loader/loader.component';
@@ -23,7 +23,7 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
     RouterLink,
     ZardIconComponent,
     ZardButtonComponent,
-    ZardBadgeComponent,
+    HlmBadge,
     ZardLoaderComponent,
     CurrencyPipe,
     DatePipe,
@@ -63,8 +63,8 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
                 <div class="flex flex-col gap-1">
                   <div class="flex items-center gap-2">
                     <span class="font-medium">{{ item.description }}</span>
-                    <z-badge zType="outline">{{ frequencyLabel(item) }}</z-badge>
-                    <z-badge zType="secondary">{{ item.occurrences }}x</z-badge>
+                    <span hlmBadge variant="outline">{{ frequencyLabel(item) }}</span>
+                    <span hlmBadge variant="secondary">{{ item.occurrences }}x</span>
                   </div>
                   <p class="text-muted-foreground text-sm">
                     {{ accountName(item.accountId) }} · desde

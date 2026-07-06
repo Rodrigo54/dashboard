@@ -1,4 +1,4 @@
-import { ZardBadgeComponent } from '@/shared/zard/components/badge/badge.component';
+import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardTableImports } from '@/shared/zard/components/table';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
@@ -18,7 +18,7 @@ export interface CellEdit {
  */
 @Component({
   selector: 'app-import-staging-table',
-  imports: [ZardBadgeComponent, CurrencyPipe, DatePipe, ...ZardTableImports],
+  imports: [HlmBadge, CurrencyPipe, DatePipe, ...ZardTableImports],
   template: `
     <table z-table>
       <thead z-table-header>
@@ -47,16 +47,16 @@ export interface CellEdit {
               <span class="flex flex-wrap items-center gap-2">
                 {{ row.staged.description }}
                 @if (row.staged.duplicate) {
-                  <z-badge zType="destructive">Duplicado</z-badge>
+                  <span hlmBadge variant="destructive">Duplicado</span>
                 }
                 @if (row.staged.reversal) {
-                  <z-badge zType="secondary">Estorno</z-badge>
+                  <span hlmBadge variant="secondary">Estorno</span>
                 }
                 @if (row.staged.match; as match) {
-                  <z-badge zType="outline">
+                  <span hlmBadge variant="outline">
                     ↔ {{ match.recurringName
                     }}{{ match.materializedTransactionId ? ' (reconciliar)' : '' }}
-                  </z-badge>
+                  </span>
                 }
               </span>
             </td>

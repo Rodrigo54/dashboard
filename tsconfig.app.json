@@ -1,5 +1,3 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
@@ -10,9 +8,8 @@
   "include": [
     "src/renderer/**/*.ts",
     "src/shared/**/*.ts",
-    "src/shared/**/*.d.ts"
+    "src/shared/**/*.d.ts",
+    "src/renderer/app/shared/spartan/**/src/**/*.ts"
   ],
-  "exclude": [
-    "src/renderer/**/*.spec.ts"
-  ]
+  "exclude": ["src/renderer/**/*.spec.ts"]
 }

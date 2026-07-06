@@ -80,6 +80,20 @@ export default tseslint.config(
     },
   },
 
+  // -------- Design system spartan (helm gerado pelo CLI) --------
+  // Código gerado por `ng g @spartan-ng/cli:ui` — seletores hlm*/brn* e
+  // utilitários próprios; relaxa as mesmas regras da lib vendorizada.
+  {
+    files: ['src/renderer/app/shared/spartan/**/*.ts'],
+    rules: {
+      '@angular-eslint/component-selector': 'off',
+      '@angular-eslint/directive-selector': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
+    },
+  },
+
   // -------- Design system zard (componentes portados) --------
   // Anexa-se a elementos HTML nativos (table[z-table], input[z-input]...) e usa
   // utilitários genéricos — relaxa regras de seletor/`any` para a lib vendorizada.

@@ -35,7 +35,7 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { ClassValue } from 'clsx';
 import { filter } from 'rxjs';
 
-import { ZardBadgeComponent } from '../badge';
+import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardIconComponent } from '../icon/icon.component';
 import { ZardSelectItemComponent } from './select-item.component';
 import {
@@ -54,7 +54,7 @@ const COMPACT_MODE_WIDTH_THRESHOLD = 100;
 
 @Component({
   selector: 'z-select, [z-select]',
-  imports: [OverlayModule, ZardBadgeComponent, ZardIconComponent],
+  imports: [OverlayModule, HlmBadge, ZardIconComponent],
   template: `
     <button
       type="button"
@@ -72,9 +72,9 @@ const COMPACT_MODE_WIDTH_THRESHOLD = 100;
       <span class="flex flex-1 flex-wrap items-center gap-2 min-w-0">
         @for (label of selectedLabels(); track $index) {
           @if (zMultiple()) {
-            <z-badge zType="secondary">
+            <span hlmBadge variant="secondary">
               <span class="truncate">{{ label }}</span>
-            </z-badge>
+            </span>
           } @else {
             <span class="truncate">{{ label }}</span>
           }

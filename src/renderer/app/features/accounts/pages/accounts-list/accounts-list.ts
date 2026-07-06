@@ -1,6 +1,6 @@
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
-import { ZardBadgeComponent } from '@/shared/zard/components/badge/badge.component';
+import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardEmptyComponent } from '@/shared/zard/components/empty';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
@@ -19,7 +19,7 @@ import { AccountsService } from '../../shared/accounts.service';
     RouterLink,
     ZardIconComponent,
     ZardButtonComponent,
-    ZardBadgeComponent,
+    HlmBadge,
     ZardEmptyComponent,
     CurrencyPipe,
     ...ZardTableImports,
@@ -70,7 +70,7 @@ import { AccountsService } from '../../shared/accounts.service';
                 <tr z-table-row>
                   <td z-table-cell class="font-medium">{{ account.name }}</td>
                   <td z-table-cell>
-                    <z-badge zType="secondary">{{ typeLabel(account.type) }}</z-badge>
+                    <span hlmBadge variant="secondary">{{ typeLabel(account.type) }}</span>
                   </td>
                   <td z-table-cell>{{ providerLabel(account.accountProvider) }}</td>
                   <td z-table-cell class="text-left tabular-nums">

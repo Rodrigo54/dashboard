@@ -1,5 +1,3 @@
-/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
-/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
 {
   "compileOnSave": false,
   "compilerOptions": {
@@ -17,7 +15,9 @@
       "@shared/*": ["./src/shared/*"],
       "@main/*": ["./src/main/*"],
       "@renderer/*": ["./src/renderer/*"],
-      "@/*": ["./src/renderer/app/*"]
+      "@/*": ["./src/renderer/app/*"],
+      "@/shared/spartan/badge": ["./src/renderer/app/shared/spartan/badge/src/index.ts"],
+      "@/shared/spartan/utils": ["./src/renderer/app/shared/spartan/utils/src/index.ts"]
     }
   },
   "angularCompilerOptions": {
@@ -25,7 +25,7 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true,
-    "strictOutputEventTypes": true,
+    "strictOutputEventTypes": true
   },
   "files": [],
   "references": [

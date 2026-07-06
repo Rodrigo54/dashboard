@@ -1,5 +1,5 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
-import { ZardBadgeComponent } from '@/shared/zard/components/badge/badge.component';
+import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardEmptyComponent } from '@/shared/zard/components/empty';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
@@ -24,7 +24,7 @@ type Scope = 'all' | 'recurring';
     RouterLink,
     ZardIconComponent,
     ZardButtonComponent,
-    ZardBadgeComponent,
+    HlmBadge,
     ZardEmptyComponent,
     CurrencyPipe,
     DatePipe,
@@ -155,9 +155,12 @@ type Scope = 'all' | 'recurring';
                 <span class="flex items-center gap-2">
                   {{ row.description }}
                   @if (row.kind === 'forecast') {
-                    <z-badge [zType]="row.ruleStatus === 'paused' ? 'secondary' : 'outline'">
+                    <span
+                      hlmBadge
+                      [variant]="row.ruleStatus === 'paused' ? 'secondary' : 'outline'"
+                    >
                       {{ row.ruleStatus === 'paused' ? 'Pausada' : 'Previsto' }}
-                    </z-badge>
+                    </span>
                   } @else if (row.recurring) {
                     <i
                       z-icon
