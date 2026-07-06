@@ -1,7 +1,14 @@
 import type { ListenerOptions } from '@angular/core';
 import { EventManagerPlugin } from '@angular/platform-browser';
 
-export class ZardDebounceEventManagerPlugin extends EventManagerPlugin {
+/**
+ * Angular EventManagerPlugin que adiciona o modificador `.debounce` nos templates.
+ *
+ * @example
+ * Formato esperado: "event.debounce.delay" (ex.: "input.debounce.150")
+ * (input.debounce.150)="handler($event)"
+ */
+export class DebounceEventManagerPlugin extends EventManagerPlugin {
   override supports(eventName: string): boolean {
     return /\.debounce(?:\.|$)/.test(eventName);
   }
@@ -13,8 +20,7 @@ export class ZardDebounceEventManagerPlugin extends EventManagerPlugin {
     options?: ListenerOptions,
     // eslint-disable-next-line
   ): Function {
-    // Expected format: "event.debounce.delay" (e.g., "input.debounce.150")
-    // If delay is omitted or invalid, defaults to 300ms
+    // Se o delay for omitido ou inválido, usa 300ms por padrão.
     const [event, , delay] = eventName.split('.');
     const parsedDelay = Number.parseInt(delay);
     const resolvedDelay = Number.isNaN(parsedDelay) ? 300 : parsedDelay;

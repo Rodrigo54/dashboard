@@ -1,4 +1,4 @@
-import { provideZard } from '@/shared/zard/core';
+import { provideEventManagerPlugins } from '@/core/event-manager-plugins';
 import { PRECONNECT_CHECK_BLOCKLIST } from '@angular/common';
 import {
   ApplicationConfig,
@@ -13,7 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideAppRouting(),
-    provideZard(),
+    provideEventManagerPlugins(),
     // avatar:// é servido pelo protocol handler local do main — preconnect não
     // se aplica; sem isso o NgOptimizedImage loga NG02956 para imagens priority.
     { provide: PRECONNECT_CHECK_BLOCKLIST, useValue: 'avatar://user' },

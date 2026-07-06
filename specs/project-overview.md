@@ -32,7 +32,7 @@ BRL.
 | Build            | electron-vite (main + preload + renderer numa config única)      |
 | UI               | Angular 22 zoneless (standalone, signals, `resource`)            |
 | Compilação do NG | `@analogjs/vite-plugin-angular`                                  |
-| Estilo           | Tailwind CSS 4 + design system zard (vendorizado)                |
+| Estilo           | Tailwind CSS 4 + design system spartan.ng (style `nova`)         |
 | Banco            | SQLite via `node:sqlite` + Drizzle ORM `1.0.0-beta`              |
 | Validação        | Zod (schemas compartilhados main ↔ renderer)                     |
 | Config           | YAML por ambiente (`environments/*.yml`), embutido em build-time |

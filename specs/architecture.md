@@ -10,9 +10,10 @@ O Dashboard é um aplicativo desktop em Electron com um renderer em Angular 22
 (zoneless) e uma camada de dados SQLite via Drizzle ORM. O build dos três
 processos (main/preload/renderer) é unificado pelo **electron-vite**, com o
 Angular compilado pelo `@analogjs/vite-plugin-angular`. A UI usa **Tailwind CSS
-4** + o design system **zard** (componentes portados, vendorizados em
-`src/renderer/app/shared/zard`). O gerenciador de pacotes é o **bun**
-(`bun@1.3.11`); `ng` e `drizzle-kit` estão configurados para usá-lo.
+4** + o design system **spartan.ng** (style `nova`, componentes copiados via
+`ng g @spartan-ng/cli:ui` em `src/renderer/app/shared/spartan`). O gerenciador
+de pacotes é o **bun** (`bun@1.3.11`); `ng` e `drizzle-kit` estão configurados
+para usá-lo.
 
 O código é dividido por processo do Electron. O build de todos é orquestrado por
 uma config única, `electron.vite.config.ts` (seções `main`/`preload`/`renderer`),
@@ -33,9 +34,10 @@ Bundler` + `noEmit` (só type-check; o Vite emite). **Imports relativos não
   `out/renderer/`. O entry é o `src/renderer/index.html` (com
   `<script type="module" src="/main.ts">`); a detecção de mudança usa
   `provideZonelessChangeDetection()` (**sem zone.js**). Organizado em `core/`
-  (infra transversal: IPC, environment), `features/*` (`auth`, `home`,
-  `accounts`, `transactions`, `import`, `profile`) e `shared/` (blocos de UI neutros ao
-  domínio: `frame`, `zard`, `currency-input`). As rotas raiz ficam em
+  (infra transversal: IPC, environment, event manager plugins),
+  `features/*` (`auth`, `home`, `accounts`, `transactions`, `import`, `profile`)
+  e `shared/` (blocos de UI neutros ao domínio: `frame`, `spartan`,
+  `currency-input`). As rotas raiz ficam em
   `app/app.routes.ts` (lazy `loadChildren` por feature, `authGuard`, hash
   routing); a configuração em `app/app.config.ts`. O `angular.json` é mantido
   **apenas** para `ng test`/schematics.
@@ -252,10 +254,12 @@ O modo do build decide o environment carregado: `dev` embute
   bloco/tema** (sem nível `ui/` intermediário, que seria pasta por tipo):
   `shared/frame/` (moldura/título da janela frameless — a janela é
   **frameless**, `frame: false` — usa `window.electron.window.*` para os
-  controles), `shared/zard/` (design system portado e vendorizado — botões,
-  layout, tabela, select etc., seletores prefixados `z-`; tem regras de
-  ESLint próprias; trate como código de terceiros — não reescreva no estilo
-  do app) e `shared/currency-input/`. Estilização com **Tailwind CSS 4**
+  controles), `shared/spartan/` (design system spartan.ng, style `nova` —
+  botões, tabela, select, sidebar etc., gerados via
+  `ng g @spartan-ng/cli:ui <componente>` em `components.json`; seletores
+  `hlm*`/`brn*`; tem regras de ESLint próprias; **nunca edite os arquivos
+  gerados à mão** — são regeneráveis pelo CLI, ajustes visuais vão nos
+  call-sites) e `shared/currency-input/`. Estilização com **Tailwind CSS 4**
   (plugin `@tailwindcss/vite`).
 
 ## Path aliases
@@ -273,8 +277,9 @@ relativos** — o drizzle-kit a importa direto, ignorando os paths do tsconfig.
   shared (TS/Node, `no-console` liberado), limites de tamanho para todo
   `src/**/*.ts` (`max-lines: 400` e `max-lines-per-function: 75`, ignorando
   linhas em branco e comentários), e um bloco que **relaxa** regras de
-  seletor/`any` e os limites de tamanho para a lib zard vendorizada. `out/`,
-  `dist/`, `release/`, `drizzle/` e `.data/` são ignorados.
+  seletor/`any` e os limites de tamanho para o código gerado do spartan em
+  `shared/spartan/`. `out/`, `dist/`, `release/`, `drizzle/` e `.data/` são
+  ignorados.
 - **Prettier** roda por último no ESLint via `eslint-config-prettier` (desativa
   regras conflitantes). Formate com `bun run format`.
 - Um hook **PostToolUse** (`.claude/settings.json` → `scripts/format-hook.mjs`)

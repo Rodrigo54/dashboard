@@ -29,14 +29,13 @@ export default tseslint.config(
     ],
     processor: angular.processInlineTemplates,
     rules: {
-      // 'app' para a aplicação, 'z' para a design system zard (componentes portados).
       '@angular-eslint/directive-selector': [
         'error',
-        { type: 'attribute', prefix: ['app', 'z'], style: 'camelCase' },
+        { type: 'attribute', prefix: ['app'], style: 'camelCase' },
       ],
       '@angular-eslint/component-selector': [
         'error',
-        { type: 'element', prefix: ['app', 'z'], style: 'kebab-case' },
+        { type: 'element', prefix: ['app'], style: 'kebab-case' },
       ],
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -92,20 +91,6 @@ export default tseslint.config(
       '@angular-eslint/component-selector': 'off',
       '@angular-eslint/directive-selector': 'off',
       '@angular-eslint/no-input-rename': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      'max-lines': 'off',
-      'max-lines-per-function': 'off',
-    },
-  },
-
-  // -------- Design system zard (componentes portados) --------
-  // Anexa-se a elementos HTML nativos (table[z-table], input[z-input]...) e usa
-  // utilitários genéricos — relaxa regras de seletor/`any` para a lib vendorizada.
-  {
-    files: ['src/renderer/app/shared/zard/**/*.ts'],
-    rules: {
-      '@angular-eslint/component-selector': 'off',
-      '@angular-eslint/directive-selector': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       'max-lines': 'off',
       'max-lines-per-function': 'off',

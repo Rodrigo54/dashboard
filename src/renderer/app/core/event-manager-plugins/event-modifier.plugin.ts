@@ -2,32 +2,32 @@ import type { ListenerOptions } from '@angular/core';
 import { EventManagerPlugin } from '@angular/platform-browser';
 
 /**
- * Angular EventManagerPlugin that provides event modifier syntax for templates.
+ * Angular EventManagerPlugin que adiciona sintaxe de modificadores de evento nos templates.
  *
- * Supports modifiers: .prevent, .stop, .stop-immediate, .prevent-with-stop
- * Supports key filters: enter, escape, {enter,space}
+ * Modificadores: .prevent, .stop, .stop-immediate, .prevent-with-stop
+ * Filtros de tecla: enter, escape, {enter,space}
  *
  * @example
- * Prevent default on any click
+ * Previne o default em qualquer clique
  * (click.prevent)="handler()"
  *
  * @example
- * Prevent default only on Enter key
+ * Previne o default só na tecla Enter
  * (keydown.enter.prevent)="handler()"
  *
  * @example
- * Prevent default on more keys like Enter and Space key
+ * Previne o default em várias teclas (Enter e Espaço)
  * (keydown.{enter,space}.prevent)="handler()"
  *
  * @example
- * Stop propagation
+ * Interrompe a propagação
  * (click.stop)="handler()"
  */
-export class ZardEventManagerPlugin extends EventManagerPlugin {
+export class EventModifierPlugin extends EventManagerPlugin {
   #keywords = ['prevent', 'stop', 'stop-immediate', 'prevent-with-stop'];
 
   override supports(eventName: string): boolean {
-    return this.#keywords.some(keyword => eventName.endsWith(`.${keyword}`));
+    return this.#keywords.some((keyword) => eventName.endsWith(`.${keyword}`));
   }
 
   override addEventListener(
@@ -45,7 +45,8 @@ export class ZardEventManagerPlugin extends EventManagerPlugin {
         const isKeyboardEvent = event instanceof KeyboardEvent;
         const isElementDisabled = element.getAttribute('aria-disabled') === 'true';
         const shouldApplyModifier =
-          (!keys.length || (isKeyboardEvent && keys.includes(event.key.toLowerCase()))) && !isElementDisabled;
+          (!keys.length || (isKeyboardEvent && keys.includes(event.key.toLowerCase()))) &&
+          !isElementDisabled;
 
         if (shouldApplyModifier) {
           switch (keyword) {
@@ -70,7 +71,10 @@ export class ZardEventManagerPlugin extends EventManagerPlugin {
     );
   }
 
-  #provideEventFrom(eventName: string, keywords: string[]): { event: string; keyword: string; keys: string[] } {
+  #provideEventFrom(
+    eventName: string,
+    keywords: string[],
+  ): { event: string; keyword: string; keys: string[] } {
     const eventNameSubstrings = eventName.split('.');
     let event = '';
     let keys: string[] = [];
@@ -97,7 +101,7 @@ export class ZardEventManagerPlugin extends EventManagerPlugin {
     const stringList = substring.substring(1, substring.length - 1);
     return stringList
       .split(',')
-      .map(raw => {
+      .map((raw) => {
         const s = raw.toLowerCase().trim();
         return s === 'space' ? ' ' : s;
       })
