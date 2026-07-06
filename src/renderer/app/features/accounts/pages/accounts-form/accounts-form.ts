@@ -2,7 +2,7 @@ import { CurrencyInputComponent } from '@/shared/currency-input';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
-import { ZardFormModule } from '@/shared/zard/components/form/form.module';
+import { HlmFieldImports } from '@/shared/spartan/field';
 import { HlmInput } from '@/shared/spartan/input';
 import { HlmSelectImports } from '@/shared/spartan/select';
 import { CURRENCY_SYMBOLS } from '@shared/enums';
@@ -30,7 +30,7 @@ import { AccountsService } from '../../shared/accounts.service';
     FormsModule,
     FrameHeader,
     FramePaper,
-    ZardFormModule,
+    ...HlmFieldImports,
     NgIcon,
     HlmInput,
     HlmButton,
@@ -50,95 +50,88 @@ import { AccountsService } from '../../shared/accounts.service';
       <app-frame-paper>
         <div class="w-full">
           <form (ngSubmit)="onSubmit()" class="grid grid-cols-6 gap-8">
-            <z-form-field class="col-span-3">
-              <label for="name" z-form-label>Nome</label>
-              <z-form-control [errorMessage]="errorOf(accountForm.name())">
-                <input
-                  hlmInput
-                  type="text"
-                  id="name"
-                  [formField]="accountForm.name"
-                  placeholder="Nome"
-                />
-              </z-form-control>
-            </z-form-field>
-            <z-form-field class="col-span-3">
-              <label for="description" z-form-label>Descrição</label>
-              <z-form-control [errorMessage]="errorOf(accountForm.description!())">
-                <input
-                  hlmInput
-                  type="text"
-                  id="description"
-                  [formField]="accountForm.description!"
-                  placeholder="Descrição"
-                />
-              </z-form-control>
-            </z-form-field>
-            <z-form-field class="col-span-2">
-              <label for="accountType" z-form-label>Tipo</label>
-              <z-form-control>
-                <hlm-select [formField]="accountForm.type">
-                  <hlm-select-trigger class="w-full">
-                    <hlm-select-value placeholder="Escolha o tipo de conta" />
-                  </hlm-select-trigger>
-                  <ng-template hlmSelectPortal>
-                    <hlm-select-content>
-                      @for (type of accountsService.accountTypes.value(); track type.value) {
-                        <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
-                      }
-                    </hlm-select-content>
-                  </ng-template>
-                </hlm-select>
-              </z-form-control>
-            </z-form-field>
-            <z-form-field class="col-span-2">
-              <label for="accountProvider" z-form-label>Provedor</label>
-              <z-form-control [errorMessage]="errorOf(accountForm.accountProvider!())">
-                <hlm-select [formField]="accountForm.accountProvider!">
-                  <hlm-select-trigger class="w-full">
-                    <hlm-select-value placeholder="Escolha o provedor da conta" />
-                  </hlm-select-trigger>
-                  <ng-template hlmSelectPortal>
-                    <hlm-select-content>
-                      @for (provider of accountsService.providers.value(); track provider.value) {
-                        <hlm-select-item [value]="provider.value">{{
-                          provider.label
-                        }}</hlm-select-item>
-                      }
-                    </hlm-select-content>
-                  </ng-template>
-                </hlm-select>
-              </z-form-control>
-            </z-form-field>
-            <z-form-field class="col-span-2">
-              <label for="currency" z-form-label>Moeda</label>
-              <z-form-control [errorMessage]="errorOf(accountForm.currency())">
-                <hlm-select [formField]="accountForm.currency">
-                  <hlm-select-trigger class="w-full">
-                    <hlm-select-value placeholder="Escolha a moeda" />
-                  </hlm-select-trigger>
-                  <ng-template hlmSelectPortal>
-                    <hlm-select-content>
-                      @for (currency of accountsService.currencies.value(); track currency.value) {
-                        <hlm-select-item [value]="currency.value">{{
-                          currency.label
-                        }}</hlm-select-item>
-                      }
-                    </hlm-select-content>
-                  </ng-template>
-                </hlm-select>
-              </z-form-control>
-            </z-form-field>
-            <z-form-field class="col-span-6">
-              <label for="balance" z-form-label>Saldo</label>
-              <z-form-control [errorMessage]="errorOf(accountForm.balance())">
-                <app-currency-input
-                  id="balance"
-                  [formField]="accountForm.balance"
-                  [zCurrency]="currencySymbol()"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-3">
+              <label hlmFieldLabel for="name">Nome</label>
+              <input hlmInput type="text" id="name" [formField]="accountForm.name" placeholder="Nome" />
+              @if (errorOf(accountForm.name()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
+            <div hlmField class="col-span-3">
+              <label hlmFieldLabel for="description">Descrição</label>
+              <input
+                hlmInput
+                type="text"
+                id="description"
+                [formField]="accountForm.description!"
+                placeholder="Descrição"
+              />
+              @if (errorOf(accountForm.description!()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
+            <div hlmField class="col-span-2">
+              <label hlmFieldLabel for="accountType">Tipo</label>
+              <hlm-select [formField]="accountForm.type">
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value placeholder="Escolha o tipo de conta" />
+                </hlm-select-trigger>
+                <ng-template hlmSelectPortal>
+                  <hlm-select-content>
+                    @for (type of accountsService.accountTypes.value(); track type.value) {
+                      <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </ng-template>
+              </hlm-select>
+            </div>
+            <div hlmField class="col-span-2">
+              <label hlmFieldLabel for="accountProvider">Provedor</label>
+              <hlm-select [formField]="accountForm.accountProvider!">
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value placeholder="Escolha o provedor da conta" />
+                </hlm-select-trigger>
+                <ng-template hlmSelectPortal>
+                  <hlm-select-content>
+                    @for (provider of accountsService.providers.value(); track provider.value) {
+                      <hlm-select-item [value]="provider.value">{{ provider.label }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </ng-template>
+              </hlm-select>
+              @if (errorOf(accountForm.accountProvider!()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
+            <div hlmField class="col-span-2">
+              <label hlmFieldLabel for="currency">Moeda</label>
+              <hlm-select [formField]="accountForm.currency">
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value placeholder="Escolha a moeda" />
+                </hlm-select-trigger>
+                <ng-template hlmSelectPortal>
+                  <hlm-select-content>
+                    @for (currency of accountsService.currencies.value(); track currency.value) {
+                      <hlm-select-item [value]="currency.value">{{ currency.label }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </ng-template>
+              </hlm-select>
+              @if (errorOf(accountForm.currency()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
+            <div hlmField class="col-span-6">
+              <label hlmFieldLabel for="balance">Saldo</label>
+              <app-currency-input
+                id="balance"
+                [formField]="accountForm.balance"
+                [zCurrency]="currencySymbol()"
+              />
+              @if (errorOf(accountForm.balance()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
             <div class="col-span-6 flex flex-row-reverse gap-6">
               <button type="submit" hlmBtn variant="default" [disabled]="accountForm().invalid()">

@@ -1,10 +1,6 @@
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmSpinner } from '@/shared/spartan/spinner';
-import {
-  ZardFormControlComponent,
-  ZardFormFieldComponent,
-  ZardFormLabelComponent,
-} from '@/shared/zard/components/form/form.component';
+import { HlmFieldImports } from '@/shared/spartan/field';
 import { HlmInput } from '@/shared/spartan/input';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -30,9 +26,7 @@ import { AuthService } from '../../auth.service';
     HlmButton,
     HlmSpinner,
     NgIcon,
-    ZardFormFieldComponent,
-    ZardFormControlComponent,
-    ZardFormLabelComponent,
+    ...HlmFieldImports,
     HlmInput,
     RouterLink,
   ],
@@ -60,57 +54,61 @@ import { AuthService } from '../../auth.service';
           }
 
           <form (submit)="onSubmit($event)" class="flex flex-col gap-4">
-            <z-form-field>
-              <label z-form-label [for]="'name'">Nome</label>
-              <z-form-control [errorMessage]="getErrorMessage(registerForm.name())">
-                <input
-                  hlmInput
-                  type="text"
-                  id="name"
-                  placeholder="Seu nome completo"
-                  [formField]="registerForm.name"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField>
+              <label hlmFieldLabel [for]="'name'">Nome</label>
+              <input
+                hlmInput
+                type="text"
+                id="name"
+                placeholder="Seu nome completo"
+                [formField]="registerForm.name"
+              />
+              @if (getErrorMessage(registerForm.name()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field>
-              <label z-form-label [for]="'email'">E-mail</label>
-              <z-form-control [errorMessage]="getErrorMessage(registerForm.email())">
-                <input
-                  hlmInput
-                  type="email"
-                  id="email"
-                  placeholder="voce@exemplo.com"
-                  [formField]="registerForm.email"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField>
+              <label hlmFieldLabel [for]="'email'">E-mail</label>
+              <input
+                hlmInput
+                type="email"
+                id="email"
+                placeholder="voce@exemplo.com"
+                [formField]="registerForm.email"
+              />
+              @if (getErrorMessage(registerForm.email()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field>
-              <label z-form-label [for]="'password'">Senha</label>
-              <z-form-control [errorMessage]="getErrorMessage(registerForm.password())">
-                <input
-                  hlmInput
-                  type="password"
-                  id="password"
-                  placeholder="Mínimo 8 caracteres"
-                  [formField]="registerForm.password"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField>
+              <label hlmFieldLabel [for]="'password'">Senha</label>
+              <input
+                hlmInput
+                type="password"
+                id="password"
+                placeholder="Mínimo 8 caracteres"
+                [formField]="registerForm.password"
+              />
+              @if (getErrorMessage(registerForm.password()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field>
-              <label z-form-label [for]="'confirmPassword'">Confirmar senha</label>
-              <z-form-control [errorMessage]="getErrorMessage(registerForm.confirmPassword())">
-                <input
-                  hlmInput
-                  type="password"
-                  id="confirmPassword"
-                  placeholder="Repita a senha"
-                  [formField]="registerForm.confirmPassword"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField>
+              <label hlmFieldLabel [for]="'confirmPassword'">Confirmar senha</label>
+              <input
+                hlmInput
+                type="password"
+                id="confirmPassword"
+                placeholder="Repita a senha"
+                [formField]="registerForm.confirmPassword"
+              />
+              @if (getErrorMessage(registerForm.confirmPassword()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
             <button
               hlmBtn

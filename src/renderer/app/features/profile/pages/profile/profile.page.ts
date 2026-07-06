@@ -4,7 +4,7 @@ import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/a
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmSpinner } from '@/shared/spartan/spinner';
 import { HlmSeparator } from '@/shared/spartan/separator';
-import { ZardFormModule } from '@/shared/zard/components/form/form.module';
+import { HlmFieldImports } from '@/shared/spartan/field';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideImageUp, lucideUserRound } from '@ng-icons/lucide';
 import { HlmInput } from '@/shared/spartan/input';
@@ -48,7 +48,7 @@ const passwordFormSchema = changePasswordSchema
     HlmButton,
     HlmSpinner,
     HlmSeparator,
-    ZardFormModule,
+    ...HlmFieldImports,
     NgIcon,
     HlmInput,
   ],
@@ -98,28 +98,27 @@ const passwordFormSchema = changePasswordSchema
               />
             </div>
 
-            <z-form-field class="col-span-3">
-              <label for="name" z-form-label>Nome</label>
-              <z-form-control [errorMessage]="errorOf(profileForm.name())">
-                <input
-                  hlmInput
-                  type="text"
-                  id="name"
-                  [formField]="profileForm.name"
-                  placeholder="Nome"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-3">
+              <label hlmFieldLabel for="name">Nome</label>
+              <input
+                hlmInput
+                type="text"
+                id="name"
+                [formField]="profileForm.name"
+                placeholder="Nome"
+              />
+              @if (errorOf(profileForm.name()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field class="col-span-3">
-              <label for="email" z-form-label>E-mail</label>
-              <z-form-control>
-                <input hlmInput type="email" id="email" [value]="userEmail()" disabled />
-              </z-form-control>
-              <span class="text-xs text-muted-foreground">
+            <div hlmField class="col-span-3">
+              <label hlmFieldLabel for="email">E-mail</label>
+              <input hlmInput type="email" id="email" [value]="userEmail()" disabled />
+              <hlm-field-description>
                 O e-mail é sua credencial de acesso e não pode ser alterado.
-              </span>
-            </z-form-field>
+              </hlm-field-description>
+            </div>
 
             @if (profileError()) {
               <div
@@ -161,44 +160,47 @@ const passwordFormSchema = changePasswordSchema
               </p>
             </div>
 
-            <z-form-field class="col-span-2">
-              <label for="currentPassword" z-form-label>Senha atual</label>
-              <z-form-control [errorMessage]="errorOf(passwordForm.currentPassword())">
-                <input
-                  hlmInput
-                  type="password"
-                  id="currentPassword"
-                  placeholder="••••••••"
-                  [formField]="passwordForm.currentPassword"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-2">
+              <label hlmFieldLabel for="currentPassword">Senha atual</label>
+              <input
+                hlmInput
+                type="password"
+                id="currentPassword"
+                placeholder="••••••••"
+                [formField]="passwordForm.currentPassword"
+              />
+              @if (errorOf(passwordForm.currentPassword()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field class="col-span-2">
-              <label for="newPassword" z-form-label>Nova senha</label>
-              <z-form-control [errorMessage]="errorOf(passwordForm.newPassword())">
-                <input
-                  hlmInput
-                  type="password"
-                  id="newPassword"
-                  placeholder="Mínimo de 8 caracteres"
-                  [formField]="passwordForm.newPassword"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-2">
+              <label hlmFieldLabel for="newPassword">Nova senha</label>
+              <input
+                hlmInput
+                type="password"
+                id="newPassword"
+                placeholder="Mínimo de 8 caracteres"
+                [formField]="passwordForm.newPassword"
+              />
+              @if (errorOf(passwordForm.newPassword()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field class="col-span-2">
-              <label for="confirmPassword" z-form-label>Confirmar nova senha</label>
-              <z-form-control [errorMessage]="errorOf(passwordForm.confirmPassword())">
-                <input
-                  hlmInput
-                  type="password"
-                  id="confirmPassword"
-                  placeholder="Repita a nova senha"
-                  [formField]="passwordForm.confirmPassword"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-2">
+              <label hlmFieldLabel for="confirmPassword">Confirmar nova senha</label>
+              <input
+                hlmInput
+                type="password"
+                id="confirmPassword"
+                placeholder="Repita a nova senha"
+                [formField]="passwordForm.confirmPassword"
+              />
+              @if (errorOf(passwordForm.confirmPassword()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
             @if (passwordError()) {
               <div

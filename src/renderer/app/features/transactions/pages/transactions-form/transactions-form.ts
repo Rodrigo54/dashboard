@@ -3,7 +3,7 @@ import { CurrencyInputComponent } from '@/shared/currency-input';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
-import { ZardFormModule } from '@/shared/zard/components/form/form.module';
+import { HlmFieldImports } from '@/shared/spartan/field';
 import { HlmInput } from '@/shared/spartan/input';
 import { HlmSelectImports } from '@/shared/spartan/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -54,7 +54,7 @@ export interface TransactionFormModel {
     FormsModule,
     FrameHeader,
     FramePaper,
-    ZardFormModule,
+    ...HlmFieldImports,
     NgIcon,
     HlmInput,
     HlmButton,
@@ -74,92 +74,93 @@ export interface TransactionFormModel {
       <app-frame-paper>
         <div class="w-full">
           <form (ngSubmit)="onSubmit()" class="grid grid-cols-6 gap-8">
-            <z-form-field class="col-span-6">
-              <label for="description" z-form-label>Descrição</label>
-              <z-form-control [errorMessage]="errorOf(transactionForm.description())">
-                <input
-                  hlmInput
-                  type="text"
-                  id="description"
-                  [formField]="transactionForm.description"
-                  placeholder="Ex.: Salário, Aluguel, Mercado"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-6">
+              <label hlmFieldLabel for="description">Descrição</label>
+              <input
+                hlmInput
+                type="text"
+                id="description"
+                [formField]="transactionForm.description"
+                placeholder="Ex.: Salário, Aluguel, Mercado"
+              />
+              @if (errorOf(transactionForm.description()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field class="col-span-3">
-              <label for="accountId" z-form-label>Conta</label>
-              <z-form-control [errorMessage]="errorOf(transactionForm.accountId())">
-                <hlm-select [formField]="transactionForm.accountId">
-                  <hlm-select-trigger class="w-full">
-                    <hlm-select-value placeholder="Escolha a conta" />
-                  </hlm-select-trigger>
-                  <ng-template hlmSelectPortal>
-                    <hlm-select-content>
-                      @for (account of accountsService.accounts.value(); track account.id) {
-                        <hlm-select-item [value]="account.id">{{ account.name }}</hlm-select-item>
-                      }
-                    </hlm-select-content>
-                  </ng-template>
-                </hlm-select>
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-3">
+              <label hlmFieldLabel for="accountId">Conta</label>
+              <hlm-select [formField]="transactionForm.accountId">
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value placeholder="Escolha a conta" />
+                </hlm-select-trigger>
+                <ng-template hlmSelectPortal>
+                  <hlm-select-content>
+                    @for (account of accountsService.accounts.value(); track account.id) {
+                      <hlm-select-item [value]="account.id">{{ account.name }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </ng-template>
+              </hlm-select>
+              @if (errorOf(transactionForm.accountId()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field class="col-span-3">
-              <label for="type" z-form-label>Tipo</label>
-              <z-form-control>
-                <hlm-select [formField]="transactionForm.type">
-                  <hlm-select-trigger class="w-full">
-                    <hlm-select-value placeholder="Escolha o tipo" />
-                  </hlm-select-trigger>
-                  <ng-template hlmSelectPortal>
-                    <hlm-select-content>
-                      @for (type of transactionsService.types.value(); track type.value) {
-                        <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
-                      }
-                    </hlm-select-content>
-                  </ng-template>
-                </hlm-select>
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-3">
+              <label hlmFieldLabel for="type">Tipo</label>
+              <hlm-select [formField]="transactionForm.type">
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value placeholder="Escolha o tipo" />
+                </hlm-select-trigger>
+                <ng-template hlmSelectPortal>
+                  <hlm-select-content>
+                    @for (type of transactionsService.types.value(); track type.value) {
+                      <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </ng-template>
+              </hlm-select>
+            </div>
 
-            <z-form-field class="col-span-2">
-              <label for="category" z-form-label>Categoria</label>
-              <z-form-control [errorMessage]="errorOf(transactionForm.category())">
-                <hlm-select [formField]="transactionForm.category">
-                  <hlm-select-trigger class="w-full">
-                    <hlm-select-value placeholder="Escolha a categoria" />
-                  </hlm-select-trigger>
-                  <ng-template hlmSelectPortal>
-                    <hlm-select-content>
-                      @for (category of categoryOptions(); track category.value) {
-                        <hlm-select-item [value]="category.value">{{
-                          category.label
-                        }}</hlm-select-item>
-                      }
-                    </hlm-select-content>
-                  </ng-template>
-                </hlm-select>
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-2">
+              <label hlmFieldLabel for="category">Categoria</label>
+              <hlm-select [formField]="transactionForm.category">
+                <hlm-select-trigger class="w-full">
+                  <hlm-select-value placeholder="Escolha a categoria" />
+                </hlm-select-trigger>
+                <ng-template hlmSelectPortal>
+                  <hlm-select-content>
+                    @for (category of categoryOptions(); track category.value) {
+                      <hlm-select-item [value]="category.value">{{ category.label }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </ng-template>
+              </hlm-select>
+              @if (errorOf(transactionForm.category()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field class="col-span-2">
-              <label for="amount" z-form-label>Valor</label>
-              <z-form-control [errorMessage]="errorOf(transactionForm.amount())">
-                <app-currency-input
-                  id="amount"
-                  [formField]="transactionForm.amount"
-                  [zCurrency]="currencySymbol()"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-2">
+              <label hlmFieldLabel for="amount">Valor</label>
+              <app-currency-input
+                id="amount"
+                [formField]="transactionForm.amount"
+                [zCurrency]="currencySymbol()"
+              />
+              @if (errorOf(transactionForm.amount()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
-            <z-form-field class="col-span-2">
-              <label for="date" z-form-label>Data</label>
-              <z-form-control [errorMessage]="errorOf(transactionForm.date())">
-                <input hlmInput type="date" id="date" [formField]="transactionForm.date" />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField class="col-span-2">
+              <label hlmFieldLabel for="date">Data</label>
+              <input hlmInput type="date" id="date" [formField]="transactionForm.date" />
+              @if (errorOf(transactionForm.date()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
             @if (!isEdit()) {
               <div class="col-span-6 flex items-center gap-3">
@@ -175,35 +176,31 @@ export interface TransactionFormModel {
               </div>
 
               @if (model().repeat) {
-                <z-form-field class="col-span-3">
-                  <label for="frequency" z-form-label>Frequência</label>
-                  <z-form-control>
-                    <hlm-select [formField]="transactionForm.frequency">
-                      <hlm-select-trigger class="w-full">
-                        <hlm-select-value placeholder="Escolha a frequência" />
-                      </hlm-select-trigger>
-                      <ng-template hlmSelectPortal>
-                        <hlm-select-content>
-                          @for (
-                            frequency of recurringService.frequencies.value();
-                            track frequency.value
-                          ) {
-                            <hlm-select-item [value]="frequency.value">{{
-                              frequency.label
-                            }}</hlm-select-item>
-                          }
-                        </hlm-select-content>
-                      </ng-template>
-                    </hlm-select>
-                  </z-form-control>
-                </z-form-field>
+                <div hlmField class="col-span-3">
+                  <label hlmFieldLabel for="frequency">Frequência</label>
+                  <hlm-select [formField]="transactionForm.frequency">
+                    <hlm-select-trigger class="w-full">
+                      <hlm-select-value placeholder="Escolha a frequência" />
+                    </hlm-select-trigger>
+                    <ng-template hlmSelectPortal>
+                      <hlm-select-content>
+                        @for (
+                          frequency of recurringService.frequencies.value();
+                          track frequency.value
+                        ) {
+                          <hlm-select-item [value]="frequency.value">{{
+                            frequency.label
+                          }}</hlm-select-item>
+                        }
+                      </hlm-select-content>
+                    </ng-template>
+                  </hlm-select>
+                </div>
 
-                <z-form-field class="col-span-3">
-                  <label for="endDate" z-form-label>Repetir até (opcional)</label>
-                  <z-form-control>
-                    <input hlmInput type="date" id="endDate" [formField]="transactionForm.endDate" />
-                  </z-form-control>
-                </z-form-field>
+                <div hlmField class="col-span-3">
+                  <label hlmFieldLabel for="endDate">Repetir até (opcional)</label>
+                  <input hlmInput type="date" id="endDate" [formField]="transactionForm.endDate" />
+                </div>
               }
             }
 

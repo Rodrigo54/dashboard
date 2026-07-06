@@ -1,11 +1,7 @@
 import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmSpinner } from '@/shared/spartan/spinner';
-import {
-  ZardFormControlComponent,
-  ZardFormFieldComponent,
-  ZardFormLabelComponent,
-} from '@/shared/zard/components/form/form.component';
+import { HlmFieldImports } from '@/shared/spartan/field';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLogIn } from '@ng-icons/lucide';
 import { HlmInput } from '@/shared/spartan/input';
@@ -26,9 +22,7 @@ import { getInitials } from '../../auth.utils';
     HlmButton,
     HlmSpinner,
     NgIcon,
-    ZardFormFieldComponent,
-    ZardFormControlComponent,
-    ZardFormLabelComponent,
+    ...HlmFieldImports,
     HlmInput,
     RouterLink,
   ],
@@ -59,18 +53,19 @@ import { getInitials } from '../../auth.utils';
           }
 
           <form (submit)="onSubmit($event)" class="flex flex-col gap-4">
-            <z-form-field>
-              <label z-form-label for="password">Senha</label>
-              <z-form-control [errorMessage]="getErrorMessage(loginForm.password())">
-                <input
-                  hlmInput
-                  type="password"
-                  id="password"
-                  placeholder="••••••••"
-                  [formField]="loginForm.password"
-                />
-              </z-form-control>
-            </z-form-field>
+            <div hlmField>
+              <label hlmFieldLabel for="password">Senha</label>
+              <input
+                hlmInput
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                [formField]="loginForm.password"
+              />
+              @if (getErrorMessage(loginForm.password()); as message) {
+                <hlm-field-error forceShow>{{ message }}</hlm-field-error>
+              }
+            </div>
 
             <button hlmBtn variant="default" type="submit" class="w-full" [disabled]="loading()">
               @if (loading()) {
