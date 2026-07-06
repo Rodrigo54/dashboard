@@ -5,7 +5,7 @@ import {
   ZardFormFieldComponent,
   ZardFormLabelComponent,
 } from '@/shared/zard/components/form/form.component';
-import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
+import { HlmInput } from '@/shared/spartan/input';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideUserPlus } from '@ng-icons/lucide';
@@ -33,7 +33,7 @@ import { AuthService } from '../../auth.service';
     ZardFormFieldComponent,
     ZardFormControlComponent,
     ZardFormLabelComponent,
-    ZardInputDirective,
+    HlmInput,
     RouterLink,
   ],
   providers: [provideIcons({ lucideUserPlus })],
@@ -64,7 +64,7 @@ import { AuthService } from '../../auth.service';
               <label z-form-label [for]="'name'">Nome</label>
               <z-form-control [errorMessage]="getErrorMessage(registerForm.name())">
                 <input
-                  z-input
+                  hlmInput
                   type="text"
                   id="name"
                   placeholder="Seu nome completo"
@@ -77,7 +77,7 @@ import { AuthService } from '../../auth.service';
               <label z-form-label [for]="'email'">E-mail</label>
               <z-form-control [errorMessage]="getErrorMessage(registerForm.email())">
                 <input
-                  z-input
+                  hlmInput
                   type="email"
                   id="email"
                   placeholder="voce@exemplo.com"
@@ -90,7 +90,7 @@ import { AuthService } from '../../auth.service';
               <label z-form-label [for]="'password'">Senha</label>
               <z-form-control [errorMessage]="getErrorMessage(registerForm.password())">
                 <input
-                  z-input
+                  hlmInput
                   type="password"
                   id="password"
                   placeholder="Mínimo 8 caracteres"
@@ -103,7 +103,7 @@ import { AuthService } from '../../auth.service';
               <label z-form-label [for]="'confirmPassword'">Confirmar senha</label>
               <z-form-control [errorMessage]="getErrorMessage(registerForm.confirmPassword())">
                 <input
-                  z-input
+                  hlmInput
                   type="password"
                   id="confirmPassword"
                   placeholder="Repita a senha"

@@ -3,7 +3,7 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
-import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
+import { HlmInput } from '@/shared/spartan/input';
 import { ZardSelectImports } from '@/shared/zard/components/select';
 import { CURRENCY_SYMBOLS } from '@shared/enums';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
@@ -32,7 +32,7 @@ import { AccountsService } from '../../shared/accounts.service';
     FramePaper,
     ZardFormModule,
     NgIcon,
-    ZardInputDirective,
+    HlmInput,
     HlmButton,
     ZardSelectImports,
     CurrencyInputComponent,
@@ -54,7 +54,7 @@ import { AccountsService } from '../../shared/accounts.service';
               <label for="name" z-form-label>Nome</label>
               <z-form-control [errorMessage]="errorOf(accountForm.name())">
                 <input
-                  z-input
+                  hlmInput
                   type="text"
                   id="name"
                   [formField]="accountForm.name"
@@ -66,7 +66,7 @@ import { AccountsService } from '../../shared/accounts.service';
               <label for="description" z-form-label>Descrição</label>
               <z-form-control [errorMessage]="errorOf(accountForm.description!())">
                 <input
-                  z-input
+                  hlmInput
                   type="text"
                   id="description"
                   [formField]="accountForm.description!"

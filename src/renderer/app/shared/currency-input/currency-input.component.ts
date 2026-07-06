@@ -11,9 +11,11 @@ import {
 } from '@angular/core';
 import type { FormValueControl } from '@angular/forms/signals';
 
-import { ZardInputGroupComponent } from '@/shared/zard/components/input-group/input-group.component';
-import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
-import type { ZardInputSizeVariants } from '@/shared/zard/components/input/input.variants';
+import {
+  HlmInputGroup,
+  HlmInputGroupAddon,
+  HlmInputGroupInput,
+} from '@/shared/spartan/input-group';
 
 import {
   decimalStringToDigits,
@@ -24,17 +26,16 @@ import {
 } from './currency.utils';
 
 /**
- * Input de moeda estilo "app bancário" sobre o z-input-group.
+ * Input de moeda estilo "app bancário" sobre o hlm-input-group do spartan.
  *
  * O campo sempre exibe `0,00` e preenche da direita para a esquerda conforme o
  * usuário digita (`1` -> `0,01`, `12` -> `0,12`, `123` -> `1,23`). O estado é
  * só a sequência de dígitos (centavos) extraída do texto, reformatada a cada
  * tecla, com o caret ancorado no fim.
  *
- * O `ZardInputDirective` é o único escritor do `el.value` (ele espelha o seu
- * `value` model no DOM via effect); este componente nunca escreve no DOM
- * diretamente — apenas seta o `value` da diretiva com o texto mascarado, o que
- * também corrige entradas inválidas que não alteram o modelo (ex.: letras).
+ * Este componente é o único escritor do `el.value`: o effect espelha o modelo
+ * formatado no DOM, e `onInput` reescreve o texto mascarado mesmo quando o
+ * modelo não muda (ex.: letras digitadas são descartadas).
  *
  * Implementa o contrato `FormValueControl<string>` das Signal Forms (Angular 22),
  * então integra diretamente com a diretiva `[formField]`:
@@ -48,24 +49,26 @@ import {
  */
 @Component({
   selector: 'app-currency-input',
-  imports: [ZardInputGroupComponent, ZardInputDirective],
+  imports: [HlmInputGroup, HlmInputGroupAddon, HlmInputGroupInput],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   template: `
-    <z-input-group [zAddonBefore]="zCurrency()" [zSize]="zSize()" [zDisabled]="disabled()">
+    <div hlmInputGroup>
+      <div hlmInputGroupAddon>{{ zCurrency() }}</div>
       <input
         #control
-        z-input
+        hlmInputGroupInput
         type="text"
         inputmode="numeric"
         autocomplete="off"
+        [disabled]="disabled()"
         [attr.aria-label]="zCurrency()"
         (keydown)="onKeyDown($event)"
         (input)="onInput()"
         (focus)="moveCaretToEnd()"
         (mouseup)="moveCaretToEnd()"
       />
-    </z-input-group>
+    </div>
   `,
 })
 export class CurrencyInputComponent implements FormValueControl<string> {
@@ -78,18 +81,15 @@ export class CurrencyInputComponent implements FormValueControl<string> {
   readonly zCurrency = input<string>('R$');
   /** Quantidade de casas decimais da formatação. */
   readonly zDecimals = input<number>(2);
-  /** Tamanho do input-group (`sm` | `default` | `lg`). */
-  readonly zSize = input<ZardInputSizeVariants>('default');
 
   private readonly element = viewChild.required<ElementRef<HTMLInputElement>>('control');
-  private readonly zInput = viewChild.required('control', { read: ZardInputDirective });
 
   /** Rastreia o sinal do valor; reseta automaticamente quando `value` muda externamente. */
   private readonly _negative = linkedSignal(() => isNegativeDecimal(this.value()));
 
   constructor() {
-    // Sincroniza modelo -> view (carga inicial, edição, resets) através do
-    // `value` da diretiva — o effect dela espelha o texto no `el.value`.
+    // Sincroniza modelo -> view (carga inicial, edição, resets) escrevendo o
+    // texto mascarado direto no `el.value`.
     effect(() => {
       const decimals = this.zDecimals();
       const negative = this._negative();
@@ -99,7 +99,7 @@ export class CurrencyInputComponent implements FormValueControl<string> {
         negative,
       );
 
-      this.zInput().value.set(masked);
+      this.element().nativeElement.value = masked;
     });
   }
 
@@ -110,7 +110,7 @@ export class CurrencyInputComponent implements FormValueControl<string> {
     const digits = sanitizeDigits(this.element().nativeElement.value);
 
     // Corrige o texto exibido mesmo quando o modelo não muda (ex.: letras digitadas).
-    this.zInput().value.set(digitsToMasked(digits, decimals, negative));
+    this.element().nativeElement.value = digitsToMasked(digits, decimals, negative);
     this.value.set(digitsToDecimalString(digits, decimals, negative));
   }
 
@@ -125,7 +125,7 @@ export class CurrencyInputComponent implements FormValueControl<string> {
     this._negative.update((n) => !n);
     const negative = this._negative();
 
-    this.zInput().value.set(digitsToMasked(digits, decimals, negative));
+    this.element().nativeElement.value = digitsToMasked(digits, decimals, negative);
     this.value.set(digitsToDecimalString(digits, decimals, negative));
   }
 

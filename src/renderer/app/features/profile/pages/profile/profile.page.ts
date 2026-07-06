@@ -7,7 +7,7 @@ import { HlmSeparator } from '@/shared/spartan/separator';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideImageUp, lucideUserRound } from '@ng-icons/lucide';
-import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
+import { HlmInput } from '@/shared/spartan/input';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   FieldState,
@@ -50,7 +50,7 @@ const passwordFormSchema = changePasswordSchema
     HlmSeparator,
     ZardFormModule,
     NgIcon,
-    ZardInputDirective,
+    HlmInput,
   ],
   providers: [provideIcons({ lucideImageUp, lucideUserRound })],
   template: `
@@ -102,7 +102,7 @@ const passwordFormSchema = changePasswordSchema
               <label for="name" z-form-label>Nome</label>
               <z-form-control [errorMessage]="errorOf(profileForm.name())">
                 <input
-                  z-input
+                  hlmInput
                   type="text"
                   id="name"
                   [formField]="profileForm.name"
@@ -114,7 +114,7 @@ const passwordFormSchema = changePasswordSchema
             <z-form-field class="col-span-3">
               <label for="email" z-form-label>E-mail</label>
               <z-form-control>
-                <input z-input type="email" id="email" [value]="userEmail()" disabled />
+                <input hlmInput type="email" id="email" [value]="userEmail()" disabled />
               </z-form-control>
               <span class="text-xs text-muted-foreground">
                 O e-mail é sua credencial de acesso e não pode ser alterado.
@@ -165,7 +165,7 @@ const passwordFormSchema = changePasswordSchema
               <label for="currentPassword" z-form-label>Senha atual</label>
               <z-form-control [errorMessage]="errorOf(passwordForm.currentPassword())">
                 <input
-                  z-input
+                  hlmInput
                   type="password"
                   id="currentPassword"
                   placeholder="••••••••"
@@ -178,7 +178,7 @@ const passwordFormSchema = changePasswordSchema
               <label for="newPassword" z-form-label>Nova senha</label>
               <z-form-control [errorMessage]="errorOf(passwordForm.newPassword())">
                 <input
-                  z-input
+                  hlmInput
                   type="password"
                   id="newPassword"
                   placeholder="Mínimo de 8 caracteres"
@@ -191,7 +191,7 @@ const passwordFormSchema = changePasswordSchema
               <label for="confirmPassword" z-form-label>Confirmar nova senha</label>
               <z-form-control [errorMessage]="errorOf(passwordForm.confirmPassword())">
                 <input
-                  z-input
+                  hlmInput
                   type="password"
                   id="confirmPassword"
                   placeholder="Repita a nova senha"

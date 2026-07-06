@@ -24,7 +24,12 @@
       "@/shared/spartan/breadcrumb": ["./src/renderer/app/shared/spartan/breadcrumb/src/index.ts"],
       "@/shared/spartan/avatar": ["./src/renderer/app/shared/spartan/avatar/src/index.ts"],
       "@/shared/spartan/button": ["./src/renderer/app/shared/spartan/button/src/index.ts"],
-      "@/shared/spartan/table": ["./src/renderer/app/shared/spartan/table/src/index.ts"]
+      "@/shared/spartan/table": ["./src/renderer/app/shared/spartan/table/src/index.ts"],
+      "@/shared/spartan/input": ["./src/renderer/app/shared/spartan/input/src/index.ts"],
+      "@/shared/spartan/input-group": [
+        "./src/renderer/app/shared/spartan/input-group/src/index.ts"
+      ],
+      "@/shared/spartan/textarea": ["./src/renderer/app/shared/spartan/textarea/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

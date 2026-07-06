@@ -4,7 +4,7 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
-import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
+import { HlmInput } from '@/shared/spartan/input';
 import { ZardSelectImports } from '@/shared/zard/components/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRepeat } from '@ng-icons/lucide';
@@ -56,7 +56,7 @@ export interface RecurringFormModel {
     FramePaper,
     ZardFormModule,
     NgIcon,
-    ZardInputDirective,
+    HlmInput,
     HlmButton,
     ZardSelectImports,
     CurrencyInputComponent,
@@ -78,7 +78,7 @@ export interface RecurringFormModel {
               <label for="name" z-form-label>Nome</label>
               <z-form-control [errorMessage]="errorOf(recurringForm.name())">
                 <input
-                  z-input
+                  hlmInput
                   type="text"
                   id="name"
                   [formField]="recurringForm.name"
@@ -91,7 +91,7 @@ export interface RecurringFormModel {
               <label for="description" z-form-label>Descrição dos lançamentos</label>
               <z-form-control [errorMessage]="errorOf(recurringForm.description())">
                 <input
-                  z-input
+                  hlmInput
                   type="text"
                   id="description"
                   [formField]="recurringForm.description"
@@ -158,14 +158,14 @@ export interface RecurringFormModel {
             <z-form-field class="col-span-3">
               <label for="startDate" z-form-label>Início</label>
               <z-form-control [errorMessage]="errorOf(recurringForm.startDate())">
-                <input z-input type="date" id="startDate" [formField]="recurringForm.startDate" />
+                <input hlmInput type="date" id="startDate" [formField]="recurringForm.startDate" />
               </z-form-control>
             </z-form-field>
 
             <z-form-field class="col-span-3">
               <label for="endDate" z-form-label>Repetir até (opcional)</label>
               <z-form-control>
-                <input z-input type="date" id="endDate" [formField]="recurringForm.endDate" />
+                <input hlmInput type="date" id="endDate" [formField]="recurringForm.endDate" />
               </z-form-control>
             </z-form-field>
 

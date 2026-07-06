@@ -4,7 +4,7 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
-import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
+import { HlmInput } from '@/shared/spartan/input';
 import { ZardSelectImports } from '@/shared/zard/components/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowRightLeft } from '@ng-icons/lucide';
@@ -56,7 +56,7 @@ export interface TransactionFormModel {
     FramePaper,
     ZardFormModule,
     NgIcon,
-    ZardInputDirective,
+    HlmInput,
     HlmButton,
     ZardSelectImports,
     CurrencyInputComponent,
@@ -78,7 +78,7 @@ export interface TransactionFormModel {
               <label for="description" z-form-label>Descrição</label>
               <z-form-control [errorMessage]="errorOf(transactionForm.description())">
                 <input
-                  z-input
+                  hlmInput
                   type="text"
                   id="description"
                   [formField]="transactionForm.description"
@@ -134,7 +134,7 @@ export interface TransactionFormModel {
             <z-form-field class="col-span-2">
               <label for="date" z-form-label>Data</label>
               <z-form-control [errorMessage]="errorOf(transactionForm.date())">
-                <input z-input type="date" id="date" [formField]="transactionForm.date" />
+                <input hlmInput type="date" id="date" [formField]="transactionForm.date" />
               </z-form-control>
             </z-form-field>
 
@@ -174,7 +174,7 @@ export interface TransactionFormModel {
                 <z-form-field class="col-span-3">
                   <label for="endDate" z-form-label>Repetir até (opcional)</label>
                   <z-form-control>
-                    <input z-input type="date" id="endDate" [formField]="transactionForm.endDate" />
+                    <input hlmInput type="date" id="endDate" [formField]="transactionForm.endDate" />
                   </z-form-control>
                 </z-form-field>
               }

@@ -8,7 +8,7 @@ import {
 } from '@/shared/zard/components/form/form.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLogIn } from '@ng-icons/lucide';
-import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
+import { HlmInput } from '@/shared/spartan/input';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FieldState, form, FormField, required, submit } from '@angular/forms/signals';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -29,7 +29,7 @@ import { getInitials } from '../../auth.utils';
     ZardFormFieldComponent,
     ZardFormControlComponent,
     ZardFormLabelComponent,
-    ZardInputDirective,
+    HlmInput,
     RouterLink,
   ],
   providers: [provideIcons({ lucideLogIn })],
@@ -63,7 +63,7 @@ import { getInitials } from '../../auth.utils';
               <label z-form-label for="password">Senha</label>
               <z-form-control [errorMessage]="getErrorMessage(loginForm.password())">
                 <input
-                  z-input
+                  hlmInput
                   type="password"
                   id="password"
                   placeholder="••••••••"
