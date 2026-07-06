@@ -3,7 +3,8 @@ import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { HlmEmptyImports } from '@/shared/spartan/empty';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideLandmark, lucidePlus, lucideSquarePen, lucideTrash } from '@ng-icons/lucide';
 import { ZardTableImports } from '@/shared/zard/components/table';
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
@@ -17,23 +18,24 @@ import { AccountsService } from '../../shared/accounts.service';
     FrameHeader,
     FramePaper,
     RouterLink,
-    ZardIconComponent,
+    NgIcon,
     ZardButtonComponent,
     HlmBadge,
     ...HlmEmptyImports,
     CurrencyPipe,
     ...ZardTableImports,
   ],
+  providers: [provideIcons({ lucideLandmark, lucidePlus, lucideSquarePen, lucideTrash })],
   template: `
     <div>
       <app-frame-header>
-        <z-icon slot="icon" zSize="4xl" zType="landmark"></z-icon>
+        <ng-icon slot="icon" name="lucideLandmark" class="text-[length:--spacing(12)]" />
         <h1 slot="title">Contas Bancárias</h1>
         <p slot="subtitle">Gerencie suas contas e configurações</p>
         <div slot="actions">
           <button z-button zType="outline" routerLink="/accounts/new">
             Adicionar Conta
-            <i z-icon zType="plus"></i>
+            <ng-icon name="lucidePlus" class="text-[length:--spacing(3.5)]" />
           </button>
         </div>
       </app-frame-header>
@@ -53,7 +55,7 @@ import { AccountsService } from '../../shared/accounts.service';
             <hlm-empty-content>
               <button z-button zType="default" routerLink="/accounts/new">
                 Adicionar Conta
-                <i z-icon zType="plus"></i>
+                <ng-icon name="lucidePlus" class="text-[length:--spacing(3.5)]" />
               </button>
             </hlm-empty-content>
           </hlm-empty>
@@ -88,7 +90,7 @@ import { AccountsService } from '../../shared/accounts.service';
                         [routerLink]="['/accounts', account.id]"
                         aria-label="Editar conta"
                       >
-                        <i z-icon zType="square-pen"></i>
+                        <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
                       </button>
                       <button
                         z-button
@@ -97,7 +99,10 @@ import { AccountsService } from '../../shared/accounts.service';
                         (click)="remove(account)"
                         aria-label="Apagar conta"
                       >
-                        <i z-icon zType="trash" class="text-destructive"></i>
+                        <ng-icon
+                          name="lucideTrash"
+                          class="text-[length:--spacing(3.5)] text-destructive"
+                        />
                       </button>
                     </div>
                   </td>

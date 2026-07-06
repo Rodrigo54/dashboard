@@ -5,7 +5,8 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft, lucideRepeat } from '@ng-icons/lucide';
 import { HlmSpinner } from '@/shared/spartan/spinner';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
@@ -21,22 +22,23 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
     FrameHeader,
     FramePaper,
     RouterLink,
-    ZardIconComponent,
+    NgIcon,
     ZardButtonComponent,
     HlmBadge,
     HlmSpinner,
     CurrencyPipe,
     DatePipe,
   ],
+  providers: [provideIcons({ lucideArrowLeft, lucideRepeat })],
   template: `
     <div>
       <app-frame-header>
-        <z-icon slot="icon" zSize="4xl" zType="repeat"></z-icon>
+        <ng-icon slot="icon" name="lucideRepeat" class="text-[length:--spacing(12)]" />
         <h1 slot="title">Recorrências Detectadas</h1>
         <p slot="subtitle">Padrões encontrados no seu histórico de transações</p>
         <div slot="actions">
           <button z-button zType="outline" routerLink="/import">
-            <i z-icon zType="arrow-left"></i>
+            <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
             Voltar
           </button>
         </div>

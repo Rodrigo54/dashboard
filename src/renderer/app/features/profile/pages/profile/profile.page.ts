@@ -4,7 +4,8 @@ import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/a
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { HlmSeparator } from '@/shared/spartan/separator';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideImageUp, lucideUserRound } from '@ng-icons/lucide';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
@@ -46,13 +47,14 @@ const passwordFormSchema = changePasswordSchema
     ZardButtonComponent,
     HlmSeparator,
     ZardFormModule,
-    ZardIconComponent,
+    NgIcon,
     ZardInputDirective,
   ],
+  providers: [provideIcons({ lucideImageUp, lucideUserRound })],
   template: `
     <div>
       <app-frame-header>
-        <z-icon slot="icon" zSize="4xl" zType="user-round"></z-icon>
+        <ng-icon slot="icon" name="lucideUserRound" class="text-[length:--spacing(12)]" />
         <h1 slot="title">Perfil</h1>
         <p slot="subtitle">Atualize seus dados e sua senha</p>
       </app-frame-header>
@@ -77,7 +79,7 @@ const passwordFormSchema = changePasswordSchema
               }
               <div class="flex flex-col gap-2">
                 <button type="button" z-button zType="outline" (click)="avatarInput.click()">
-                  <z-icon zType="image-up" />
+                  <ng-icon name="lucideImageUp" class="text-[length:--spacing(3.5)]" />
                   Trocar foto
                 </button>
                 <span class="text-xs text-muted-foreground">PNG, JPG ou WebP, até 5MB</span>

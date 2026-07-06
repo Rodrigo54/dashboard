@@ -4,9 +4,10 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import { ZardSelectImports } from '@/shared/zard/components/select';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowRightLeft } from '@ng-icons/lucide';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -54,16 +55,17 @@ export interface TransactionFormModel {
     FrameHeader,
     FramePaper,
     ZardFormModule,
-    ZardIconComponent,
+    NgIcon,
     ZardInputDirective,
     ZardButtonComponent,
     ZardSelectImports,
     CurrencyInputComponent,
   ],
+  providers: [provideIcons({ lucideArrowRightLeft })],
   template: `
     <div>
       <app-frame-header>
-        <z-icon slot="icon" zSize="4xl" zType="arrow-right-left"></z-icon>
+        <ng-icon slot="icon" name="lucideArrowRightLeft" class="text-[length:--spacing(12)]" />
         <h1 slot="title">{{ isEdit() ? 'Editar Transação' : 'Nova Transação' }}</h1>
         <p slot="subtitle">
           {{ isEdit() ? 'Atualize os detalhes da transação' : 'Registre uma receita ou despesa' }}

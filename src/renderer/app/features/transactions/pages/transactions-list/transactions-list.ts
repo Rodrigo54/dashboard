@@ -1,35 +1,30 @@
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowRightLeft, lucideFileText, lucidePlus } from '@ng-icons/lucide';
 import { RouterLink } from '@angular/router';
 import { TransactionsTable } from './transactions-table';
 
 @Component({
   selector: 'app-transactions',
-  imports: [
-    FrameHeader,
-    FramePaper,
-    RouterLink,
-    ZardIconComponent,
-    ZardButtonComponent,
-    TransactionsTable,
-  ],
+  imports: [FrameHeader, FramePaper, RouterLink, NgIcon, ZardButtonComponent, TransactionsTable],
+  providers: [provideIcons({ lucideArrowRightLeft, lucideFileText, lucidePlus })],
   template: `
     <div>
       <app-frame-header>
-        <z-icon slot="icon" zSize="4xl" zType="arrow-right-left"></z-icon>
+        <ng-icon slot="icon" name="lucideArrowRightLeft" class="text-[length:--spacing(12)]" />
         <h1 slot="title">Transações</h1>
         <p slot="subtitle">Registre receitas e despesas, recorrentes ou avulsas</p>
         <div slot="actions" class="flex gap-2">
           <button z-button zType="outline" routerLink="/import">
             Importar Extrato
-            <i z-icon zType="file-text"></i>
+            <ng-icon name="lucideFileText" class="text-[length:--spacing(3.5)]" />
           </button>
           <button z-button zType="outline" routerLink="/transactions/new">
             Nova Transação
-            <i z-icon zType="plus"></i>
+            <ng-icon name="lucidePlus" class="text-[length:--spacing(3.5)]" />
           </button>
         </div>
       </app-frame-header>

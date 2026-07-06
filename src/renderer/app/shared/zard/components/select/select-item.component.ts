@@ -9,7 +9,8 @@ import {
   signal,
 } from '@angular/core';
 
-import { ZardIconComponent } from '../icon/icon.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCheck } from '@ng-icons/lucide';
 import {
   selectItemIconVariants,
   selectItemVariants,
@@ -27,13 +28,15 @@ interface SelectHost {
 
 @Component({
   selector: 'z-select-item, [z-select-item]',
-  imports: [ZardIconComponent],
+  imports: [NgIcon],
+  providers: [provideIcons({ lucideCheck })],
   template: `
     @if (isSelected()) {
       <span [class]="iconClasses()">
-        <z-icon
-          zType="check"
-          [zStrokeWidth]="strokeWidth()"
+        <ng-icon
+          name="lucideCheck"
+          [strokeWidth]="strokeWidth()"
+          class="text-[length:--spacing(3.5)]"
           aria-hidden="true"
           data-testid="check-icon"
         />

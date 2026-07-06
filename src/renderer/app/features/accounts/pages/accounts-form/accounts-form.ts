@@ -3,11 +3,12 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import { ZardSelectImports } from '@/shared/zard/components/select';
 import { CURRENCY_SYMBOLS } from '@shared/enums';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideLandmark } from '@ng-icons/lucide';
 import { FormsModule } from '@angular/forms';
 import {
   FieldState,
@@ -30,16 +31,17 @@ import { AccountsService } from '../../shared/accounts.service';
     FrameHeader,
     FramePaper,
     ZardFormModule,
-    ZardIconComponent,
+    NgIcon,
     ZardInputDirective,
     ZardButtonComponent,
     ZardSelectImports,
     CurrencyInputComponent,
   ],
+  providers: [provideIcons({ lucideLandmark })],
   template: `
     <div>
       <app-frame-header>
-        <z-icon slot="icon" zSize="4xl" zType="landmark"></z-icon>
+        <ng-icon slot="icon" name="lucideLandmark" class="text-[length:--spacing(12)]" />
         <h1 slot="title">{{ isEdit() ? 'Editar Conta Bancária' : 'Criar nova Conta Bancária' }}</h1>
         <p slot="subtitle">
           {{ isEdit() ? 'Atualize os detalhes da conta' : 'Preencha os detalhes da nova conta' }}

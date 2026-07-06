@@ -12,8 +12,9 @@ import {
 
 import type { ClassValue } from 'clsx';
 
-import { ZardIconComponent } from '../icon/icon.component';
-import type { ZardIcon } from '../icon/icons';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
+
 import {
   sidebarGroupLabelVariants,
   sidebarGroupVariants,
@@ -25,7 +26,8 @@ import { mergeClasses, transform } from '@/shared/zard/utils/merge-classes';
 
 @Component({
   selector: 'z-sidebar',
-  imports: [ZardStringTemplateOutletDirective, ZardIconComponent],
+  imports: [ZardStringTemplateOutletDirective, NgIcon],
+  providers: [provideIcons({ lucideChevronLeft, lucideChevronRight })],
   template: `
     <aside
       [class]="classes()"
@@ -46,7 +48,7 @@ import { mergeClasses, transform } from '@/shared/zard/utils/merge-classes';
           [attr.aria-label]="zCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
           [attr.aria-expanded]="!zCollapsed()"
         >
-          <z-icon [zType]="chevronIcon()" />
+          <ng-icon [name]="chevronIcon()" class="text-[length:--spacing(3.5)]" />
         </div>
       }
 
@@ -88,14 +90,14 @@ export class SidebarComponent {
     return typeof width === 'number' ? width : parseInt(width, 10);
   });
 
-  protected readonly chevronIcon = computed((): ZardIcon => {
+  protected readonly chevronIcon = computed((): string => {
     const collapsed = this.zCollapsed();
     const reverse = this.zReverseArrow();
 
     if (reverse) {
-      return collapsed ? 'chevron-left' : 'chevron-right';
+      return collapsed ? 'lucideChevronLeft' : 'lucideChevronRight';
     }
-    return collapsed ? 'chevron-right' : 'chevron-left';
+    return collapsed ? 'lucideChevronRight' : 'lucideChevronLeft';
   });
 
   protected readonly classes = computed(() => mergeClasses(sidebarVariants(), this.class()));

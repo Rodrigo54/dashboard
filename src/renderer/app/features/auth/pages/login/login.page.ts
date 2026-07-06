@@ -5,7 +5,8 @@ import {
   ZardFormFieldComponent,
   ZardFormLabelComponent,
 } from '@/shared/zard/components/form/form.component';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideLogIn } from '@ng-icons/lucide';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FieldState, form, FormField, required, submit } from '@angular/forms/signals';
@@ -22,13 +23,14 @@ import { getInitials } from '../../auth.utils';
     HlmAvatarImage,
     HlmAvatarFallback,
     ZardButtonComponent,
-    ZardIconComponent,
+    NgIcon,
     ZardFormFieldComponent,
     ZardFormControlComponent,
     ZardFormLabelComponent,
     ZardInputDirective,
     RouterLink,
   ],
+  providers: [provideIcons({ lucideLogIn })],
   template: `
     <div class="flex items-center justify-center min-h-screen">
       <div class="flex flex-col gap-6 w-full max-w-xs px-4">
@@ -69,7 +71,7 @@ import { getInitials } from '../../auth.utils';
             </z-form-field>
 
             <button z-button zType="default" type="submit" class="w-full" [zLoading]="loading()">
-              <z-icon zType="log-in" />
+              <ng-icon name="lucideLogIn" class="text-[length:--spacing(3.5)]" />
               Entrar
             </button>
           </form>

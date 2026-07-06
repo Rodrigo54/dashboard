@@ -4,10 +4,20 @@ import {
   ZardFormFieldComponent,
   ZardFormLabelComponent,
 } from '@/shared/zard/components/form/form.component';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { email, FieldState, form, FormField, minLength, required, submit, validate } from '@angular/forms/signals';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideUserPlus } from '@ng-icons/lucide';
+import {
+  email,
+  FieldState,
+  form,
+  FormField,
+  minLength,
+  required,
+  submit,
+  validate,
+} from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth.service';
 
@@ -17,13 +27,14 @@ import { AuthService } from '../../auth.service';
   imports: [
     FormField,
     ZardButtonComponent,
-    ZardIconComponent,
+    NgIcon,
     ZardFormFieldComponent,
     ZardFormControlComponent,
     ZardFormLabelComponent,
     ZardInputDirective,
     RouterLink,
   ],
+  providers: [provideIcons({ lucideUserPlus })],
   template: `
     <div class="flex items-center justify-center min-h-screen">
       <div class="flex flex-col gap-6 w-full max-w-sm px-4">
@@ -32,7 +43,7 @@ import { AuthService } from '../../auth.service';
             <div
               class="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary text-primary-foreground"
             >
-              <z-icon zType="user-plus" zSize="2xl" />
+              <ng-icon name="lucideUserPlus" class="text-[length:--spacing(8)]" />
             </div>
             <h1 class="text-2xl font-bold text-foreground">Criar conta</h1>
             <p class="text-muted-foreground text-sm">Configure seu acesso ao Dashboard</p>
@@ -106,7 +117,7 @@ import { AuthService } from '../../auth.service';
               class="w-full mt-2"
               [zLoading]="loading()"
             >
-              <z-icon zType="user-plus" />
+              <ng-icon name="lucideUserPlus" class="text-[length:--spacing(3.5)]" />
               Criar conta
             </button>
           </form>

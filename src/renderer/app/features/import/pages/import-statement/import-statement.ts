@@ -4,7 +4,8 @@ import { TransactionsService } from '@/features/transactions/shared/transactions
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft, lucideCircleCheck, lucideFileText, lucideRepeat } from '@ng-icons/lucide';
 import { HlmSpinner } from '@/shared/spartan/spinner';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -20,20 +21,21 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
     FrameHeader,
     FramePaper,
     RouterLink,
-    ZardIconComponent,
+    NgIcon,
     ZardButtonComponent,
     HlmSpinner,
     ImportStagingTable,
   ],
+  providers: [provideIcons({ lucideArrowLeft, lucideCircleCheck, lucideFileText, lucideRepeat })],
   template: `
     <div>
       <app-frame-header>
-        <z-icon slot="icon" zSize="4xl" zType="file-text"></z-icon>
+        <ng-icon slot="icon" name="lucideFileText" class="text-[length:--spacing(12)]" />
         <h1 slot="title">Importar Extrato</h1>
         <p slot="subtitle">Extraia transações de um PDF de extrato (Banco do Brasil ou Itaú)</p>
         <div slot="actions">
           <button z-button zType="outline" routerLink="/transactions">
-            <i z-icon zType="arrow-left"></i>
+            <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
             Voltar
           </button>
         </div>
@@ -47,7 +49,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
           </div>
         } @else if (result(); as res) {
           <div class="flex flex-col items-center gap-4 py-12 text-center">
-            <i z-icon zType="circle-check" class="text-emerald-600" style="font-size: 3rem"></i>
+            <ng-icon name="lucideCircleCheck" class="text-emerald-600" style="font-size: 3rem" />
             <div>
               <p class="text-lg font-semibold">Importação concluída</p>
               <p class="text-muted-foreground">
@@ -125,7 +127,11 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
           <label
             class="border-border hover:bg-muted/40 flex cursor-pointer flex-col items-center gap-3 rounded-lg border-2 border-dashed py-16 transition-colors"
           >
-            <i z-icon zType="file-text" class="text-muted-foreground" style="font-size: 2.5rem"></i>
+            <ng-icon
+              name="lucideFileText"
+              class="text-muted-foreground"
+              style="font-size: 2.5rem"
+            />
             <span class="font-medium">Selecione um PDF de extrato</span>
             <span class="text-muted-foreground text-sm">Banco do Brasil ou Itaú</span>
             <input
@@ -137,7 +143,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
           </label>
           <div class="mt-6 flex justify-center">
             <button z-button zType="ghost" routerLink="/import/recurrences">
-              <i z-icon zType="repeat"></i>
+              <ng-icon name="lucideRepeat" class="text-[length:--spacing(3.5)]" />
               Detectar recorrências no histórico
             </button>
           </div>

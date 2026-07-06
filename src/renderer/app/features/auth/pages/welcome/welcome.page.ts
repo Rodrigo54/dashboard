@@ -1,6 +1,7 @@
 import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideChevronRight, lucideLayoutDashboard, lucideUserPlus } from '@ng-icons/lucide';
 import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService, type PublicUser } from '../../auth.service';
@@ -9,14 +10,8 @@ import { avatarUrl, getInitials } from '../../auth.utils';
 @Component({
   selector: 'app-welcome-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    HlmAvatar,
-    HlmAvatarImage,
-    HlmAvatarFallback,
-    ZardButtonComponent,
-    ZardIconComponent,
-    RouterLink,
-  ],
+  imports: [HlmAvatar, HlmAvatarImage, HlmAvatarFallback, ZardButtonComponent, NgIcon, RouterLink],
+  providers: [provideIcons({ lucideChevronRight, lucideLayoutDashboard, lucideUserPlus })],
   template: `
     <div class="flex items-center justify-center min-h-screen">
       <div class="flex flex-col items-center gap-6 w-full max-w-xs px-4">
@@ -24,7 +19,7 @@ import { avatarUrl, getInitials } from '../../auth.utils';
           <div
             class="flex items-center justify-center w-16 h-16 rounded-2xl bg-primary text-primary-foreground"
           >
-            <z-icon zType="layout-dashboard" zSize="2xl" />
+            <ng-icon name="lucideLayoutDashboard" class="text-[length:--spacing(8)]" />
           </div>
           <h1 class="text-2xl font-bold text-foreground">Dashboard</h1>
         </div>
@@ -39,7 +34,7 @@ import { avatarUrl, getInitials } from '../../auth.utils';
               Configure sua conta para começar
             </p>
             <button z-button zType="default" class="w-full" [routerLink]="['/auth/register']">
-              <z-icon zType="user-plus" />
+              <ng-icon name="lucideUserPlus" class="text-[length:--spacing(3.5)]" />
               Criar conta
             </button>
           </div>
@@ -67,13 +62,16 @@ import { avatarUrl, getInitials } from '../../auth.utils';
                     <p class="text-sm font-medium leading-none truncate">{{ user.name }}</p>
                     <p class="text-xs text-muted-foreground mt-0.5 truncate">{{ user.email }}</p>
                   </div>
-                  <z-icon zType="chevron-right" class="text-muted-foreground/50 shrink-0" />
+                  <ng-icon
+                    name="lucideChevronRight"
+                    class="text-[length:--spacing(3.5)] text-muted-foreground/50 shrink-0"
+                  />
                 </button>
               }
             </div>
             <div class="border-t border-border px-4 pb-4 pt-3">
               <button z-button zType="ghost" class="w-full" [routerLink]="['/auth/register']">
-                <z-icon zType="user-plus" />
+                <ng-icon name="lucideUserPlus" class="text-[length:--spacing(3.5)]" />
                 Criar nova conta
               </button>
             </div>

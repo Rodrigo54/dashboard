@@ -1,5 +1,6 @@
 import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideChevronsUpDown } from '@ng-icons/lucide';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@renderer/app/features/auth/auth.service';
@@ -8,7 +9,8 @@ import { FrameService } from './frame.service';
 
 @Component({
   selector: 'app-frame-profile',
-  imports: [HlmAvatar, HlmAvatarImage, HlmAvatarFallback, ZardIconComponent],
+  imports: [HlmAvatar, HlmAvatarImage, HlmAvatarFallback, NgIcon],
+  providers: [provideIcons({ lucideChevronsUpDown })],
   template: `
     <div
       class="text-primary-foreground flex items-center justify-center"
@@ -32,7 +34,7 @@ import { FrameService } from './frame.service';
             </div>
           </div>
 
-          <z-icon zType="chevrons-up-down" class="my-auto" />
+          <ng-icon name="lucideChevronsUpDown" class="text-[length:--spacing(3.5)] my-auto" />
         }
       </button>
     </div>

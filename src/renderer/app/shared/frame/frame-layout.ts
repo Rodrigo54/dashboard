@@ -2,8 +2,9 @@ import { invoke } from '@/core/ipc/invoke';
 import { HlmBreadcrumbImports } from '@/shared/spartan/breadcrumb';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { HlmSeparator } from '@/shared/spartan/separator';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { LayoutImports } from '@/shared/zard/components/layout';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideLogOut, lucidePanelLeft } from '@ng-icons/lucide';
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '@renderer/app/features/auth/auth.service';
@@ -18,12 +19,13 @@ import { FrameService } from './frame.service';
     LayoutImports,
     HlmBreadcrumbImports,
     ZardButtonComponent,
-    ZardIconComponent,
+    NgIcon,
     HlmSeparator,
     FrameSidebar,
     FrameTitle,
     RouterOutlet,
   ],
+  providers: [provideIcons({ lucideLogOut, lucidePanelLeft })],
   template: `
     <div class="flex h-screen w-screen flex-col overflow-hidden">
       <app-frame-title />
@@ -49,7 +51,7 @@ import { FrameService } from './frame.service';
                 class="-ml-2"
                 (click)="frame.toggleSidebar()"
               >
-                <z-icon zType="panel-left" />
+                <ng-icon name="lucidePanelLeft" class="text-[length:--spacing(3.5)]" />
               </button>
               <hlm-separator
                 orientation="vertical"
@@ -70,7 +72,7 @@ import { FrameService } from './frame.service';
               </nav>
               <div class="ml-auto">
                 <button type="button" z-button zType="ghost" zSize="sm" (click)="logoff()">
-                  <z-icon zType="log-out" />
+                  <ng-icon name="lucideLogOut" class="text-[length:--spacing(3.5)]" />
                 </button>
               </div>
             </div>

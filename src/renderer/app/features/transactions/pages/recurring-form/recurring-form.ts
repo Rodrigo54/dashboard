@@ -4,9 +4,10 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
 import { ZardSelectImports } from '@/shared/zard/components/select';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideRepeat } from '@ng-icons/lucide';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -54,16 +55,17 @@ export interface RecurringFormModel {
     FrameHeader,
     FramePaper,
     ZardFormModule,
-    ZardIconComponent,
+    NgIcon,
     ZardInputDirective,
     ZardButtonComponent,
     ZardSelectImports,
     CurrencyInputComponent,
   ],
+  providers: [provideIcons({ lucideRepeat })],
   template: `
     <div>
       <app-frame-header>
-        <z-icon slot="icon" zSize="4xl" zType="repeat"></z-icon>
+        <ng-icon slot="icon" name="lucideRepeat" class="text-[length:--spacing(12)]" />
         <h1 slot="title">Editar Recorrência</h1>
         <p slot="subtitle">
           As alterações valem para os próximos lançamentos; os já gerados não mudam

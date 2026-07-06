@@ -2,7 +2,19 @@ import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { HlmBadge } from '@/shared/spartan/badge';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
 import { HlmEmptyImports } from '@/shared/spartan/empty';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideArrowLeft,
+  lucideChevronLeft,
+  lucideChevronRight,
+  lucideCircleCheck,
+  lucidePause,
+  lucidePlay,
+  lucidePlus,
+  lucideRepeat,
+  lucideSquarePen,
+  lucideTrash,
+} from '@ng-icons/lucide';
 import { ZardSelectImports } from '@/shared/zard/components/select';
 import { ZardTableImports } from '@/shared/zard/components/table';
 import { CurrencyPipe, DatePipe } from '@angular/common';
@@ -22,7 +34,7 @@ type Scope = 'all' | 'recurring';
   host: { class: 'block w-full' },
   imports: [
     RouterLink,
-    ZardIconComponent,
+    NgIcon,
     ZardButtonComponent,
     HlmBadge,
     ...HlmEmptyImports,
@@ -30,6 +42,20 @@ type Scope = 'all' | 'recurring';
     DatePipe,
     ...ZardSelectImports,
     ...ZardTableImports,
+  ],
+  providers: [
+    provideIcons({
+      lucideArrowLeft,
+      lucideChevronLeft,
+      lucideChevronRight,
+      lucideCircleCheck,
+      lucidePause,
+      lucidePlay,
+      lucidePlus,
+      lucideRepeat,
+      lucideSquarePen,
+      lucideTrash,
+    }),
   ],
   template: `
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -55,7 +81,7 @@ type Scope = 'all' | 'recurring';
             [attr.aria-pressed]="scope() === 'recurring'"
             (click)="scope.set('recurring')"
           >
-            <i z-icon zType="repeat"></i>
+            <ng-icon name="lucideRepeat" class="text-[length:--spacing(3.5)]" />
             Recorrências
           </button>
         </div>
@@ -69,7 +95,7 @@ type Scope = 'all' | 'recurring';
             (click)="service.goToToday()"
             aria-label="Voltar para o mês atual"
           >
-            <i z-icon zType="arrow-left"></i>
+            <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
             Hoje
           </button>
           <button
@@ -79,7 +105,7 @@ type Scope = 'all' | 'recurring';
             (click)="service.previousMonth()"
             aria-label="Mês anterior"
           >
-            <i z-icon zType="chevron-left"></i>
+            <ng-icon name="lucideChevronLeft" class="text-[length:--spacing(3.5)]" />
           </button>
           <button
             z-button
@@ -88,7 +114,7 @@ type Scope = 'all' | 'recurring';
             (click)="service.nextMonth()"
             aria-label="Próximo mês"
           >
-            <i z-icon zType="chevron-right"></i>
+            <ng-icon name="lucideChevronRight" class="text-[length:--spacing(3.5)]" />
           </button>
           <span class="ml-2 text-base font-semibold capitalize">{{ service.monthLabel() }}</span>
         </div>
@@ -130,7 +156,7 @@ type Scope = 'all' | 'recurring';
         <hlm-empty-content>
           <button z-button zType="default" routerLink="/transactions/new">
             Nova Transação
-            <i z-icon zType="plus"></i>
+            <ng-icon name="lucidePlus" class="text-[length:--spacing(3.5)]" />
           </button>
         </hlm-empty-content>
       </hlm-empty>
@@ -163,12 +189,11 @@ type Scope = 'all' | 'recurring';
                       {{ row.ruleStatus === 'paused' ? 'Pausada' : 'Previsto' }}
                     </span>
                   } @else if (row.recurring) {
-                    <i
-                      z-icon
-                      zType="repeat"
-                      class="text-muted-foreground"
+                    <ng-icon
+                      name="lucideRepeat"
+                      class="text-[length:--spacing(3.5)] text-muted-foreground"
                       aria-label="Recorrente"
-                    ></i>
+                    />
                   }
                 </span>
               </td>
@@ -192,7 +217,7 @@ type Scope = 'all' | 'recurring';
                         (click)="materialize(row)"
                         aria-label="Lançar agora"
                       >
-                        <i z-icon zType="circle-check"></i>
+                        <ng-icon name="lucideCircleCheck" class="text-[length:--spacing(3.5)]" />
                       </button>
                       <button
                         z-button
@@ -201,7 +226,7 @@ type Scope = 'all' | 'recurring';
                         (click)="pause(rule)"
                         aria-label="Pausar recorrência"
                       >
-                        <i z-icon zType="pause"></i>
+                        <ng-icon name="lucidePause" class="text-[length:--spacing(3.5)]" />
                       </button>
                     } @else {
                       <button
@@ -211,7 +236,7 @@ type Scope = 'all' | 'recurring';
                         (click)="resume(rule)"
                         aria-label="Retomar recorrência"
                       >
-                        <i z-icon zType="play"></i>
+                        <ng-icon name="lucidePlay" class="text-[length:--spacing(3.5)]" />
                       </button>
                     }
                     <button
@@ -221,7 +246,7 @@ type Scope = 'all' | 'recurring';
                       [routerLink]="['/transactions/recurring', rule.id]"
                       aria-label="Editar recorrência"
                     >
-                      <i z-icon zType="square-pen"></i>
+                      <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
                     </button>
                   } @else if (row.transaction; as transaction) {
                     <button
@@ -231,7 +256,7 @@ type Scope = 'all' | 'recurring';
                       [routerLink]="['/transactions', transaction.id]"
                       aria-label="Editar transação"
                     >
-                      <i z-icon zType="square-pen"></i>
+                      <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
                     </button>
                     <button
                       z-button
@@ -240,7 +265,10 @@ type Scope = 'all' | 'recurring';
                       (click)="remove(transaction)"
                       aria-label="Apagar transação"
                     >
-                      <i z-icon zType="trash" class="text-destructive"></i>
+                      <ng-icon
+                        name="lucideTrash"
+                        class="text-[length:--spacing(3.5)] text-destructive"
+                      />
                     </button>
                   }
                 </div>

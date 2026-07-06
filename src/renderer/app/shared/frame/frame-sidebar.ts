@@ -1,14 +1,26 @@
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
-import { ZardIcon } from '@/shared/zard/components/icon/icons';
 import { LayoutImports } from '@/shared/zard/components/layout';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  lucideBell,
+  lucideBookOpen,
+  lucideCalendar,
+  lucideFileText,
+  lucideFolder,
+  lucideHouse,
+  lucideInbox,
+  lucideLandmark,
+  lucideSearch,
+  lucideSettings,
+  lucideUser,
+} from '@ng-icons/lucide';
 import { RouterLink } from '@angular/router';
 import { FrameProfile } from './frame-profile';
 import { FrameService } from './frame.service';
 
 interface MenuItem {
-  icon: ZardIcon;
+  icon: string;
   label: string;
   link: string;
   submenu?: MenuItem[];
@@ -16,7 +28,22 @@ interface MenuItem {
 
 @Component({
   selector: 'app-frame-sidebar',
-  imports: [LayoutImports, ZardButtonComponent, ZardIconComponent, FrameProfile, RouterLink],
+  imports: [LayoutImports, ZardButtonComponent, NgIcon, FrameProfile, RouterLink],
+  providers: [
+    provideIcons({
+      lucideBell,
+      lucideBookOpen,
+      lucideCalendar,
+      lucideFileText,
+      lucideFolder,
+      lucideHouse,
+      lucideInbox,
+      lucideLandmark,
+      lucideSearch,
+      lucideSettings,
+      lucideUser,
+    }),
+  ],
   template: `
     <aside class="bg-sidebar flex h-full flex-col overflow-hidden">
       <div class="h-80 bg-primary flex-col items-start justify-center">
@@ -41,7 +68,10 @@ interface MenuItem {
                 zPosition="right"
                 [routerLink]="item.link"
               >
-                <z-icon zSize="xl" [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
+                <ng-icon
+                  [name]="item.icon"
+                  [class]="'text-[length:--spacing(5)] ' + (sidebarCollapsed() ? '' : 'mr-2')"
+                />
                 @if (!sidebarCollapsed()) {
                   <span>{{ item.label }}</span>
                 }
@@ -66,7 +96,10 @@ interface MenuItem {
               zPosition="right"
               [routerLink]="item.link"
             >
-              <z-icon zSize="xl" [zType]="item.icon" [class]="sidebarCollapsed() ? '' : 'mr-2'" />
+              <ng-icon
+                [name]="item.icon"
+                [class]="'text-[length:--spacing(5)] ' + (sidebarCollapsed() ? '' : 'mr-2')"
+              />
               @if (!sidebarCollapsed()) {
                 <span>{{ item.label }}</span>
               }
@@ -83,20 +116,20 @@ export class FrameSidebar {
   frame = inject(FrameService);
   sidebarCollapsed = this.frame.sidebarCollapsed;
   mainMenuItems: MenuItem[] = [
-    { icon: 'landmark', label: 'Contas', link: '/accounts' },
-    { icon: 'book-open', label: 'Transações', link: '/transactions' },
-    { icon: 'file-text', label: 'Importar Extrato', link: '/import' },
+    { icon: 'lucideLandmark', label: 'Contas', link: '/accounts' },
+    { icon: 'lucideBookOpen', label: 'Transações', link: '/transactions' },
+    { icon: 'lucideFileText', label: 'Importar Extrato', link: '/import' },
 
-    { icon: 'inbox', label: 'Inbox', link: '/inbox' },
-    { icon: 'calendar', label: 'Calendário', link: '/calendar' },
-    { icon: 'search', label: 'Buscar', link: '/search' },
-    { icon: 'folder', label: 'Projetos', link: '/projects' },
+    { icon: 'lucideInbox', label: 'Inbox', link: '/inbox' },
+    { icon: 'lucideCalendar', label: 'Calendário', link: '/calendar' },
+    { icon: 'lucideSearch', label: 'Buscar', link: '/search' },
+    { icon: 'lucideFolder', label: 'Projetos', link: '/projects' },
   ];
 
   profileMenuItems: MenuItem[] = [
-    { icon: 'house', label: 'Inicio', link: '/home' },
-    { icon: 'user', label: 'Perfil', link: '/profile' },
-    { icon: 'bell', label: 'Notificações', link: '/notifications' },
-    { icon: 'settings', label: 'Configurações', link: '/settings' },
+    { icon: 'lucideHouse', label: 'Inicio', link: '/home' },
+    { icon: 'lucideUser', label: 'Perfil', link: '/profile' },
+    { icon: 'lucideBell', label: 'Notificações', link: '/notifications' },
+    { icon: 'lucideSettings', label: 'Configurações', link: '/settings' },
   ];
 }

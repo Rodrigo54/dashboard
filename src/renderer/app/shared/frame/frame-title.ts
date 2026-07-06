@@ -1,10 +1,12 @@
-import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCopy, lucideMinus, lucideSquare, lucideX } from '@ng-icons/lucide';
 import { WindowControlsService } from './window-controls.service';
 
 @Component({
   selector: 'app-frame-title',
-  imports: [ZardIconComponent],
+  imports: [NgIcon],
+  providers: [provideIcons({ lucideCopy, lucideMinus, lucideSquare, lucideX })],
   template: `
     <header [class]="headerClass()">
       <div class="flex items-center gap-2 px-3 text-xs font-medium">
@@ -20,7 +22,7 @@ import { WindowControlsService } from './window-controls.service';
           aria-label="Minimizar"
           (click)="window.minimize()"
         >
-          <z-icon zType="minus" zSize="sm" />
+          <ng-icon name="lucideMinus" class="text-[length:--spacing(3)]" />
         </button>
         <button
           type="button"
@@ -28,7 +30,7 @@ import { WindowControlsService } from './window-controls.service';
           [attr.aria-label]="window.maximized() ? 'Restaurar' : 'Maximizar'"
           (click)="window.maximizeToggle()"
         >
-          <z-icon [zType]="maximizeIcon()" zSize="sm" />
+          <ng-icon [name]="maximizeIcon()" class="text-[length:--spacing(3)]" />
         </button>
         <button
           type="button"
@@ -36,7 +38,7 @@ import { WindowControlsService } from './window-controls.service';
           aria-label="Fechar"
           (click)="window.close()"
         >
-          <z-icon zType="x" zSize="sm" />
+          <ng-icon name="lucideX" class="text-[length:--spacing(3)]" />
         </button>
       </div>
     </header>
@@ -64,7 +66,7 @@ export class FrameTitle {
   /** Remove a faixa sólida para sobrepor a barra a um fundo (ex.: auth). */
   readonly transparent = input(false);
 
-  readonly maximizeIcon = computed(() => (this.window.maximized() ? 'copy' : 'square'));
+  readonly maximizeIcon = computed(() => (this.window.maximized() ? 'lucideCopy' : 'lucideSquare'));
 
   readonly headerClass = computed(() => {
     const base = 'drag-region text-primary-foreground flex h-8 select-none items-center';

@@ -35,8 +35,10 @@ import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { ClassValue } from 'clsx';
 import { filter } from 'rxjs';
 
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideChevronDown } from '@ng-icons/lucide';
+
 import { HlmBadge } from '@/shared/spartan/badge';
-import { ZardIconComponent } from '../icon/icon.component';
 import { ZardSelectItemComponent } from './select-item.component';
 import {
   selectContentVariants,
@@ -54,7 +56,7 @@ const COMPACT_MODE_WIDTH_THRESHOLD = 100;
 
 @Component({
   selector: 'z-select, [z-select]',
-  imports: [OverlayModule, HlmBadge, ZardIconComponent],
+  imports: [OverlayModule, HlmBadge, NgIcon],
   template: `
     <button
       type="button"
@@ -82,7 +84,7 @@ const COMPACT_MODE_WIDTH_THRESHOLD = 100;
           <span class="text-muted-foreground truncate">{{ zPlaceholder() }}</span>
         }
       </span>
-      <z-icon zType="chevron-down" zSize="lg" class="opacity-50" />
+      <ng-icon name="lucideChevronDown" class="text-[length:--spacing(4)] opacity-50" />
     </button>
 
     <ng-template #dropdownTemplate>
@@ -103,6 +105,7 @@ const COMPACT_MODE_WIDTH_THRESHOLD = 100;
     </ng-template>
   `,
   providers: [
+    provideIcons({ lucideChevronDown }),
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ZardSelectComponent),
