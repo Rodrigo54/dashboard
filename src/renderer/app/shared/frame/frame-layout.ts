@@ -51,7 +51,10 @@ import { FrameService } from './frame.service';
               >
                 <z-icon zType="panel-left" />
               </button>
-              <hlm-separator orientation="vertical" class="bg-primary-foreground ml-2 h-4" />
+              <hlm-separator
+                orientation="vertical"
+                class="bg-primary-foreground ml-2 h-4 self-center"
+              />
               <nav hlmBreadcrumb>
                 <ol hlmBreadcrumbList class="text-primary-foreground/80">
                   <li hlmBreadcrumbItem>
@@ -59,7 +62,7 @@ import { FrameService } from './frame.service';
                       Home
                     </a>
                   </li>
-                  <li hlmBreadcrumbSeparator></li>
+                  <li hlmBreadcrumbSeparator class="flex items-center"></li>
                   <li hlmBreadcrumbItem>
                     <span hlmBreadcrumbPage class="text-primary-foreground">Components</span>
                   </li>
