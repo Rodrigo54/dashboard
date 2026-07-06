@@ -2,7 +2,7 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { ZardAvatarComponent } from '@/shared/zard/components/avatar';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
-import { ZardDividerComponent } from '@/shared/zard/components/divider/divider.component';
+import { HlmSeparator } from '@/shared/spartan/separator';
 import { ZardFormModule } from '@/shared/zard/components/form/form.module';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { ZardInputDirective } from '@/shared/zard/components/input/input.directive';
@@ -42,7 +42,7 @@ const passwordFormSchema = changePasswordSchema
     FramePaper,
     ZardAvatarComponent,
     ZardButtonComponent,
-    ZardDividerComponent,
+    HlmSeparator,
     ZardFormModule,
     ZardIconComponent,
     ZardInputDirective,
@@ -143,7 +143,7 @@ const passwordFormSchema = changePasswordSchema
             </div>
           </form>
 
-          <z-divider />
+          <hlm-separator />
 
           <form (submit)="onPasswordSubmit($event)" class="grid grid-cols-6 gap-8">
             <div class="col-span-6">

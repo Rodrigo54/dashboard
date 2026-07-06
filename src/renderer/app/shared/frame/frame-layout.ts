@@ -1,7 +1,7 @@
 import { invoke } from '@/core/ipc/invoke';
 import { ZardBreadcrumbImports } from '@/shared/zard/components/breadcrumb';
 import { ZardButtonComponent } from '@/shared/zard/components/button/button.component';
-import { ZardDividerComponent } from '@/shared/zard/components/divider';
+import { HlmSeparator } from '@/shared/spartan/separator';
 import { ZardIconComponent } from '@/shared/zard/components/icon/icon.component';
 import { LayoutImports } from '@/shared/zard/components/layout';
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
@@ -19,7 +19,7 @@ import { FrameService } from './frame.service';
     ZardBreadcrumbImports,
     ZardButtonComponent,
     ZardIconComponent,
-    ZardDividerComponent,
+    HlmSeparator,
     FrameSidebar,
     FrameTitle,
     RouterOutlet,
@@ -51,7 +51,7 @@ import { FrameService } from './frame.service';
               >
                 <z-icon zType="panel-left" />
               </button>
-              <z-divider zOrientation="vertical" class="bg-primary-foreground ml-2 h-4" />
+              <hlm-separator orientation="vertical" class="bg-primary-foreground ml-2 h-4" />
               <z-breadcrumb zWrap="wrap" zAlign="start">
                 <z-breadcrumb-item zColor="primary" [routerLink]="['/home']">
                   Home
