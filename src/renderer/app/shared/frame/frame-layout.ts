@@ -28,7 +28,7 @@ import { FrameTitle } from './frame-title';
   template: `
     <div class="flex h-screen w-screen flex-col overflow-hidden">
       <app-frame-title />
-      <div hlmSidebarWrapper class="min-h-0 flex-1 overflow-hidden">
+      <div hlmSidebarWrapper class="min-h-0 flex-1 overflow-hidden contain-layout">
         <app-frame-sidebar />
         <main hlmSidebarInset class="min-h-0 overflow-hidden">
           <div
