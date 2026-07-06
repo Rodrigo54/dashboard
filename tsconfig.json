@@ -32,7 +32,11 @@
       "@/shared/spartan/textarea": ["./src/renderer/app/shared/spartan/textarea/src/index.ts"],
       "@/shared/spartan/select": ["./src/renderer/app/shared/spartan/select/src/index.ts"],
       "@/shared/spartan/field": ["./src/renderer/app/shared/spartan/field/src/index.ts"],
-      "@/shared/spartan/label": ["./src/renderer/app/shared/spartan/label/src/index.ts"]
+      "@/shared/spartan/label": ["./src/renderer/app/shared/spartan/label/src/index.ts"],
+      "@/shared/spartan/sidebar": ["./src/renderer/app/shared/spartan/sidebar/src/index.ts"],
+      "@/shared/spartan/sheet": ["./src/renderer/app/shared/spartan/sheet/src/index.ts"],
+      "@/shared/spartan/skeleton": ["./src/renderer/app/shared/spartan/skeleton/src/index.ts"],
+      "@/shared/spartan/tooltip": ["./src/renderer/app/shared/spartan/tooltip/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

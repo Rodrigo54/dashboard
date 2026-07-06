@@ -1,43 +1,32 @@
 import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
+import { HlmSidebarImports } from '@/shared/spartan/sidebar';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronsUpDown } from '@ng-icons/lucide';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '@renderer/app/features/auth/auth.service';
 import { avatarUrl, getInitials } from '@renderer/app/features/auth/auth.utils';
-import { FrameService } from './frame.service';
 
 @Component({
   selector: 'app-frame-profile',
-  imports: [HlmAvatar, HlmAvatarImage, HlmAvatarFallback, NgIcon],
+  imports: [HlmSidebarImports, HlmAvatar, HlmAvatarImage, HlmAvatarFallback, NgIcon],
   providers: [provideIcons({ lucideChevronsUpDown })],
   template: `
-    <div
-      class="text-primary-foreground flex items-center justify-center"
-      [class]="sidebarCollapsed() ? 'py-10' : 'pt-6'"
-    >
-      <button type="button" [class]="avatarClasses()" (click)="openProfile()">
-        <hlm-avatar size="lg" class="cursor-pointer">
+    <li hlmSidebarMenuItem>
+      <button type="button" hlmSidebarMenuButton size="lg" (click)="openProfile()">
+        <hlm-avatar class="size-8 rounded-lg">
           @if (userAvatar(); as src) {
             <img hlmAvatarImage [src]="src" [alt]="userName()" />
           }
           <span hlmAvatarFallback>{{ userInitials() }}</span>
         </hlm-avatar>
-
-        @if (!sidebarCollapsed()) {
-          <div class="w-25 text-left">
-            <span class="font-medium text-ellipsis overflow-hidden whitespace-nowrap">
-              {{ userName() }}
-            </span>
-            <div class="text-xs text-ellipsis overflow-hidden whitespace-nowrap">
-              {{ userEmail() }}
-            </div>
-          </div>
-
-          <ng-icon name="lucideChevronsUpDown" class="text-[length:--spacing(3.5)] my-auto" />
-        }
+        <div class="grid flex-1 text-left leading-tight text-primary-foreground">
+          <span class="truncate font-medium">{{ userName() }}</span>
+          <span class="truncate text-xs">{{ userEmail() }}</span>
+        </div>
+        <ng-icon name="lucideChevronsUpDown" class="text-[length:--spacing(3.5)]" />
       </button>
-    </div>
+    </li>
   `,
   styles: `
     :host {
@@ -47,20 +36,8 @@ import { FrameService } from './frame.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FrameProfile {
-  frame = inject(FrameService);
   readonly #auth = inject(AuthService);
   readonly #router = inject(Router);
-
-  sidebarCollapsed = this.frame.sidebarCollapsed;
-
-  avatarClasses = computed(() => {
-    const baseClasses =
-      'hover:bg-accent border-transparent hover:text-accent-foreground cursor-pointer  ';
-    const sizeClasses = this.sidebarCollapsed()
-      ? 'border-2 rounded-full mx-auto flex items-center justify-center'
-      : 'rounded-md mx-4 w-full p-2 grid gap-2 grid-cols-[40px_1fr_14px]';
-    return `${baseClasses} ${sizeClasses}`;
-  });
 
   userName = computed(() => this.#auth.currentUser()?.name ?? '');
   userEmail = computed(() => this.#auth.currentUser()?.email ?? '');
