@@ -15,7 +15,7 @@ import {
   lucideSquarePen,
   lucideTrash,
 } from '@ng-icons/lucide';
-import { HlmSelectImports } from '@/shared/spartan/select';
+import { SelectComponent } from '@/shared/select';
 import { HlmTableImports } from '@/shared/spartan/table';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
@@ -40,7 +40,7 @@ type Scope = 'all' | 'recurring';
     ...HlmEmptyImports,
     CurrencyPipe,
     DatePipe,
-    ...HlmSelectImports,
+    SelectComponent,
     ...HlmTableImports,
   ],
   providers: [
@@ -120,32 +120,18 @@ type Scope = 'all' | 'recurring';
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <hlm-select class="w-44" (valueChange)="onAccountFilter($event)">
-          <hlm-select-trigger class="w-full">
-            <hlm-select-value placeholder="Todas as contas" />
-          </hlm-select-trigger>
-          <ng-template hlmSelectPortal>
-            <hlm-select-content>
-              <hlm-select-item value="all">Todas as contas</hlm-select-item>
-              @for (account of accountsService.accounts.value(); track account.id) {
-                <hlm-select-item [value]="account.id">{{ account.name }}</hlm-select-item>
-              }
-            </hlm-select-content>
-          </ng-template>
-        </hlm-select>
-        <hlm-select class="w-36" (valueChange)="onTypeFilter($event)">
-          <hlm-select-trigger class="w-full">
-            <hlm-select-value placeholder="Todos os tipos" />
-          </hlm-select-trigger>
-          <ng-template hlmSelectPortal>
-            <hlm-select-content>
-              <hlm-select-item value="all">Todos os tipos</hlm-select-item>
-              @for (type of service.types.value(); track type.value) {
-                <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
-              }
-            </hlm-select-content>
-          </ng-template>
-        </hlm-select>
+        <app-select
+          class="w-44"
+          [items]="accountFilterItems()"
+          placeholder="Todas as contas"
+          (valueChange)="onAccountFilter($event)"
+        />
+        <app-select
+          class="w-36"
+          [items]="typeFilterItems()"
+          placeholder="Todos os tipos"
+          (valueChange)="onTypeFilter($event)"
+        />
       </div>
     </div>
 
@@ -294,6 +280,18 @@ export class TransactionsTable {
   protected readonly accountsService = inject(AccountsService);
 
   protected readonly scope = signal<Scope>('all');
+
+  /** Contas do filtro, com a opção "Todas as contas" à frente. */
+  protected readonly accountFilterItems = computed(() => [
+    { value: 'all', label: 'Todas as contas' },
+    ...(this.accountsService.accounts.value()?.map((a) => ({ value: a.id, label: a.name })) ?? []),
+  ]);
+
+  /** Tipos do filtro, com a opção "Todos os tipos" à frente. */
+  protected readonly typeFilterItems = computed(() => [
+    { value: 'all', label: 'Todos os tipos' },
+    ...(this.service.types.value() ?? []),
+  ]);
 
   /**
    * Extrato unificado, sempre com transações e previsões das regras. Em "Tudo"

@@ -1,6 +1,6 @@
 import { invoke } from '@/core/ipc/invoke';
 import { computed, Injectable, resource, signal } from '@angular/core';
-import type { TransactionType } from '@shared/enums';
+import type { EnumOption, TransactionType } from '@shared/enums';
 import type {
   CreateTransaction,
   ListTransactionsFilter,
@@ -8,12 +8,6 @@ import type {
   UpdateTransaction,
   UUID,
 } from '@shared/types';
-
-/** Opção `{ value, label }` para selects, espelhando `enumOptions` do main. */
-export interface EnumOption {
-  value: string;
-  label: string;
-}
 
 /** Categorias agrupadas por tipo, como entregues por `transactions:categories`. */
 export interface CategoryOptions {

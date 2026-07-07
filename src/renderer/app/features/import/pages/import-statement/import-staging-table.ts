@@ -1,4 +1,5 @@
 import { HlmBadge } from '@/shared/spartan/badge';
+import { SelectComponent } from '@/shared/select';
 import { HlmTableImports } from '@/shared/spartan/table';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
@@ -18,7 +19,7 @@ export interface CellEdit {
  */
 @Component({
   selector: 'app-import-staging-table',
-  imports: [HlmBadge, CurrencyPipe, DatePipe, ...HlmTableImports],
+  imports: [HlmBadge, SelectComponent, CurrencyPipe, DatePipe, ...HlmTableImports],
   template: `
     <table hlmTable>
       <thead hlmTHead>
@@ -61,18 +62,13 @@ export interface CellEdit {
               </span>
             </td>
             <td hlmTd>
-              <select
-                class="border-border bg-background w-40 rounded-md border px-2 py-1 text-sm"
+              <app-select
+                class="w-40"
+                ariaLabel="Categoria"
+                [items]="categoriesFor(row)"
                 [value]="row.category"
-                (change)="changeCategory.emit({ index: i, value: value($event) })"
-                aria-label="Categoria"
-              >
-                @for (option of categoriesFor(row); track option.value) {
-                  <option [value]="option.value" [selected]="option.value === row.category">
-                    {{ option.label }}
-                  </option>
-                }
-              </select>
+                (valueChange)="changeCategory.emit({ index: i, value: $event })"
+              />
             </td>
             <td hlmTd class="text-right tabular-nums" [class]="amountClass(row)">
               {{ signedAmount(row) | currency: 'BRL' }}
@@ -96,10 +92,6 @@ export class ImportStagingTable {
   protected categoriesFor(row: StagingRow) {
     const groups = this.categories();
     return (row.staged.type === 'income' ? groups?.income : groups?.expense) ?? [];
-  }
-
-  protected value(event: Event): string {
-    return (event.target as HTMLSelectElement).value;
   }
 
   protected signedAmount(row: StagingRow): string {

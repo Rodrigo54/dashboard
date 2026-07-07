@@ -108,6 +108,14 @@ Quando a tarefa casa com um domínio especializado (banco de dados, Angular,
 commit, calibração de parser...), use a skill instalada do Claude Code em vez
 de reimplementar o que ela já faz bem.
 
+### Verificação visual — não rode o app sozinho
+
+- Nunca tente iniciar o app (`bun run dev`/`preview`, Electron, Playwright etc.)
+  só para validar visualmente uma mudança de UI. Rode `typecheck`/`lint`/testes
+  à vontade, mas a validação visual em si é do Rodrigo.
+- Ao terminar uma mudança de UI, peça pro Rodrigo rodar o app e validar. Só
+  commite depois do OK dele.
+
 ### Skillifique o sucesso repetido, não só a falha
 
 A segunda vez que você executar o mesmo fluxo manual, pare e codifique: um
@@ -134,6 +142,9 @@ sem esperar ser pedido**, usando o padrão da skill `/commit` (emoji + tipo +
 escopo). O **push é do Rodrigo** — nunca pushe por conta própria. Respeite as
 regras de Segurança (sem segredos, sem `--no-verify`, sem operações
 destrutivas sem confirmação).
+
+Exceção: se a tarefa mudou UI, o commit espera o OK visual do Rodrigo (veja
+"Verificação visual" acima) — não commite antes disso.
 
 ## Protocolo de confusão
 

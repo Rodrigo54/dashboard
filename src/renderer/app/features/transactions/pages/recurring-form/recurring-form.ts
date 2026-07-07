@@ -5,7 +5,7 @@ import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmFieldImports } from '@/shared/spartan/field';
 import { HlmInput } from '@/shared/spartan/input';
-import { HlmSelectImports } from '@/shared/spartan/select';
+import { SelectComponent } from '@/shared/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRepeat } from '@ng-icons/lucide';
 import {
@@ -58,7 +58,7 @@ export interface RecurringFormModel {
     NgIcon,
     HlmInput,
     HlmButton,
-    HlmSelectImports,
+    SelectComponent,
     CurrencyInputComponent,
   ],
   providers: [provideIcons({ lucideRepeat })],
@@ -104,18 +104,12 @@ export interface RecurringFormModel {
 
             <div hlmField class="col-span-3">
               <label hlmFieldLabel for="accountId">Conta</label>
-              <hlm-select [formField]="recurringForm.accountId">
-                <hlm-select-trigger class="w-full">
-                  <hlm-select-value placeholder="Escolha a conta" />
-                </hlm-select-trigger>
-                <ng-template hlmSelectPortal>
-                  <hlm-select-content>
-                    @for (account of accountsService.accounts.value(); track account.id) {
-                      <hlm-select-item [value]="account.id">{{ account.name }}</hlm-select-item>
-                    }
-                  </hlm-select-content>
-                </ng-template>
-              </hlm-select>
+              <app-select
+                id="accountId"
+                [formField]="recurringForm.accountId"
+                [items]="accountItems()"
+                placeholder="Escolha a conta"
+              />
               @if (errorOf(recurringForm.accountId()); as message) {
                 <hlm-field-error forceShow>{{ message }}</hlm-field-error>
               }
@@ -123,34 +117,22 @@ export interface RecurringFormModel {
 
             <div hlmField class="col-span-3">
               <label hlmFieldLabel for="type">Tipo</label>
-              <hlm-select [formField]="recurringForm.type">
-                <hlm-select-trigger class="w-full">
-                  <hlm-select-value placeholder="Escolha o tipo" />
-                </hlm-select-trigger>
-                <ng-template hlmSelectPortal>
-                  <hlm-select-content>
-                    @for (type of transactionsService.types.value(); track type.value) {
-                      <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
-                    }
-                  </hlm-select-content>
-                </ng-template>
-              </hlm-select>
+              <app-select
+                id="type"
+                [formField]="recurringForm.type"
+                [items]="transactionsService.types.value() ?? []"
+                placeholder="Escolha o tipo"
+              />
             </div>
 
             <div hlmField class="col-span-2">
               <label hlmFieldLabel for="category">Categoria</label>
-              <hlm-select [formField]="recurringForm.category">
-                <hlm-select-trigger class="w-full">
-                  <hlm-select-value placeholder="Escolha a categoria" />
-                </hlm-select-trigger>
-                <ng-template hlmSelectPortal>
-                  <hlm-select-content>
-                    @for (category of categoryOptions(); track category.value) {
-                      <hlm-select-item [value]="category.value">{{ category.label }}</hlm-select-item>
-                    }
-                  </hlm-select-content>
-                </ng-template>
-              </hlm-select>
+              <app-select
+                id="category"
+                [formField]="recurringForm.category"
+                [items]="categoryOptions()"
+                placeholder="Escolha a categoria"
+              />
               @if (errorOf(recurringForm.category()); as message) {
                 <hlm-field-error forceShow>{{ message }}</hlm-field-error>
               }
@@ -170,23 +152,12 @@ export interface RecurringFormModel {
 
             <div hlmField class="col-span-2">
               <label hlmFieldLabel for="frequency">Frequência</label>
-              <hlm-select [formField]="recurringForm.frequency">
-                <hlm-select-trigger class="w-full">
-                  <hlm-select-value placeholder="Escolha a frequência" />
-                </hlm-select-trigger>
-                <ng-template hlmSelectPortal>
-                  <hlm-select-content>
-                    @for (
-                      frequency of recurringService.frequencies.value();
-                      track frequency.value
-                    ) {
-                      <hlm-select-item [value]="frequency.value">{{
-                        frequency.label
-                      }}</hlm-select-item>
-                    }
-                  </hlm-select-content>
-                </ng-template>
-              </hlm-select>
+              <app-select
+                id="frequency"
+                [formField]="recurringForm.frequency"
+                [items]="recurringService.frequencies.value() ?? []"
+                placeholder="Escolha a frequência"
+              />
             </div>
 
             <div hlmField class="col-span-3">
@@ -251,6 +222,11 @@ export class RecurringForm {
     const groups = this.transactionsService.categories.value();
     return (this.model().type === 'income' ? groups?.income : groups?.expense) ?? [];
   });
+
+  /** Contas como `{ value, label }` pro `app-select`. */
+  protected readonly accountItems = computed(
+    () => this.accountsService.accounts.value()?.map((a) => ({ value: a.id, label: a.name })) ?? [],
+  );
 
   protected readonly recurringForm = form(this.model, (schemaPath) => {
     required(schemaPath.name, { message: 'O nome é obrigatório' });

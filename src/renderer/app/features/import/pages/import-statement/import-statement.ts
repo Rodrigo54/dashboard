@@ -5,6 +5,7 @@ import { FrameHeader } from '@/shared/frame/frame-header';
 import { FrameHeaderButton } from '@/shared/frame/frame-header-button';
 import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
+import { SelectComponent } from '@/shared/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideCircleCheck, lucideFileText, lucideRepeat } from '@ng-icons/lucide';
 import { HlmSpinner } from '@/shared/spartan/spinner';
@@ -26,6 +27,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
     NgIcon,
     HlmButton,
     HlmSpinner,
+    SelectComponent,
     ImportStagingTable,
   ],
   providers: [provideIcons({ lucideArrowLeft, lucideCircleCheck, lucideFileText, lucideRepeat })],
@@ -73,21 +75,17 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
                 {{ includedCount() }} de {{ pv.rows.length }} selecionada(s)
               </p>
             </div>
-            <label class="flex items-center gap-2 text-sm">
+            <label for="importAccountId" class="flex items-center gap-2 text-sm">
               <span class="text-muted-foreground">Conta</span>
-              <select
-                class="border-border bg-background w-48 rounded-md border px-2 py-1 text-sm"
+              <app-select
+                id="importAccountId"
+                class="w-48"
+                [items]="accountItems()"
                 [value]="accountId()"
-                (change)="onAccount($event)"
+                (valueChange)="accountId.set($event)"
                 [disabled]="accounts().length === 0"
-                aria-label="Conta de destino da importação"
-              >
-                @for (account of accounts(); track account.id) {
-                  <option [value]="account.id" [selected]="account.id === accountId()">
-                    {{ account.name }}
-                  </option>
-                }
-              </select>
+                placeholder="Escolha a conta"
+              />
             </label>
             <div class="flex gap-3">
               <button hlmBtn variant="outline" (click)="reset()">Cancelar</button>
@@ -176,6 +174,9 @@ export default class ImportStatement {
   protected readonly result = signal<ImportCommitResult | null>(null);
 
   protected readonly accounts = computed(() => this.accountsService.accounts.value() ?? []);
+  protected readonly accountItems = computed(() =>
+    this.accounts().map((a) => ({ value: a.id, label: a.name })),
+  );
   protected readonly includedCount = computed(() => this.rows().filter((r) => r.include).length);
 
   protected readonly reconciliationMessage = computed(() => {
@@ -216,10 +217,6 @@ export default class ImportStatement {
     this.rows.update((rows) =>
       rows.map((row, i) => (i === index ? { ...row, include: !row.include } : row)),
     );
-  }
-
-  protected onAccount(event: Event): void {
-    this.accountId.set((event.target as HTMLSelectElement).value);
   }
 
   /** Primeira conta cujo provider bate com o banco detectado, senão a primeira. */

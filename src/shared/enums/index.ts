@@ -23,6 +23,9 @@ export function enumOptions<T extends EnumMap>(map: T) {
   }));
 }
 
+/** Opção `{ value, label }` retornada por `enumOptions`; fonte única pros selects do renderer. */
+export type EnumOption = ReturnType<typeof enumOptions>[number];
+
 // ------------------------------------
 // User Role
 // ------------------------------------

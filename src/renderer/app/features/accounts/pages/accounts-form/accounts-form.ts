@@ -4,11 +4,8 @@ import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmFieldImports } from '@/shared/spartan/field';
 import { HlmInput } from '@/shared/spartan/input';
-import { HlmSelectImports } from '@/shared/spartan/select';
-import { CURRENCY_SYMBOLS } from '@shared/enums';
+import { SelectComponent } from '@/shared/select';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideLandmark } from '@ng-icons/lucide';
 import { FormsModule } from '@angular/forms';
 import {
   FieldState,
@@ -19,6 +16,9 @@ import {
   validateStandardSchema,
 } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideLandmark } from '@ng-icons/lucide';
+import { CURRENCY_SYMBOLS } from '@shared/enums';
 import { createAccountSchema } from '@shared/schemas';
 import { CreateAccount, UUID } from '@shared/types';
 import { AccountsService } from '../../shared/accounts.service';
@@ -34,7 +34,7 @@ import { AccountsService } from '../../shared/accounts.service';
     NgIcon,
     HlmInput,
     HlmButton,
-    HlmSelectImports,
+    SelectComponent,
     CurrencyInputComponent,
   ],
   providers: [provideIcons({ lucideLandmark })],
@@ -52,7 +52,13 @@ import { AccountsService } from '../../shared/accounts.service';
           <form (ngSubmit)="onSubmit()" class="grid grid-cols-6 gap-8">
             <div hlmField class="col-span-3">
               <label hlmFieldLabel for="name">Nome</label>
-              <input hlmInput type="text" id="name" [formField]="accountForm.name" placeholder="Nome" />
+              <input
+                hlmInput
+                type="text"
+                id="name"
+                [formField]="accountForm.name"
+                placeholder="Nome"
+              />
               @if (errorOf(accountForm.name()); as message) {
                 <hlm-field-error forceShow>{{ message }}</hlm-field-error>
               }
@@ -72,51 +78,33 @@ import { AccountsService } from '../../shared/accounts.service';
             </div>
             <div hlmField class="col-span-2">
               <label hlmFieldLabel for="accountType">Tipo</label>
-              <hlm-select [formField]="accountForm.type">
-                <hlm-select-trigger class="w-full">
-                  <hlm-select-value placeholder="Escolha o tipo de conta" />
-                </hlm-select-trigger>
-                <ng-template hlmSelectPortal>
-                  <hlm-select-content>
-                    @for (type of accountsService.accountTypes.value(); track type.value) {
-                      <hlm-select-item [value]="type.value">{{ type.label }}</hlm-select-item>
-                    }
-                  </hlm-select-content>
-                </ng-template>
-              </hlm-select>
+              <app-select
+                id="accountType"
+                [formField]="accountForm.type"
+                [items]="accountsService.accountTypes.value() ?? []"
+                placeholder="Escolha o tipo de conta"
+              />
             </div>
             <div hlmField class="col-span-2">
               <label hlmFieldLabel for="accountProvider">Provedor</label>
-              <hlm-select [formField]="accountForm.accountProvider!">
-                <hlm-select-trigger class="w-full">
-                  <hlm-select-value placeholder="Escolha o provedor da conta" />
-                </hlm-select-trigger>
-                <ng-template hlmSelectPortal>
-                  <hlm-select-content>
-                    @for (provider of accountsService.providers.value(); track provider.value) {
-                      <hlm-select-item [value]="provider.value">{{ provider.label }}</hlm-select-item>
-                    }
-                  </hlm-select-content>
-                </ng-template>
-              </hlm-select>
+              <app-select
+                id="accountProvider"
+                [formField]="accountForm.accountProvider!"
+                [items]="accountsService.providers.value() ?? []"
+                placeholder="Escolha o provedor da conta"
+              />
               @if (errorOf(accountForm.accountProvider!()); as message) {
                 <hlm-field-error forceShow>{{ message }}</hlm-field-error>
               }
             </div>
             <div hlmField class="col-span-2">
               <label hlmFieldLabel for="currency">Moeda</label>
-              <hlm-select [formField]="accountForm.currency">
-                <hlm-select-trigger class="w-full">
-                  <hlm-select-value placeholder="Escolha a moeda" />
-                </hlm-select-trigger>
-                <ng-template hlmSelectPortal>
-                  <hlm-select-content>
-                    @for (currency of accountsService.currencies.value(); track currency.value) {
-                      <hlm-select-item [value]="currency.value">{{ currency.label }}</hlm-select-item>
-                    }
-                  </hlm-select-content>
-                </ng-template>
-              </hlm-select>
+              <app-select
+                id="currency"
+                [formField]="accountForm.currency"
+                [items]="accountsService.currencies.value() ?? []"
+                placeholder="Escolha a moeda"
+              />
               @if (errorOf(accountForm.currency()); as message) {
                 <hlm-field-error forceShow>{{ message }}</hlm-field-error>
               }
