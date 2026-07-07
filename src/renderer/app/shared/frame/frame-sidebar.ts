@@ -90,7 +90,7 @@ interface MenuItem {
           </ul>
         </div>
       </hlm-sidebar-content>
-      <hlm-sidebar-rail />
+      <button type="button" hlmSidebarRail></button>
     </hlm-sidebar>
   `,
   styles: ``,

@@ -32,6 +32,11 @@ import { avatarUrl, getInitials } from '@renderer/app/features/auth/auth.utils';
     :host {
       display: contents;
     }
+
+    button[hlmSidebarMenuButton]:hover {
+      background-color: color-mix(in oklch, var(--primary), black 12%);
+      color: var(--primary-foreground);
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

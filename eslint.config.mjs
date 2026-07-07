@@ -49,7 +49,17 @@ export default tseslint.config(
   {
     files: ['src/renderer/**/*.html'],
     extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
-    rules: {},
+    rules: {
+      // hlmSidebarTrigger é um Component sem <ng-content> — o ícone e o
+      // texto sr-only já vêm do próprio template dele. hlmSidebarRail seta
+      // aria-label via host binding (não aparece como atributo estático no
+      // template do chamador). Em ambos os casos o <button> do chamador
+      // fica legitimamente sem conteúdo próprio.
+      '@angular-eslint/template/elements-content': [
+        'error',
+        { allowList: ['hlmSidebarTrigger', 'hlmSidebarRail'] },
+      ],
+    },
   },
 
   // -------- Main + Preload + Shared (Electron/Node, TypeScript) --------

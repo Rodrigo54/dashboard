@@ -35,7 +35,7 @@ import { FrameTitle } from './frame-title';
             class="flex h-16 w-full shrink-0 items-center border-b border-border bg-primary px-4 text-primary-foreground"
           >
             <div class="px-2">
-              <button hlmSidebarTrigger class="-ml-2">Trigger</button>
+              <button hlmSidebarTrigger class="-ml-2"></button>
             </div>
             <hlm-separator
               orientation="vertical"
