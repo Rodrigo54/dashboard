@@ -1,9 +1,9 @@
 import { HlmAvatar, HlmAvatarFallback, HlmAvatarImage } from '@/shared/spartan/avatar';
 import { HlmSidebarImports } from '@/shared/spartan/sidebar';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideChevronsUpDown } from '@ng-icons/lucide';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideChevronsUpDown } from '@ng-icons/lucide';
 import { AuthService } from '@renderer/app/features/auth/auth.service';
 import { avatarUrl, getInitials } from '@renderer/app/features/auth/auth.utils';
 
@@ -24,7 +24,10 @@ import { avatarUrl, getInitials } from '@renderer/app/features/auth/auth.utils';
           <span class="truncate font-medium">{{ userName() }}</span>
           <span class="truncate text-xs">{{ userEmail() }}</span>
         </div>
-        <ng-icon name="lucideChevronsUpDown" class="text-[length:--spacing(3.5)]" />
+        <ng-icon
+          name="lucideChevronsUpDown"
+          class="text-primary-foreground text-[length:--spacing(3.5)]"
+        />
       </button>
     </li>
   `,
