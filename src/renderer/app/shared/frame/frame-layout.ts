@@ -3,10 +3,10 @@ import { HlmBreadcrumbImports } from '@/shared/spartan/breadcrumb';
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmSeparator } from '@/shared/spartan/separator';
 import { HlmSidebarImports } from '@/shared/spartan/sidebar';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideLogOut } from '@ng-icons/lucide';
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideLogOut } from '@ng-icons/lucide';
 import { AuthService } from '@renderer/app/features/auth/auth.service';
 import { AppData } from '@shared/types';
 import { FrameSidebar } from './frame-sidebar';
@@ -34,8 +34,9 @@ import { FrameTitle } from './frame-title';
           <div
             class="flex h-16 w-full shrink-0 items-center border-b border-border bg-primary px-4 text-primary-foreground"
           >
-            <!-- eslint-disable-next-line @angular-eslint/template/elements-content -- conteúdo vem do próprio HlmSidebarTrigger (ícone + sr-only) -->
-            <button hlmSidebarTrigger class="-ml-2"></button>
+            <div class="px-2">
+              <button hlmSidebarTrigger class="-ml-2">Trigger</button>
+            </div>
             <hlm-separator
               orientation="vertical"
               class="bg-primary-foreground mr-2 h-4 data-vertical:self-center"
