@@ -21,14 +21,31 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'home', pathMatch: 'full' },
-      { path: 'home', loadChildren: () => import('./features/home/home.routes') },
-      { path: 'accounts', loadChildren: () => import('./features/accounts/accounts.routes') },
+      {
+        path: 'home',
+        loadChildren: () => import('./features/home/home.routes'),
+        data: { breadcrumb: 'Home' },
+      },
+      {
+        path: 'accounts',
+        loadChildren: () => import('./features/accounts/accounts.routes'),
+        data: { breadcrumb: 'Contas' },
+      },
       {
         path: 'transactions',
         loadChildren: () => import('./features/transactions/transactions.routes'),
+        data: { breadcrumb: 'Transações' },
       },
-      { path: 'import', loadChildren: () => import('./features/import/import.routes') },
-      { path: 'profile', loadChildren: () => import('./features/profile/profile.routes') },
+      {
+        path: 'import',
+        loadChildren: () => import('./features/import/import.routes'),
+        data: { breadcrumb: 'Importar Extrato' },
+      },
+      {
+        path: 'profile',
+        loadChildren: () => import('./features/profile/profile.routes'),
+        data: { breadcrumb: 'Perfil' },
+      },
     ],
   },
   {

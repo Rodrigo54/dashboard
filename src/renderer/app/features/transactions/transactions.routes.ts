@@ -11,15 +11,18 @@ const routes: Routes = [
   {
     path: 'new',
     component: TransactionsForm,
+    data: { breadcrumb: 'Nova Transação' },
   },
   // Antes de `:transactionId` para não ser engolida pelo parâmetro.
   {
     path: 'recurring/:recurringId',
     component: RecurringForm,
+    data: { breadcrumb: 'Recorrência' },
   },
   {
     path: ':transactionId',
     component: TransactionsForm,
+    data: { breadcrumb: 'Editar Transação' },
   },
 ];
 

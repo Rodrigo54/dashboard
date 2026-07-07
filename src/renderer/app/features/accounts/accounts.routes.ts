@@ -10,10 +10,12 @@ const routes: Routes = [
   {
     path: 'new',
     component: AccountsForm,
+    data: { breadcrumb: 'Nova Conta' },
   },
   {
     path: ':accountId',
     component: AccountsForm,
+    data: { breadcrumb: 'Editar Conta' },
   },
 ];
 

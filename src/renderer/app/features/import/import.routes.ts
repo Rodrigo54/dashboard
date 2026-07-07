@@ -10,6 +10,7 @@ const routes: Routes = [
   {
     path: 'recurrences',
     component: DetectedRecurrences,
+    data: { breadcrumb: 'Recorrências Detectadas' },
   },
 ];
 
