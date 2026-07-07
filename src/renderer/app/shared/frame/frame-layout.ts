@@ -28,7 +28,11 @@ import { FrameTitle } from './frame-title';
   template: `
     <div class="flex h-screen w-screen flex-col overflow-hidden">
       <app-frame-title />
-      <div hlmSidebarWrapper class="min-h-0 flex-1 overflow-hidden contain-layout">
+      <div
+        hlmSidebarWrapper
+        class="min-h-0 flex-1 overflow-hidden contain-layout"
+        style="--frame-bg-height: 192px"
+      >
         <app-frame-sidebar />
         <main hlmSidebarInset class="min-h-0 overflow-hidden">
           <div
@@ -61,15 +65,13 @@ import { FrameTitle } from './frame-title';
             </div>
           </div>
           <div class="min-h-0 flex-1 overflow-auto">
-            <div class="h-64 bg-primary z-0"></div>
-            <div class="p-4 z-10 -mt-64">
+            <div class="h-(--frame-bg-height) bg-primary z-0"></div>
+            <div class="p-4 z-10 -mt-(--frame-bg-height)">
               <router-outlet />
             </div>
           </div>
-          <div
-            class="flex h-16 w-full shrink-0 items-center border-t border-border bg-card px-6 text-card-foreground"
-          >
-            <span>{{ appVersion() }}</span>
+          <div class="flex h-16 w-full shrink-0 items-center border-t border-border bg-card px-6">
+            <p class="text-sm text-muted-foreground">{{ appVersion() }}</p>
           </div>
         </main>
       </div>

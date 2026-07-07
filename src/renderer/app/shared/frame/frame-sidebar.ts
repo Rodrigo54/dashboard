@@ -1,5 +1,6 @@
 import { HlmSidebarImports } from '@/shared/spartan/sidebar';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideBell,
@@ -14,7 +15,6 @@ import {
   lucideSettings,
   lucideUser,
 } from '@ng-icons/lucide';
-import { RouterLink } from '@angular/router';
 import { FrameProfile } from './frame-profile';
 
 interface MenuItem {
@@ -43,13 +43,14 @@ interface MenuItem {
   ],
   template: `
     <hlm-sidebar collapsible="icon">
-      <hlm-sidebar-header class="bg-primary gap-4 pt-6">
-        <ul hlmSidebarMenu>
-          <app-frame-profile />
-        </ul>
-      </hlm-sidebar-header>
-      <hlm-sidebar-content>
-        <div hlmSidebarGroup class="bg-primary text-primary-foreground">
+      <div class="bg-primary flex min-h-[calc(var(--frame-bg-height)+64px)] flex-col">
+        <hlm-sidebar-header class="gap-4 pt-6">
+          <ul hlmSidebarMenu>
+            <app-frame-profile />
+          </ul>
+        </hlm-sidebar-header>
+        <div class="flex-1"></div>
+        <div hlmSidebarGroup class="text-primary-foreground">
           <div hlmSidebarGroupLabel>
             <h3 class="text-primary-foreground">Main</h3>
           </div>
@@ -69,6 +70,8 @@ interface MenuItem {
             }
           </ul>
         </div>
+      </div>
+      <hlm-sidebar-content>
         <div hlmSidebarGroup>
           <div hlmSidebarGroupLabel>
             <h3>Main</h3>
