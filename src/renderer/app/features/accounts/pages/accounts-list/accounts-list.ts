@@ -8,10 +8,11 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLandmark, lucidePlus, lucideSquarePen, lucideTrash } from '@ng-icons/lucide';
 import { HlmTableImports } from '@/shared/spartan/table';
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { Account } from '@shared/types';
 import { AccountsService } from '../../shared/accounts.service';
+import { groupAccountsByProvider } from '../../shared/group-accounts-by-provider';
 
 @Component({
   selector: 'app-accounts',
@@ -63,52 +64,60 @@ import { AccountsService } from '../../shared/accounts.service';
           </hlm-empty>
         } @else {
           <table hlmTable>
-            <thead hlmTHead>
-              <tr hlmTr>
-                <th hlmTh>Nome</th>
-                <th hlmTh>Tipo</th>
-                <th hlmTh>Provedor</th>
-                <th hlmTh class="text-right">Saldo</th>
-                <th hlmTh class="text-right">Ações</th>
-              </tr>
-            </thead>
             <tbody hlmTBody>
-              @for (account of accounts.value(); track account.id) {
-                <tr hlmTr>
-                  <td hlmTd class="font-medium">{{ account.name }}</td>
-                  <td hlmTd>
-                    <span hlmBadge variant="secondary">{{ typeLabel(account.type) }}</span>
-                  </td>
-                  <td hlmTd>{{ providerLabel(account.accountProvider) }}</td>
-                  <td hlmTd class="text-left tabular-nums">
-                    {{ account.balance | currency: account.currency }}
-                  </td>
-                  <td hlmTd>
-                    <div class="flex flex-row items-center gap-2 ">
-                      <button
-                        hlmBtn
-                        variant="ghost"
-                        size="icon-sm"
-                        [routerLink]="['/accounts', account.id]"
-                        aria-label="Editar conta"
-                      >
-                        <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
-                      </button>
-                      <button
-                        hlmBtn
-                        variant="ghost"
-                        size="icon-sm"
-                        (click)="remove(account)"
-                        aria-label="Apagar conta"
-                      >
-                        <ng-icon
-                          name="lucideTrash"
-                          class="text-[length:--spacing(3.5)] text-destructive"
-                        />
-                      </button>
+              @for (group of groups(); track group.label) {
+                <tr hlmTr class="bg-muted/40 hover:bg-muted/40">
+                  <td hlmTd colspan="4" class="font-semibold">
+                    <div class="flex items-center justify-between">
+                      <span>{{ group.label }}</span>
+                      <span class="tabular-nums">
+                        @for (
+                          subtotal of group.subtotals;
+                          track subtotal.currency;
+                          let last = $last
+                        ) {
+                          {{ subtotal.amount | currency: subtotal.currency }}{{ last ? '' : ' + ' }}
+                        }
+                      </span>
                     </div>
                   </td>
                 </tr>
+                @for (account of group.accounts; track account.id) {
+                  <tr hlmTr>
+                    <td hlmTd class="pl-6 font-medium">{{ account.name }}</td>
+                    <td hlmTd>
+                      <span hlmBadge variant="secondary">{{ typeLabel(account.type) }}</span>
+                    </td>
+                    <td hlmTd class="text-left tabular-nums">
+                      {{ account.balance | currency: account.currency }}
+                    </td>
+                    <td hlmTd>
+                      <div class="flex flex-row items-center gap-2 ">
+                        <button
+                          hlmBtn
+                          variant="ghost"
+                          size="icon-sm"
+                          [routerLink]="['/accounts', account.id]"
+                          aria-label="Editar conta"
+                        >
+                          <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
+                        </button>
+                        <button
+                          hlmBtn
+                          variant="ghost"
+                          size="icon-sm"
+                          (click)="remove(account)"
+                          aria-label="Apagar conta"
+                        >
+                          <ng-icon
+                            name="lucideTrash"
+                            class="text-[length:--spacing(3.5)] text-destructive"
+                          />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
               }
             </tbody>
           </table>
@@ -123,17 +132,19 @@ export default class AccountsList {
   protected readonly accountsService = inject(AccountsService);
   protected readonly accounts = this.accountsService.accounts;
 
+  /** Contas agrupadas por provider, ordenadas e com subtotal — ver group-accounts-by-provider.ts. */
+  protected readonly groups = computed(() =>
+    groupAccountsByProvider(
+      this.accounts.value() ?? [],
+      this.accountsService.providers.value() ?? [],
+    ),
+  );
+
   /** Rótulo amigável do tipo de conta; cai no valor cru se os tipos ainda não carregaram. */
   protected typeLabel(value: string): string {
     return (
       this.accountsService.accountTypes.value()?.find((o) => o.value === value)?.label ?? value
     );
-  }
-
-  /** Rótulo do provedor; `—` quando ausente. */
-  protected providerLabel(value: string | null | undefined): string {
-    if (!value) return '—';
-    return this.accountsService.providers.value()?.find((o) => o.value === value)?.label ?? value;
   }
 
   /** Apaga a conta após confirmação e recarrega a lista. */
