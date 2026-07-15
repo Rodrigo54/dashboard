@@ -8,37 +8,25 @@ import { HlmInput } from '@/shared/spartan/input';
 import { SelectComponent } from '@/shared/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowRightLeft } from '@ng-icons/lucide';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  FieldState,
-  form,
-  FormField,
-  required,
-  submit,
-  validateStandardSchema,
-} from '@angular/forms/signals';
+import { form, FormField, required, submit, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CURRENCY_SYMBOLS, type RecurringFrequency, type TransactionType } from '@shared/enums';
+import type { RecurringFrequency, TransactionType } from '@shared/enums';
 import { positiveDecimalSchema } from '@shared/schemas';
 import type { UUID } from '@shared/types';
 import { toDateInputValue } from '../../shared/date-input.utils';
 import { RecurringService } from '../../shared/recurring.service';
+import {
+  fieldErrorOf,
+  TransactionFormFieldsService,
+  type TransactionCoreFields,
+} from '../../shared/transaction-form-fields.service';
 import { buildCreateRecurring, buildCreateTransaction } from '../../shared/transactions-payloads';
 import { TransactionsService } from '../../shared/transactions.service';
 
 /** Modelo do form: datas como string de `<input type="date">`. */
-export interface TransactionFormModel {
-  accountId: string;
-  type: Exclude<TransactionType, 'transfer'>;
-  category: string;
+export interface TransactionFormModel extends TransactionCoreFields {
   amount: string;
   description: string;
   date: string;
@@ -198,6 +186,7 @@ export class TransactionsForm {
   protected readonly transactionsService = inject(TransactionsService);
   protected readonly recurringService = inject(RecurringService);
   protected readonly accountsService = inject(AccountsService);
+  readonly #formFields = inject(TransactionFormFieldsService);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
@@ -217,25 +206,9 @@ export class TransactionsForm {
     endDate: '',
   });
 
-  /** Símbolo da moeda da conta selecionada (R$ enquanto nenhuma escolhida). */
-  protected readonly currencySymbol = computed(() => {
-    const account = this.accountsService.accounts
-      .value()
-      ?.find((a) => a.id === this.model().accountId);
-    const currency = (account?.currency ?? 'BRL') as keyof typeof CURRENCY_SYMBOLS;
-    return CURRENCY_SYMBOLS[currency] ?? 'R$';
-  });
-
-  /** Categorias compatíveis com o tipo selecionado. */
-  protected readonly categoryOptions = computed(() => {
-    const groups = this.transactionsService.categories.value();
-    return (this.model().type === 'income' ? groups?.income : groups?.expense) ?? [];
-  });
-
-  /** Contas como `{ value, label }` pro `app-select`. */
-  protected readonly accountItems = computed(
-    () => this.accountsService.accounts.value()?.map((a) => ({ value: a.id, label: a.name })) ?? [],
-  );
+  protected readonly currencySymbol = this.#formFields.currencySymbol(this.model);
+  protected readonly categoryOptions = this.#formFields.categoryOptions(this.model);
+  protected readonly accountItems = this.#formFields.accountItems();
 
   protected readonly transactionForm = form(this.model, (schemaPath) => {
     required(schemaPath.accountId, { message: 'A conta é obrigatória' });
@@ -248,16 +221,7 @@ export class TransactionsForm {
 
   constructor() {
     if (this.#transactionId) void this.#loadTransaction(this.#transactionId);
-
-    // Trocar o tipo invalida a categoria escolhida para o tipo anterior.
-    effect(() => {
-      const { type, category } = this.model();
-      const groups = this.transactionsService.categories.value();
-      const valid = (type === 'income' ? groups?.income : groups?.expense) ?? [];
-      if (category && groups && !valid.some((o) => o.value === category)) {
-        this.model.update((m) => ({ ...m, category: '' }));
-      }
-    });
+    this.#formFields.wireCategoryReset(this.model);
   }
 
   async #loadTransaction(id: UUID): Promise<void> {
@@ -297,9 +261,5 @@ export class TransactionsForm {
     void this.#router.navigate(['/transactions']);
   }
 
-  /** Primeira mensagem de erro de um campo, apenas após ser tocado (vazia caso ok). */
-  protected errorOf(field: FieldState<string>): string {
-    if (!field.touched()) return '';
-    return field.errors()[0]?.message ?? '';
-  }
+  protected readonly errorOf = fieldErrorOf;
 }

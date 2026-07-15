@@ -8,38 +8,26 @@ import { HlmInput } from '@/shared/spartan/input';
 import { SelectComponent } from '@/shared/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRepeat } from '@ng-icons/lucide';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  FieldState,
-  form,
-  FormField,
-  required,
-  submit,
-  validateStandardSchema,
-} from '@angular/forms/signals';
+import { form, FormField, required, submit, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CURRENCY_SYMBOLS, type RecurringFrequency, type TransactionType } from '@shared/enums';
+import type { RecurringFrequency } from '@shared/enums';
 import { positiveDecimalSchema } from '@shared/schemas';
 import type { TransactionTemplate, UUID } from '@shared/types';
 import { toDateInputValue } from '../../shared/date-input.utils';
 import { RecurringService } from '../../shared/recurring.service';
+import {
+  fieldErrorOf,
+  TransactionFormFieldsService,
+  type TransactionCoreFields,
+} from '../../shared/transaction-form-fields.service';
 import { buildUpdateRecurring } from '../../shared/transactions-payloads';
 import { TransactionsService } from '../../shared/transactions.service';
 
 /** Modelo do form de edição de regra: datas como string de `<input type="date">`. */
-export interface RecurringFormModel {
+export interface RecurringFormModel extends TransactionCoreFields {
   name: string;
-  accountId: string;
-  type: Exclude<TransactionType, 'transfer'>;
-  category: string;
   amount: string;
   description: string;
   frequency: RecurringFrequency;
@@ -191,6 +179,7 @@ export class RecurringForm {
   protected readonly transactionsService = inject(TransactionsService);
   protected readonly recurringService = inject(RecurringService);
   protected readonly accountsService = inject(AccountsService);
+  readonly #formFields = inject(TransactionFormFieldsService);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
@@ -208,25 +197,9 @@ export class RecurringForm {
     endDate: '',
   });
 
-  /** Símbolo da moeda da conta selecionada (R$ enquanto nenhuma escolhida). */
-  protected readonly currencySymbol = computed(() => {
-    const account = this.accountsService.accounts
-      .value()
-      ?.find((a) => a.id === this.model().accountId);
-    const currency = (account?.currency ?? 'BRL') as keyof typeof CURRENCY_SYMBOLS;
-    return CURRENCY_SYMBOLS[currency] ?? 'R$';
-  });
-
-  /** Categorias compatíveis com o tipo selecionado. */
-  protected readonly categoryOptions = computed(() => {
-    const groups = this.transactionsService.categories.value();
-    return (this.model().type === 'income' ? groups?.income : groups?.expense) ?? [];
-  });
-
-  /** Contas como `{ value, label }` pro `app-select`. */
-  protected readonly accountItems = computed(
-    () => this.accountsService.accounts.value()?.map((a) => ({ value: a.id, label: a.name })) ?? [],
-  );
+  protected readonly currencySymbol = this.#formFields.currencySymbol(this.model);
+  protected readonly categoryOptions = this.#formFields.categoryOptions(this.model);
+  protected readonly accountItems = this.#formFields.accountItems();
 
   protected readonly recurringForm = form(this.model, (schemaPath) => {
     required(schemaPath.name, { message: 'O nome é obrigatório' });
@@ -240,16 +213,7 @@ export class RecurringForm {
 
   constructor() {
     void this.#loadRule(this.#recurringId);
-
-    // Trocar o tipo invalida a categoria escolhida para o tipo anterior.
-    effect(() => {
-      const { type, category } = this.model();
-      const groups = this.transactionsService.categories.value();
-      const valid = (type === 'income' ? groups?.income : groups?.expense) ?? [];
-      if (category && groups && !valid.some((o) => o.value === category)) {
-        this.model.update((m) => ({ ...m, category: '' }));
-      }
-    });
+    this.#formFields.wireCategoryReset(this.model);
   }
 
   async #loadRule(id: UUID): Promise<void> {
@@ -284,9 +248,5 @@ export class RecurringForm {
     void this.#router.navigate(['/transactions']);
   }
 
-  /** Primeira mensagem de erro de um campo, apenas após ser tocado (vazia caso ok). */
-  protected errorOf(field: FieldState<string>): string {
-    if (!field.touched()) return '';
-    return field.errors()[0]?.message ?? '';
-  }
+  protected readonly errorOf = fieldErrorOf;
 }
