@@ -31,12 +31,12 @@ import { FrameTitle } from './frame-title';
       <div
         hlmSidebarWrapper
         class="min-h-0 flex-1 overflow-hidden contain-layout"
-        style="--frame-bg-height: 192px"
+        style="--frame-bg-height: 192px; --frame-breadcrumb-height: 64px"
       >
         <app-frame-sidebar />
         <main hlmSidebarInset class="min-h-0 overflow-hidden">
           <div
-            class="flex h-16 w-full shrink-0 items-center border-b border-border bg-primary px-4 text-primary-foreground"
+            class="flex h-(--frame-breadcrumb-height) w-full shrink-0 items-center border-b border-border bg-primary px-4 text-primary-foreground"
           >
             <div class="px-2">
               <button hlmSidebarTrigger class="-ml-2"></button>

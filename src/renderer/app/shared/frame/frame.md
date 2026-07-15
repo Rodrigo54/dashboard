@@ -3,50 +3,57 @@
 O shell (`FrameLayout` + `FrameSidebar`) desenha uma área de fundo `bg-primary`
 no topo do sidebar e atrás do conteúdo roteado, criando um efeito de "banner"
 colorido por trás da página. As duas áreas precisam terminar na mesma altura
-visual, mesmo vindo de dois componentes diferentes — é isso que a variável CSS
-`--frame-bg-height` garante.
+visual, mesmo vindo de dois componentes diferentes — é isso que as CSS custom
+properties `--frame-bg-height` e `--frame-breadcrumb-height` garantem.
 
-## A variável
+## As variáveis
 
-Declarada em [`frame-layout.ts`](./frame-layout.ts) no wrapper
+Declaradas em [`frame-layout.ts`](./frame-layout.ts) no wrapper
 `hlmSidebarWrapper` (ancestral comum do sidebar e do conteúdo principal):
 
 ```html
-<div hlmSidebarWrapper style="--frame-bg-height: 192px"></div>
+<div hlmSidebarWrapper style="--frame-bg-height: 192px; --frame-breadcrumb-height: 64px"></div>
 ```
 
-Ela é o único lugar onde o valor da altura do banner é definido. Mudou o
-valor, os dois lados reagem — nenhum outro arquivo deveria hardcodar `192px`.
+Esse `style` é o único lugar onde os dois valores são definidos. **Nenhum
+outro arquivo declara um literal** — tanto o `FrameLayout` quanto o
+`FrameSidebar` só leem as variáveis via `var(...)`.
 
-## Por que sidebar e layout calculam diferente
+## Por que sidebar e layout somam alturas diferentes
 
 Sidebar e `main` são irmãos dentro do mesmo wrapper e começam no mesmo `y`,
-mas o `main` tem uma barra de breadcrumb (`h-16`, 64px) **antes** do banner
-azul, enquanto o sidebar não tem nada equivalente antes do seu banner:
+mas o `main` tem uma barra de breadcrumb (`--frame-breadcrumb-height`) **antes**
+do banner azul, enquanto o sidebar não tem nada equivalente antes do seu
+banner:
 
 ```
 y=0   ┌─────────────┬───────────────────────┐
-      │             │  breadcrumb (64px)    │
-      │   sidebar   ├───────────────────────┤
-      │   banner    │                       │
-      │  (192px +   │   banner do layout    │
-      │    64px)    │       (192px)         │
+      │             │  breadcrumb           │
+      │   sidebar   │  (--frame-breadcrumb- │
+      │   banner    │   height)             │
+      │  (--frame-  ├───────────────────────┤
+      │   bg-height │                       │
+      │      +      │   banner do layout    │
+      │  --frame-   │   (--frame-bg-height) │
+      │  breadcrumb-│                       │
+      │   height)   │                       │
 y=256 └─────────────┴───────────────────────┘
 ```
 
 Por isso:
 
 - **`FrameLayout`** ([frame-layout.ts:67-72](./frame-layout.ts#L67-L72)) usa
-  `--frame-bg-height` puro — o banner mede exatamente 192px, medidos a partir
-  de baixo do breadcrumb.
-- **`FrameSidebar`** ([frame-sidebar.ts:46](./frame-sidebar.ts#L46)) soma os
-  64px do breadcrumb, já que seu banner começa 64px mais acima:
-  `min-h-[calc(var(--frame-bg-height)+64px)]`.
+  `--frame-bg-height` puro — o banner mede exatamente o valor da variável,
+  medido a partir de baixo do breadcrumb (que também lê a sua própria
+  variável, [frame-layout.ts:39](./frame-layout.ts#L39)).
+- **`FrameSidebar`** ([frame-sidebar.ts:46](./frame-sidebar.ts#L46)) soma as
+  duas variáveis, já que seu banner começa antes do breadcrumb:
+  `min-h-[calc(var(--frame-bg-height)+var(--frame-breadcrumb-height))]`.
 
-Se a altura da barra de breadcrumb mudar, esse `64px` em `frame-sidebar.ts`
-precisa mudar junto (é o único lugar que conhece esse número).
+Mudou a altura de qualquer uma das duas? Troque só o valor no `style` do
+wrapper — os dois componentes reagem, nenhum outro arquivo precisa mudar.
 
-## Como cada lado usa a variável
+## Como cada lado usa as variáveis
 
 ### `FrameLayout` — bloco + overlay
 
@@ -68,7 +75,9 @@ translúcidos).
 ### `FrameSidebar` — altura mínima + spacer flexível
 
 ```html
-<div class="bg-primary flex min-h-[calc(var(--frame-bg-height)+64px)] flex-col">
+<div
+  class="bg-primary flex min-h-[calc(var(--frame-bg-height)+var(--frame-breadcrumb-height))] flex-col"
+>
   <hlm-sidebar-header>...perfil (app-frame-profile)...</hlm-sidebar-header>
   <div class="flex-1"></div>
   <div hlmSidebarGroup>...menu do perfil (Início/Perfil/Notificações/Config)...</div>
@@ -86,8 +95,8 @@ flex-1` no meio absorve automaticamente qualquer sobra:
   encolhe para perto de zero.
 
 Vantagem: adicionar/remover item de `profileMenuItems`
-([frame-sidebar.ts:114-119](./frame-sidebar.ts#L114-L119)) ou mudar
-`--frame-bg-height` não exige nenhum ajuste manual de altura — o spacer
+([frame-sidebar.ts:114-119](./frame-sidebar.ts#L114-L119)) ou mudar qualquer
+uma das duas variáveis não exige nenhum ajuste manual de altura — o spacer
 sempre compensa.
 
 ### Transição
@@ -106,11 +115,10 @@ navegador recalcula o layout a cada frame dessas transições — o spacer
 
 ## Se for mexer nisso
 
-- Precisa mudar o tamanho do banner? Só troque `192px` em
-  [frame-layout.ts:34](./frame-layout.ts#L34).
-- Mudou a altura da barra de breadcrumb (`h-16`)? Atualize o `64px` em
-  [frame-sidebar.ts:46](./frame-sidebar.ts#L46) para o novo valor.
+- Precisa mudar a altura do banner ou da barra de breadcrumb? Só troque o
+  valor correspondente no `style` de
+  [frame-layout.ts:34](./frame-layout.ts#L34) — os dois componentes leem a
+  mesma variável, nada mais precisa mudar.
 - Vai adicionar mais um bloco `bg-primary` em qualquer um dos dois
-  componentes? Ele precisa estar dentro do mesmo container que já usa
-  `--frame-bg-height`/`min-h-[calc(...)]` para continuar batendo — não
-  declare uma altura nova isolada.
+  componentes? Ele precisa estar dentro do mesmo container que já usa as
+  variáveis pra continuar batendo — não declare uma altura nova isolada.

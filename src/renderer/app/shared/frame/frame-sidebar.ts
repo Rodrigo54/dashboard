@@ -43,7 +43,9 @@ interface MenuItem {
   ],
   template: `
     <hlm-sidebar collapsible="icon">
-      <div class="bg-primary flex min-h-[calc(var(--frame-bg-height)+64px)] flex-col">
+      <div
+        class="bg-primary flex min-h-[calc(var(--frame-bg-height)+var(--frame-breadcrumb-height))] flex-col"
+      >
         <hlm-sidebar-header class="gap-4 pt-6">
           <ul hlmSidebarMenu>
             <app-frame-profile />
