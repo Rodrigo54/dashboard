@@ -5,7 +5,10 @@
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "rootDir": ".",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    // O main usa decorators stage-3 (context.metadata); o raiz liga o modo
+    // legacy e quebraria os specs do main. O renderer não depende do legacy.
+    "experimentalDecorators": false
   },
   "include": [
     "src/renderer/**/*.d.ts",

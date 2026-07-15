@@ -8,6 +8,7 @@ import type {
 import {
   // Accounts
   accountSchema,
+  accountPurgeOptionsSchema,
   // Budgets
   budgetSchema,
   createAccountSchema,
@@ -92,6 +93,7 @@ export type UpdateAvatar = z.infer<typeof updateAvatarSchema>;
 export type Account = z.infer<typeof accountSchema>;
 export type CreateAccount = z.infer<typeof createAccountSchema>;
 export type UpdateAccount = z.infer<typeof updateAccountSchema>;
+export type AccountPurgeOptions = z.infer<typeof accountPurgeOptionsSchema>;
 
 // ============================================================
 // Transactions

@@ -50,3 +50,12 @@ export function getDb(): DB {
   if (!_db) throw new Error('Database not initialized — call initDb() first.');
   return _db;
 }
+
+/**
+ * Testing seam: injects a db instance directly (e.g. an in-memory node:sqlite
+ * db already migrated), bypassing `initDb()`'s dependency on the Electron
+ * `app` module. Not used outside specs.
+ */
+export function setDbForTests(db: DB): void {
+  _db = db;
+}

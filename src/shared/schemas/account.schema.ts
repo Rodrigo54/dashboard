@@ -25,3 +25,24 @@ export const createAccountSchema = z.object({
 });
 
 export const updateAccountSchema = createAccountSchema.partial();
+
+/**
+ * Opções de limpeza/exclusão de conta (ver AccountsController.delete). O
+ * refine garante que ao menos uma ação foi selecionada — o modal já trava o
+ * botão de confirmar nesse caso, mas o backend não confia só na UI.
+ */
+export const accountPurgeOptionsSchema = z
+  .object({
+    deleteTransactions: z.boolean(),
+    deleteRecurring: z.boolean(),
+    zeroBalance: z.boolean(),
+    deleteAccount: z.boolean(),
+  })
+  .refine(
+    (options) =>
+      options.deleteTransactions ||
+      options.deleteRecurring ||
+      options.zeroBalance ||
+      options.deleteAccount,
+    { message: 'Selecione ao menos uma ação' },
+  );
