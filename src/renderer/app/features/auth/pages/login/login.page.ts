@@ -5,11 +5,11 @@ import { HlmFieldImports } from '@/shared/spartan/field';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLogIn } from '@ng-icons/lucide';
 import { HlmInput } from '@/shared/spartan/input';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FieldState, form, FormField, required, submit } from '@angular/forms/signals';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth.service';
-import { getInitials } from '../../auth.utils';
+import { avatarUrl, getInitials } from '../../auth.utils';
 
 @Component({
   selector: 'app-login-page',
@@ -32,15 +32,15 @@ import { getInitials } from '../../auth.utils';
       <div class="flex flex-col gap-6 w-full max-w-xs px-4">
         <div class="bg-card rounded-xl shadow p-6 flex flex-col gap-5">
           <div class="flex flex-col items-center gap-3 text-center">
-            <hlm-avatar [style.view-transition-name]="'avatar-' + profileUid" class="size-16">
-              @if (profileAvatar) {
-                <img hlmAvatarImage [src]="profileAvatar" [alt]="profileName" />
+            <hlm-avatar [style.view-transition-name]="'avatar-' + profileUid()" class="size-16">
+              @if (profileAvatar(); as src) {
+                <img hlmAvatarImage [src]="src" [alt]="profileName()" />
               }
-              <span hlmAvatarFallback class="text-lg">{{ initials(profileName) }}</span>
+              <span hlmAvatarFallback class="text-lg">{{ initials(profileName()) }}</span>
             </hlm-avatar>
             <div>
-              <p class="font-semibold text-foreground leading-none">{{ profileName }}</p>
-              <p class="text-sm text-muted-foreground mt-1">{{ profileEmail }}</p>
+              <p class="font-semibold text-foreground leading-none">{{ profileName() }}</p>
+              <p class="text-sm text-muted-foreground mt-1">{{ profileEmail() }}</p>
             </div>
           </div>
 
@@ -95,26 +95,18 @@ export default class LoginPage {
   readonly #auth = inject(AuthService);
   readonly #router = inject(Router);
 
-  private readonly snapshot = inject(ActivatedRoute).snapshot;
-
-  protected readonly profileEmail =
-    (this.snapshot.queryParams['email'] as string | undefined) ?? '';
-  protected readonly profileName = (this.snapshot.queryParams['name'] as string | undefined) ?? '';
-  protected readonly profileAvatar =
-    (this.snapshot.queryParams['avatar'] as string | undefined) ?? '';
-  protected readonly profileUid = (this.snapshot.queryParams['uid'] as string | undefined) ?? '';
+  /** Garantido pelo loginGuard: sem perfil selecionado, a rota nem ativa. */
+  protected readonly profile = computed(() => this.#auth.selectedProfile());
+  protected readonly profileEmail = computed(() => this.profile()?.email ?? '');
+  protected readonly profileName = computed(() => this.profile()?.name ?? '');
+  protected readonly profileAvatar = computed(() => avatarUrl(this.profile()));
+  protected readonly profileUid = computed(() => this.profile()?.id ?? '');
   protected readonly initials = getInitials;
-
-  constructor() {
-    if (!this.snapshot.queryParams['email']) {
-      this.#router.navigate(['/auth/welcome']);
-    }
-  }
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal('');
 
-  protected readonly model = signal({ email: this.profileEmail, password: '' });
+  protected readonly model = signal({ email: this.profileEmail(), password: '' });
 
   protected readonly loginForm = form(this.model, (s) => {
     required(s.password, { message: 'Senha é obrigatória' });

@@ -18,6 +18,9 @@ export class AuthService {
   readonly currentUser = signal<PublicUser | null>(null);
   readonly isAuthenticated = computed(() => this.currentUser() !== null);
 
+  /** Perfil escolhido no picker da welcome, pendente de senha na tela de login. */
+  readonly selectedProfile = signal<PublicUser | null>(null);
+
   async listUsers(): Promise<PublicUser[]> {
     const res = await window.electron.invoke<IpcResponse<PublicUser[]>>('auth:listUsers');
     return unwrap(res);

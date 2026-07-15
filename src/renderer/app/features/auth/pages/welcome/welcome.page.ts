@@ -49,7 +49,7 @@ import { avatarUrl, getInitials } from '../../auth.utils';
               @for (user of users.value(); track user.id) {
                 <button
                   type="button"
-                  class="flex w-full items-center gap-3 px-4 py-2.5 hover:bg-accent hover:text-accent-foreground transition-colors"
+                  class="flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 hover:bg-accent hover:text-accent-foreground transition-colors"
                   (click)="selectUser(user)"
                 >
                   <hlm-avatar [style.view-transition-name]="'avatar-' + user.id">
@@ -101,15 +101,7 @@ export default class WelcomePage {
   });
 
   protected selectUser(user: PublicUser): void {
-    this.#router.navigate(['/auth/login'], {
-      queryParams: {
-        email: user.email,
-        uid: user.id,
-        name: user.name,
-        // A URL avatar:// (protocol handler do main) — o caminho bruto do banco
-        // seria bloqueado como local resource no renderer.
-        ...(user.avatar ? { avatar: avatarUrl(user) } : {}),
-      },
-    });
+    this.#auth.selectedProfile.set(user);
+    this.#router.navigate(['/auth/login']);
   }
 }
