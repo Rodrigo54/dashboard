@@ -86,6 +86,32 @@ expect(invoke).toHaveBeenCalledWith('auth:login', {
 Exemplo completo:
 [`auth.service.spec.ts`](../src/renderer/app/features/auth/auth.service.spec.ts).
 
+## Testar um controller do main: DB em memória + mock do registry
+
+Controllers do processo main falam com o banco real via `getDb()` e injetam
+services via `inject()` de `services.providers.ts`. Pra testar sem Electron:
+
+1. **DB**: crie um `node:sqlite` em memória, aplique as migrações reais de
+   `./drizzle` e injete com `setDbForTests(db)` (seam de teste em
+   `database.providers.ts` — `initDb()` depende do `app` do Electron).
+2. **Services**: mocke o módulo `services.providers` inteiro com `vi.mock`.
+   O `import.meta.glob` eager dele avalia todos os `*.service.ts` e não roda
+   sob Vitest. Se os services usados não têm dependências, o mock de `inject`
+   pode instanciar o token na hora: `inject: (token) => new token()`.
+3. **Sessão**: `setCurrentUser(...)` no `beforeEach`, `clearCurrentUser()` no
+   `afterEach`.
+4. **UUIDs de fixture**: use `v7` do pacote `uuid` — o `uuidSchema` valida
+   UUID **v7** e rejeita o v4 de `crypto.randomUUID()`.
+
+Pegadinha que motivou tudo: o `tsconfig.spec.json` herdava
+`experimentalDecorators: true` do raiz, o que compila os decorators stage-3 do
+main (`@Controller`/`@Service`, que dependem de `context.metadata`) no modo
+legacy e quebra com `Cannot read properties of undefined`. O spec config agora
+força `experimentalDecorators: false` — não remova.
+
+Exemplo completo:
+[`accounts.controller.spec.ts`](../src/main/features/accounts/accounts.controller.spec.ts).
+
 ## Montar um componente fundo na árvore: fake das dependências pesadas
 
 `TestBed.createComponent(X)` instancia toda a árvore de componentes/services
