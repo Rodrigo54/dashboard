@@ -1,6 +1,5 @@
+import { invoke } from '@/core/ipc/invoke';
 import { computed, Injectable, signal } from '@angular/core';
-
-import { type IpcResponse, unwrap } from '@/core/ipc/invoke';
 
 export interface PublicUser {
   id: string;
@@ -21,41 +20,28 @@ export class AuthService {
   /** Perfil escolhido no picker da welcome, pendente de senha na tela de login. */
   readonly selectedProfile = signal<PublicUser | null>(null);
 
-  async listUsers(): Promise<PublicUser[]> {
-    const res = await window.electron.invoke<IpcResponse<PublicUser[]>>('auth:listUsers');
-    return unwrap(res);
+  listUsers(): Promise<PublicUser[]> {
+    return invoke<PublicUser[]>('auth:listUsers');
   }
 
   async loadCurrentUser(): Promise<PublicUser | null> {
-    const res = await window.electron.invoke<IpcResponse<PublicUser | null>>('auth:me');
-    const user = unwrap(res);
+    const user = await invoke<PublicUser | null>('auth:me');
     this.currentUser.set(user);
     return user;
   }
 
   async login(email: string, password: string): Promise<void> {
-    const res = await window.electron.invoke<IpcResponse<PublicUser>>('auth:login', {
-      email,
-      password,
-    });
-    if (!res.success) {
-      console.error('Login failed:', res.error);
-      throw new Error(res.error || 'Erro ao entrar');
-    }
-    this.currentUser.set(unwrap(res));
+    const user = await invoke<PublicUser>('auth:login', { email, password });
+    this.currentUser.set(user);
   }
 
   async register(name: string, email: string, password: string): Promise<void> {
-    const res = await window.electron.invoke<IpcResponse<PublicUser>>('auth:register', {
-      name,
-      email,
-      password,
-    });
-    this.currentUser.set(unwrap(res));
+    const user = await invoke<PublicUser>('auth:register', { name, email, password });
+    this.currentUser.set(user);
   }
 
   async logout(): Promise<void> {
-    await window.electron.invoke('auth:logout');
+    await invoke('auth:logout');
     this.currentUser.set(null);
   }
 }
