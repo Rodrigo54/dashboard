@@ -270,6 +270,11 @@ Conventional commits com emojis (use a skill `/commit`):
 
 Nunca inclua `Co-Authored-By` na mensagem de commit.
 
+O `commitlint` (hook `commit-msg`) rejeita subject que comece com palavra
+maiúscula/PascalCase logo após `tipo(escopo):` (ex.: nome de classe) — regra
+`subject-case`. Comece com verbo minúsculo e cite o nome próprio depois:
+"usa o adapter invoke\<T\> no AuthService", não "AuthService passa a usar...".
+
 ## Documentação (specs/)
 
 A documentação detalhada vive em `specs/` e **deve ser mantida em sincronia com
@@ -287,3 +292,9 @@ correspondente no mesmo commit.
 - [`specs/project-overview.md`](./specs/project-overview.md) — leia para
   entender o que o app é, a stack completa, o que está ativo vs. planejado e o
   desenvolvimento futuro.
+- [`specs/testing-patterns.md`](./specs/testing-patterns.md) — leia ao
+  escrever testes de services/components/guards Angular que envolvam
+  `resource()`, `effect()`, injeção de dependência ou o helper `invoke()` de
+  IPC (flush de effects em modo zoneless, fake de service baseado em
+  `resource()`, `runInInjectionContext`, mock do módulo `invoke`, fake de
+  dependências pesadas pra montar componente fundo na árvore).
