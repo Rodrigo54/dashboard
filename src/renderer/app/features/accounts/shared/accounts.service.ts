@@ -1,8 +1,29 @@
 import { Injectable, resource } from '@angular/core';
 import type { EnumOption } from '@shared/enums';
-import type { Account, CreateAccount, UpdateAccount, UUID } from '@shared/types';
+import type {
+  Account,
+  AccountPurgeOptions,
+  CreateAccount,
+  UpdateAccount,
+  UUID,
+} from '@shared/types';
 
 import { invoke } from '@/core/ipc/invoke';
+
+/** Contagens de impacto exibidas no modal de limpeza antes de confirmar. */
+export interface AccountPurgePreview {
+  transactionsCount: number;
+  recurringCount: number;
+}
+
+/** Eco do backend com o que foi de fato executado (deleteAccount força o resto). */
+export interface AccountPurgeResult {
+  id: UUID;
+  deletedTransactions: number;
+  deletedRecurring: number;
+  zeroedBalance: boolean;
+  deletedAccount: boolean;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AccountsService {
@@ -32,7 +53,13 @@ export class AccountsService {
     return invoke<Account>('accounts:save', { id, data });
   }
 
-  delete(id: UUID): Promise<{ id: UUID }> {
-    return invoke<{ id: UUID }>('accounts:remove', id);
+  /** Contagens de transações/recorrências vinculadas — carregadas ao abrir o modal de limpeza. */
+  purgePreview(id: UUID): Promise<AccountPurgePreview> {
+    return invoke<AccountPurgePreview>('accounts:purge-preview', id);
+  }
+
+  /** Limpeza/exclusão de conta conforme as opções (ver accountPurgeOptionsSchema). */
+  purge(id: UUID, options: AccountPurgeOptions): Promise<AccountPurgeResult> {
+    return invoke<AccountPurgeResult>('accounts:remove', { id, options });
   }
 }

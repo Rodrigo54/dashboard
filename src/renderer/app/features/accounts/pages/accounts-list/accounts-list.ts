@@ -5,14 +5,16 @@ import { HlmBadge } from '@/shared/spartan/badge';
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmEmptyImports } from '@/shared/spartan/empty';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideLandmark, lucidePlus, lucideSquarePen, lucideTrash } from '@ng-icons/lucide';
+import { lucideBrushCleaning, lucideLandmark, lucidePlus, lucideSquarePen } from '@ng-icons/lucide';
 import { HlmTableImports } from '@/shared/spartan/table';
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { Account } from '@shared/types';
+import { HlmDialogService } from '@/shared/spartan/dialog';
 import { AccountsService } from '../../shared/accounts.service';
 import { groupAccountsByProvider } from '../../shared/group-accounts-by-provider';
+import { AccountCleanupDialog, type AccountCleanupContext } from './account-cleanup-dialog';
 
 @Component({
   selector: 'app-accounts',
@@ -28,7 +30,7 @@ import { groupAccountsByProvider } from '../../shared/group-accounts-by-provider
     CurrencyPipe,
     ...HlmTableImports,
   ],
-  providers: [provideIcons({ lucideLandmark, lucidePlus, lucideSquarePen, lucideTrash })],
+  providers: [provideIcons({ lucideLandmark, lucidePlus, lucideSquarePen, lucideBrushCleaning })],
   template: `
     <div>
       <app-frame-header>
@@ -106,11 +108,11 @@ import { groupAccountsByProvider } from '../../shared/group-accounts-by-provider
                           hlmBtn
                           variant="ghost"
                           size="icon-sm"
-                          (click)="remove(account)"
-                          aria-label="Apagar conta"
+                          (click)="openCleanup(account)"
+                          aria-label="Limpar conta"
                         >
                           <ng-icon
-                            name="lucideTrash"
+                            name="lucideBrushCleaning"
                             class="text-[length:--spacing(3.5)] text-destructive"
                           />
                         </button>
@@ -131,6 +133,7 @@ import { groupAccountsByProvider } from '../../shared/group-accounts-by-provider
 export default class AccountsList {
   protected readonly accountsService = inject(AccountsService);
   protected readonly accounts = this.accountsService.accounts;
+  readonly #dialog = inject(HlmDialogService);
 
   /** Contas agrupadas por provider, ordenadas e com subtotal — ver group-accounts-by-provider.ts. */
   protected readonly groups = computed(() =>
@@ -147,11 +150,13 @@ export default class AccountsList {
     );
   }
 
-  /** Apaga a conta após confirmação e recarrega a lista. */
-  protected async remove(account: Account): Promise<void> {
-    const confirmed = window.confirm(`Apagar a conta "${account.name}"? Esta ação é irreversível.`);
-    if (!confirmed) return;
-    await this.accountsService.delete(account.id);
-    this.accounts.reload();
+  /**
+   * Abre o modal de limpeza/exclusão. Os reloads pós-operação são disparados
+   * pelo próprio modal (LedgerInvalidationService), conforme o que foi marcado.
+   */
+  protected openCleanup(account: Account): void {
+    this.#dialog.open(AccountCleanupDialog, {
+      context: { account } satisfies AccountCleanupContext,
+    });
   }
 }

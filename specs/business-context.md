@@ -128,6 +128,29 @@ dinheiro (`ACCOUNT_TYPES`), com `accountProvider` opcional (bb, itau, nubank,
 ...), `currency` (default BRL) e `balance` como string decimal. `isActive`
 permite arquivar sem excluir (excluir cascateia transações).
 
+#### Limpeza/exclusão de conta (purge)
+
+A remoção de conta é um **purge com opções** (`accounts:remove` recebe
+`{ id, options }`; modal `account-cleanup-dialog` na UI, aberto pelo ícone de
+vassoura na lista). Quatro ações independentes, cada uma um checkbox:
+
+- **Apagar transações** — apaga todas as transações da conta revertendo o
+  saldo linha a linha (`AccountBalanceService`), no mesmo commit SQL.
+- **Apagar recorrências** — apaga as regras de `recurring` (type
+  `transaction`, qualquer status) cujo `template.accountId` (JSON, sem FK)
+  aponta para a conta, via `json_extract`.
+- **Zerar saldo** — `balance = '0.00'` direto, sem tocar nas transações
+  (corrige drift sem apagar histórico).
+- **Apagar conta** — remove a linha; o FK cascade cobre qualquer transação
+  remanescente.
+
+Regra central: **apagar a conta força as outras três** (a UI trava os
+checkboxes e o backend recalcula sem confiar no client). Isso fecha o bug de
+recorrência órfã: sem o purge, uma regra apontando para conta apagada ficava
+travada para sempre (o materializador falha em `applyBalanceDelta` e nunca
+avança o `nextDate`). Tudo roda numa única transação SQL; o modal mostra
+contagens reais de impacto antes de confirmar (`accounts:purge-preview`).
+
 ### `transactions` [ativa]
 
 Um lançamento financeiro concreto numa conta: `income`, `expense` ou `transfer`
