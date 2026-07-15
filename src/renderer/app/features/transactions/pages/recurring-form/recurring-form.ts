@@ -1,4 +1,3 @@
-import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { CurrencyInputComponent } from '@/shared/currency-input';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
@@ -16,6 +15,7 @@ import type { RecurringFrequency } from '@shared/enums';
 import { positiveDecimalSchema } from '@shared/schemas';
 import type { TransactionTemplate, UUID } from '@shared/types';
 import { toDateInputValue } from '../../shared/date-input.utils';
+import { LedgerInvalidationService } from '../../shared/ledger-invalidation.service';
 import { RecurringService } from '../../shared/recurring.service';
 import {
   fieldErrorOf,
@@ -178,8 +178,8 @@ export interface RecurringFormModel extends TransactionCoreFields {
 export class RecurringForm {
   protected readonly transactionsService = inject(TransactionsService);
   protected readonly recurringService = inject(RecurringService);
-  protected readonly accountsService = inject(AccountsService);
   readonly #formFields = inject(TransactionFormFieldsService);
+  readonly #ledgerInvalidation = inject(LedgerInvalidationService);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
@@ -237,9 +237,8 @@ export class RecurringForm {
     submit(this.recurringForm, async () => {
       await this.recurringService.update(this.#recurringId, buildUpdateRecurring(this.model()));
       // A atualização pode materializar ocorrências e mexer em saldos.
-      this.recurringService.rules.reload();
-      this.transactionsService.transactions.reload();
-      this.accountsService.accounts.reload();
+      this.#ledgerInvalidation.reloadRules();
+      this.#ledgerInvalidation.reloadBalanceAffectingData();
       await this.#router.navigate(['/transactions']);
     });
   }

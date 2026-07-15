@@ -15,6 +15,7 @@ import {
   lucideTrash,
 } from '@ng-icons/lucide';
 import type { Recurring, Transaction } from '@shared/types';
+import { LedgerInvalidationService } from '../../shared/ledger-invalidation.service';
 import { RecurringService } from '../../shared/recurring.service';
 import { TransactionsService } from '../../shared/transactions.service';
 import type { LedgerRow } from './ledger-row';
@@ -141,6 +142,7 @@ export class TransactionRow {
   readonly #accountsService = inject(AccountsService);
   readonly #transactionsService = inject(TransactionsService);
   readonly #recurringService = inject(RecurringService);
+  readonly #ledgerInvalidation = inject(LedgerInvalidationService);
 
   protected readonly rowClass = computed(() =>
     this.row().kind === 'forecast' ? 'bg-muted/20' : '',
@@ -190,13 +192,12 @@ export class TransactionRow {
     );
     if (!confirmed) return;
     await this.#transactionsService.delete(transaction.id);
-    this.#transactionsService.transactions.reload();
-    this.#accountsService.accounts.reload();
+    this.#ledgerInvalidation.reloadBalanceAffectingData();
   }
 
   protected async pause(rule: Recurring): Promise<void> {
     await this.#recurringService.pause(rule.id);
-    this.#recurringService.rules.reload();
+    this.#ledgerInvalidation.reloadRules();
   }
 
   /** Antecipa a ocorrência prevista, criando a transação e atualizando saldo. */
@@ -204,16 +205,14 @@ export class TransactionRow {
     const row = this.row();
     if (!row.rule) return;
     await this.#recurringService.materialize(row.rule.id, row.date);
-    this.#recurringService.rules.reload();
-    this.#transactionsService.transactions.reload();
-    this.#accountsService.accounts.reload();
+    this.#ledgerInvalidation.reloadRules();
+    this.#ledgerInvalidation.reloadBalanceAffectingData();
   }
 
   /** Retomar pula o período pausado e pode materializar a ocorrência de hoje. */
   protected async resume(rule: Recurring): Promise<void> {
     await this.#recurringService.resume(rule.id);
-    this.#recurringService.rules.reload();
-    this.#transactionsService.transactions.reload();
-    this.#accountsService.accounts.reload();
+    this.#ledgerInvalidation.reloadRules();
+    this.#ledgerInvalidation.reloadBalanceAffectingData();
   }
 }

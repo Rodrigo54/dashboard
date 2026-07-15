@@ -1,5 +1,5 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
-import { RecurringService } from '@/features/transactions/shared/recurring.service';
+import { LedgerInvalidationService } from '@/features/transactions/shared/ledger-invalidation.service';
 import { TransactionsService } from '@/features/transactions/shared/transactions.service';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FrameHeaderButton } from '@/shared/frame/frame-header-button';
@@ -159,7 +159,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
 export default class ImportStatement {
   protected readonly accountsService = inject(AccountsService);
   protected readonly transactionsService = inject(TransactionsService);
-  readonly #recurringService = inject(RecurringService);
+  readonly #ledgerInvalidation = inject(LedgerInvalidationService);
   readonly #importService = inject(ImportService);
 
   protected readonly balancedClass = 'border-emerald-600/40 bg-emerald-600/10 text-emerald-700';
@@ -248,9 +248,8 @@ export default class ImportStatement {
       this.preview.set(null);
       this.rows.set([]);
       this.accountId.set('');
-      this.transactionsService.transactions.reload();
-      this.accountsService.accounts.reload();
-      this.#recurringService.rules.reload();
+      this.#ledgerInvalidation.reloadRules();
+      this.#ledgerInvalidation.reloadBalanceAffectingData();
     } catch (err) {
       this.error.set(err instanceof Error ? err.message : 'Falha ao importar.');
     } finally {

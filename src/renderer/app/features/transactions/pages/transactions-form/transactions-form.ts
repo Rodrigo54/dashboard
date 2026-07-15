@@ -1,4 +1,3 @@
-import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { CurrencyInputComponent } from '@/shared/currency-input';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
@@ -16,6 +15,7 @@ import type { RecurringFrequency, TransactionType } from '@shared/enums';
 import { positiveDecimalSchema } from '@shared/schemas';
 import type { UUID } from '@shared/types';
 import { toDateInputValue } from '../../shared/date-input.utils';
+import { LedgerInvalidationService } from '../../shared/ledger-invalidation.service';
 import { RecurringService } from '../../shared/recurring.service';
 import {
   fieldErrorOf,
@@ -185,8 +185,8 @@ export interface TransactionFormModel extends TransactionCoreFields {
 export class TransactionsForm {
   protected readonly transactionsService = inject(TransactionsService);
   protected readonly recurringService = inject(RecurringService);
-  protected readonly accountsService = inject(AccountsService);
   readonly #formFields = inject(TransactionFormFieldsService);
+  readonly #ledgerInvalidation = inject(LedgerInvalidationService);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
@@ -243,7 +243,7 @@ export class TransactionsForm {
       const model = this.model();
       if (model.repeat && !this.isEdit()) {
         await this.recurringService.create(buildCreateRecurring(model));
-        this.recurringService.rules.reload();
+        this.#ledgerInvalidation.reloadRules();
       } else {
         await this.transactionsService.save(
           buildCreateTransaction(model),
@@ -251,8 +251,7 @@ export class TransactionsForm {
         );
       }
       // Saldo e listagem mudam em qualquer um dos caminhos.
-      this.transactionsService.transactions.reload();
-      this.accountsService.accounts.reload();
+      this.#ledgerInvalidation.reloadBalanceAffectingData();
       await this.#router.navigate(['/transactions']);
     });
   }

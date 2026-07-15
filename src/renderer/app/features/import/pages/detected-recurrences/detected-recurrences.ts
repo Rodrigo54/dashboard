@@ -1,5 +1,5 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
-import { RecurringService } from '@/features/transactions/shared/recurring.service';
+import { LedgerInvalidationService } from '@/features/transactions/shared/ledger-invalidation.service';
 import { TransactionsService } from '@/features/transactions/shared/transactions.service';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FrameHeaderButton } from '@/shared/frame/frame-header-button';
@@ -103,7 +103,7 @@ import { toConfirmPayload } from '../../shared/detected-recurrence.utils';
 export default class DetectedRecurrences implements OnInit {
   protected readonly accountsService = inject(AccountsService);
   readonly #transactionsService = inject(TransactionsService);
-  readonly #recurringService = inject(RecurringService);
+  readonly #ledgerInvalidation = inject(LedgerInvalidationService);
   readonly #importService = inject(ImportService);
 
   protected readonly loading = signal(true);
@@ -139,7 +139,8 @@ export default class DetectedRecurrences implements OnInit {
     try {
       await this.#importService.confirm(toConfirmPayload(item));
       this.dismiss(item);
-      this.#recurringService.rules.reload();
+      this.#ledgerInvalidation.reloadRules();
+      // Só vincula transações já existentes a uma regra nova — saldo não muda.
       this.#transactionsService.transactions.reload();
     } catch (err) {
       this.error.set(err instanceof Error ? err.message : 'Falha ao criar a recorrência.');
