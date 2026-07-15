@@ -108,6 +108,18 @@ export default tseslint.config(
     },
   },
 
+  // -------- Componentes de linha de tabela (precisam renderizar como <tr>) --------
+  // Um seletor de elemento viraria um <app-transaction-row> envolvendo os
+  // <td>, quebrando a semântica/layout nativo de <table> — mesmo motivo pelo
+  // qual HlmTr/HlmTd (spartan) usam seletor de atributo; a diferença é que
+  // este é um Component com template próprio, não um Directive.
+  {
+    files: ['src/renderer/app/features/transactions/pages/transactions-list/transaction-row.ts'],
+    rules: {
+      '@angular-eslint/component-selector': 'off',
+    },
+  },
+
   // -------- Desativa regras que conflitam com o Prettier (sempre por último) --------
   prettier,
 );

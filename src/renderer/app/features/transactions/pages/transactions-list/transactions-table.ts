@@ -1,5 +1,4 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
-import { HlmBadge } from '@/shared/spartan/badge';
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmEmptyImports } from '@/shared/spartan/empty';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -7,25 +6,20 @@ import {
   lucideArrowLeft,
   lucideChevronLeft,
   lucideChevronRight,
-  lucideCircleCheck,
-  lucidePause,
-  lucidePlay,
   lucidePlus,
   lucideRepeat,
-  lucideSquarePen,
-  lucideTrash,
 } from '@ng-icons/lucide';
 import { SelectComponent } from '@/shared/select';
 import { HlmTableImports } from '@/shared/spartan/table';
-import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type { TransactionType } from '@shared/enums';
-import type { Recurring, Transaction, UUID } from '@shared/types';
+import type { UUID } from '@shared/types';
 import { RecurringService } from '../../shared/recurring.service';
 import { TransactionsService } from '../../shared/transactions.service';
 import { byDateThenForecast, transactionToRow, type LedgerRow } from './ledger-row';
 import { forecastRows } from './recurring-forecast';
+import { TransactionRow } from './transaction-row';
 
 type Scope = 'all' | 'recurring';
 
@@ -36,25 +30,18 @@ type Scope = 'all' | 'recurring';
     RouterLink,
     NgIcon,
     HlmButton,
-    HlmBadge,
     ...HlmEmptyImports,
-    CurrencyPipe,
-    DatePipe,
     SelectComponent,
     ...HlmTableImports,
+    TransactionRow,
   ],
   providers: [
     provideIcons({
       lucideArrowLeft,
       lucideChevronLeft,
       lucideChevronRight,
-      lucideCircleCheck,
-      lucidePause,
-      lucidePlay,
       lucidePlus,
       lucideRepeat,
-      lucideSquarePen,
-      lucideTrash,
     }),
   ],
   template: `
@@ -166,106 +153,7 @@ type Scope = 'all' | 'recurring';
         </thead>
         <tbody hlmTBody>
           @for (row of rows(); track row.key) {
-            <tr hlmTr [class]="row.kind === 'forecast' ? 'bg-muted/20' : ''">
-              <td hlmTd class="tabular-nums" [class]="dateCellClass(row)">
-                {{ row.date | date: 'dd/MM/yyyy' }}
-              </td>
-              <td hlmTd class="font-medium">
-                <span class="flex items-center gap-2">
-                  {{ row.description }}
-                  @if (row.kind === 'forecast') {
-                    <span
-                      hlmBadge
-                      [variant]="row.ruleStatus === 'paused' ? 'secondary' : 'outline'"
-                    >
-                      {{ row.ruleStatus === 'paused' ? 'Pausada' : 'Previsto' }}
-                    </span>
-                  } @else if (row.recurring) {
-                    <ng-icon
-                      name="lucideRepeat"
-                      class="text-[length:--spacing(3.5)] text-muted-foreground"
-                      aria-label="Recorrente"
-                    />
-                  }
-                </span>
-              </td>
-              <td hlmTd [class.text-muted-foreground]="row.kind === 'forecast'">
-                {{ accountName(row.accountId) }}
-              </td>
-              <td hlmTd [class.text-muted-foreground]="row.kind === 'forecast'">
-                {{ categoryLabel(row) }}
-              </td>
-              <td hlmTd class="text-right tabular-nums" [class]="amountClass(row)">
-                {{ signedAmount(row) | currency: accountCurrency(row.accountId) }}
-              </td>
-              <td hlmTd>
-                <div class="flex flex-row items-center justify-center gap-2">
-                  @if (row.kind === 'forecast' && row.rule; as rule) {
-                    @if (rule.status === 'active') {
-                      <button
-                        hlmBtn
-                        variant="ghost"
-                        size="icon-sm"
-                        (click)="materialize(row)"
-                        aria-label="Lançar agora"
-                      >
-                        <ng-icon name="lucideCircleCheck" class="text-[length:--spacing(3.5)]" />
-                      </button>
-                      <button
-                        hlmBtn
-                        variant="ghost"
-                        size="icon-sm"
-                        (click)="pause(rule)"
-                        aria-label="Pausar recorrência"
-                      >
-                        <ng-icon name="lucidePause" class="text-[length:--spacing(3.5)]" />
-                      </button>
-                    } @else {
-                      <button
-                        hlmBtn
-                        variant="ghost"
-                        size="icon-sm"
-                        (click)="resume(rule)"
-                        aria-label="Retomar recorrência"
-                      >
-                        <ng-icon name="lucidePlay" class="text-[length:--spacing(3.5)]" />
-                      </button>
-                    }
-                    <button
-                      hlmBtn
-                      variant="ghost"
-                      size="icon-sm"
-                      [routerLink]="['/transactions/recurring', rule.id]"
-                      aria-label="Editar recorrência"
-                    >
-                      <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
-                    </button>
-                  } @else if (row.transaction; as transaction) {
-                    <button
-                      hlmBtn
-                      variant="ghost"
-                      size="icon-sm"
-                      [routerLink]="['/transactions', transaction.id]"
-                      aria-label="Editar transação"
-                    >
-                      <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
-                    </button>
-                    <button
-                      hlmBtn
-                      variant="ghost"
-                      size="icon-sm"
-                      (click)="remove(transaction)"
-                      aria-label="Apagar transação"
-                    >
-                      <ng-icon
-                        name="lucideTrash"
-                        class="text-[length:--spacing(3.5)] text-destructive"
-                      />
-                    </button>
-                  }
-                </div>
-              </td>
-            </tr>
+            <tr appTransactionRow hlmTr [row]="row"></tr>
           }
         </tbody>
       </table>
@@ -335,70 +223,5 @@ export class TransactionsTable {
 
   protected onTypeFilter(value: string | undefined): void {
     this.service.typeFilter.set(value === 'all' ? undefined : (value as TransactionType));
-  }
-
-  protected accountName(accountId: string): string {
-    return this.accountsService.accounts.value()?.find((a) => a.id === accountId)?.name ?? '—';
-  }
-
-  protected accountCurrency(accountId: string): string {
-    return (
-      this.accountsService.accounts.value()?.find((a) => a.id === accountId)?.currency ?? 'BRL'
-    );
-  }
-
-  protected categoryLabel(row: LedgerRow): string {
-    const groups = this.service.categories.value();
-    const options = row.type === 'income' ? groups?.income : groups?.expense;
-    return options?.find((o) => o.value === row.category)?.label ?? row.category;
-  }
-
-  /** Valor com sinal para exibição: despesas aparecem negativas. */
-  protected signedAmount(row: LedgerRow): string {
-    return row.type === 'expense' ? `-${row.amount}` : row.amount;
-  }
-
-  protected amountClass(row: LedgerRow): string {
-    if (row.kind === 'forecast') return 'text-muted-foreground';
-    return row.type === 'income' ? 'text-emerald-600' : 'text-destructive';
-  }
-
-  protected dateCellClass(row: LedgerRow): string {
-    return row.kind === 'forecast'
-      ? 'border-muted-foreground/40 border-l-2 border-dashed pl-3 text-muted-foreground'
-      : '';
-  }
-
-  /** Apaga a transação (revertendo o saldo no main) e recarrega lista + contas. */
-  protected async remove(transaction: Transaction): Promise<void> {
-    const confirmed = window.confirm(
-      `Apagar a transação "${transaction.description}"? O saldo da conta será revertido.`,
-    );
-    if (!confirmed) return;
-    await this.service.delete(transaction.id);
-    this.service.transactions.reload();
-    this.accountsService.accounts.reload();
-  }
-
-  protected async pause(rule: Recurring): Promise<void> {
-    await this.recurringService.pause(rule.id);
-    this.recurringService.rules.reload();
-  }
-
-  /** Antecipa a ocorrência prevista, criando a transação e atualizando saldo. */
-  protected async materialize(row: LedgerRow): Promise<void> {
-    if (!row.rule) return;
-    await this.recurringService.materialize(row.rule.id, row.date);
-    this.recurringService.rules.reload();
-    this.service.transactions.reload();
-    this.accountsService.accounts.reload();
-  }
-
-  /** Retomar pula o período pausado e pode materializar a ocorrência de hoje. */
-  protected async resume(rule: Recurring): Promise<void> {
-    await this.recurringService.resume(rule.id);
-    this.recurringService.rules.reload();
-    this.service.transactions.reload();
-    this.accountsService.accounts.reload();
   }
 }
