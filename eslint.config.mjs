@@ -103,6 +103,7 @@ export default tseslint.config(
       '@angular-eslint/directive-selector': 'off',
       '@angular-eslint/no-input-rename': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/consistent-type-definitions': 'off',
       'max-lines': 'off',
       'max-lines-per-function': 'off',
     },

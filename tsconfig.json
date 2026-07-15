@@ -36,7 +36,8 @@
       "@/shared/spartan/sidebar": ["./src/renderer/app/shared/spartan/sidebar/src/index.ts"],
       "@/shared/spartan/sheet": ["./src/renderer/app/shared/spartan/sheet/src/index.ts"],
       "@/shared/spartan/skeleton": ["./src/renderer/app/shared/spartan/skeleton/src/index.ts"],
-      "@/shared/spartan/tooltip": ["./src/renderer/app/shared/spartan/tooltip/src/index.ts"]
+      "@/shared/spartan/tooltip": ["./src/renderer/app/shared/spartan/tooltip/src/index.ts"],
+      "@/shared/spartan/dialog": ["./src/renderer/app/shared/spartan/dialog/src/index.ts"]
     }
   },
   "angularCompilerOptions": {
