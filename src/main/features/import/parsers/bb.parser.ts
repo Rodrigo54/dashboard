@@ -18,6 +18,7 @@ function referenceYear(lines: readonly TextLine[]): number {
  */
 export const bbParser: BankParser = {
   bank: 'bb',
+  kind: 'statement',
   detectFileName: (fileName) => /bb|banco\s*do\s*brasil/i.test(fileName),
   detect: (fullText) => /banco\s+do\s+brasil|bb\.com\.br|lote\s+documento/i.test(fullText),
   parse: (lines) =>

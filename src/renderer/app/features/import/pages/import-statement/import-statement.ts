@@ -12,7 +12,7 @@ import { HlmSpinner } from '@/shared/spartan/spinner';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ACCOUNT_PROVIDERS } from '@shared/enums';
-import type { ImportCommitResult, ImportPreview } from '@shared/types';
+import type { ImportCommitResult, ImportDocumentKind, ImportPreview } from '@shared/types';
 import { ImportService } from '../../shared/import.service';
 import { toCommitItem, toStagingRow, type StagingRow } from '../../shared/staging-row';
 import { ImportStagingTable, type CellEdit } from './import-staging-table';
@@ -36,7 +36,9 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
       <app-frame-header>
         <ng-icon slot="icon" name="lucideFileText" class="text-[length:--spacing(12)]" />
         <h1 slot="title">Importar Extrato</h1>
-        <p slot="subtitle">Extraia transações de um PDF de extrato (Banco do Brasil ou Itaú)</p>
+        <p slot="subtitle">
+          Extraia transações de um PDF de extrato ou fatura de cartão (Banco do Brasil ou Itaú)
+        </p>
         <div slot="actions">
           <button appFrameHeaderButton routerLink="/transactions">
             <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
@@ -92,7 +94,8 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
               <button
                 hlmBtn
                 variant="default"
-                [disabled]="includedCount() === 0 || !accountId()"
+                data-testid="import-confirm"
+                [disabled]="includedCount() === 0 || !accountId() || invoiceAccountBlocked()"
                 (click)="confirm()"
               >
                 Importar {{ includedCount() }} transação(ões)
@@ -105,6 +108,16 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
               class="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm text-amber-700"
             >
               Nenhuma conta cadastrada. Crie uma conta antes de importar.
+            </div>
+          }
+
+          @if (invoiceAccountBlocked()) {
+            <div
+              class="mb-4 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm text-amber-700"
+            >
+              Fatura de cartão só pode ser importada para uma conta de crédito — os valores foram
+              invertidos (compra = despesa, pagamento = receita). Escolha uma conta de crédito para
+              continuar.
             </div>
           }
 
@@ -132,7 +145,7 @@ import { ImportStagingTable, type CellEdit } from './import-staging-table';
               class="text-muted-foreground"
               style="font-size: 2.5rem"
             />
-            <span class="font-medium">Selecione um PDF de extrato</span>
+            <span class="font-medium">Selecione um PDF de extrato ou fatura de cartão</span>
             <span class="text-muted-foreground text-sm">Banco do Brasil ou Itaú</span>
             <input
               type="file"
@@ -179,6 +192,22 @@ export default class ImportStatement {
   );
   protected readonly includedCount = computed(() => this.rows().filter((r) => r.include).length);
 
+  /** Fatura de cartão: os valores vieram invertidos e exigem conta de crédito. */
+  protected readonly isInvoice = computed(() => this.preview()?.kind === 'invoice');
+
+  /** Conta escolhida no dropdown (resolvida do id), para checar o tipo. */
+  protected readonly selectedAccount = computed(() =>
+    this.accounts().find((account) => account.id === this.accountId()),
+  );
+
+  /**
+   * Fatura só pode ser importada para conta de crédito (mantém o saldo do
+   * crédito negativo ou zero). Trava o commit e sinaliza o motivo ao usuário.
+   */
+  protected readonly invoiceAccountBlocked = computed(
+    () => this.isInvoice() && this.selectedAccount()?.type !== 'credit',
+  );
+
   protected readonly reconciliationMessage = computed(() => {
     const rec = this.preview()?.reconciliation;
     if (!rec || rec.openingBalance === undefined || rec.closingBalance === undefined) return '';
@@ -205,7 +234,7 @@ export default class ImportStatement {
       this.fileName.set(file.name);
       this.preview.set(preview);
       this.rows.set(preview.rows.map(toStagingRow));
-      this.accountId.set(this.#defaultAccountId(preview.bank));
+      this.accountId.set(this.#defaultAccountId(preview.bank, preview.kind));
     } catch (err) {
       this.error.set(err instanceof Error ? err.message : 'Falha ao processar o PDF.');
     } finally {
@@ -219,9 +248,18 @@ export default class ImportStatement {
     );
   }
 
-  /** Primeira conta cujo provider bate com o banco detectado, senão a primeira. */
-  #defaultAccountId(bank: string): string {
+  /**
+   * Conta padrão do dropdown. Fatura prefere a conta de crédito do provider
+   * (senão qualquer crédito); extrato usa o provider, senão a primeira conta.
+   */
+  #defaultAccountId(bank: string, kind: ImportDocumentKind): string {
     const accounts = this.accounts();
+    if (kind === 'invoice') {
+      const credit =
+        accounts.find((a) => a.accountProvider === bank && a.type === 'credit') ??
+        accounts.find((a) => a.type === 'credit');
+      if (credit) return credit.id;
+    }
     const match = accounts.find((account) => account.accountProvider === bank);
     return match?.id ?? accounts[0]?.id ?? '';
   }
@@ -234,7 +272,7 @@ export default class ImportStatement {
 
   protected async confirm(): Promise<void> {
     const accountId = this.accountId();
-    if (!accountId) return;
+    if (!accountId || this.invoiceAccountBlocked()) return;
 
     const items = this.rows()
       .filter((row) => row.include)

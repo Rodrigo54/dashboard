@@ -88,6 +88,24 @@ Fluxo: **PDF → parse → preview → commit**, tudo no processo main.
   reconciliação de saldo do extrato fecha. Peculiaridade do BB: o sinal da
   linha vem dos sufixos `(-)`/`(+)`, não do valor. A ferramenta
   `scripts/calibrate-statement.ts` ajuda a calibrar novos parsers.
+- **Fatura de cartão de crédito** (`itau-invoice.parser.ts`,
+  `bb-invoice.parser.ts` sobre `invoice-engine.ts`). O `BankParser` carrega um
+  `kind: 'statement' | 'invoice'`; o roteamento (`detectParser`) testa fatura
+  **por conteúdo** (marcadores estruturais) **antes** do extrato, porque o nome
+  do arquivo não separa os dois no mesmo banco. Diferenças de domínio da fatura:
+  - **Sinais invertidos**: na fatura, gasto é positivo e pagamento é negativo,
+    mas conta de crédito tem saldo **negativo ou zero**. Então compra vira
+    `expense` e pagamento vira `income`. A inversão acontece no parse (o staging
+    já mostra a semântica certa), não no commit.
+  - **Documento seccionado**: só as linhas dentro dos blocos de movimento
+    (Lançamentos/Pagamentos) viram lançamentos; resumos, limites, encargos e a
+    projeção de próximas faturas ficam de fora. No Itaú, a página de encargos
+    fica na mesma linha visual do movimento — o engine usa o **primeiro** valor
+    (coluna esquerda) e ignora o resto.
+  - **Reconciliação própria**: `total anterior + compras − pagamentos = total
+desta fatura` (não há saldo corrido).
+  - **Conta destino**: o preview sugere a conta `credit` do provider e a UI
+    **bloqueia** o commit enquanto a conta escolhida não for de crédito.
 - **Deduplicação por fingerprint**: cada linha importada recebe uma impressão
   digital determinística (inclui índice de ocorrência para tolerar linhas
   legitimamente repetidas no mesmo dia), gravada em

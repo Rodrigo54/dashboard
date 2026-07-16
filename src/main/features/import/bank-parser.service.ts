@@ -1,5 +1,5 @@
 import type { AccountProvider } from '@shared/enums';
-import type { ImportReconciliation, ParsedStatementLine } from '@shared/types';
+import type { ImportDocumentKind, ImportReconciliation, ParsedStatementLine } from '@shared/types';
 import { Service } from '../../core/service.decorator';
 import { inject } from '../../core/services.providers';
 import { PdfExtractionService } from './pdf-extraction.service';
@@ -7,6 +7,7 @@ import { detectParser } from './parsers';
 
 export interface StatementParseOutput {
   readonly bank: AccountProvider | 'unknown';
+  readonly kind: ImportDocumentKind;
   readonly lines: ParsedStatementLine[];
   readonly reconciliation: ImportReconciliation;
 }
@@ -27,6 +28,11 @@ export class BankParserService {
       throw new Error('Banco não reconhecido neste PDF. Bancos suportados: Banco do Brasil, Itaú.');
     }
     const result = parser.parse(lines);
-    return { bank: parser.bank, lines: result.lines, reconciliation: result.reconciliation };
+    return {
+      bank: parser.bank,
+      kind: parser.kind,
+      lines: result.lines,
+      reconciliation: result.reconciliation,
+    };
   }
 }

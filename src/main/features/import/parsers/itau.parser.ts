@@ -17,6 +17,7 @@ function referenceYear(lines: readonly TextLine[]): number {
  */
 export const itauParser: BankParser = {
   bank: 'itau',
+  kind: 'statement',
   detectFileName: (fileName) => /ita[uú]/i.test(fileName),
   detect: (fullText) => /ita[uú]|uniclass/i.test(fullText),
   parse: (lines) =>

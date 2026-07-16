@@ -216,9 +216,14 @@ export interface ImportReconciliation {
   balanced: boolean;
 }
 
+/** Tipo do documento importado: extrato de conta ou fatura de cartão. */
+export type ImportDocumentKind = 'statement' | 'invoice';
+
 /** Resposta de `import:preview`: o staging completo para revisão. */
 export interface ImportPreview {
   bank: AccountProvider | 'unknown';
+  /** `invoice` teve os sinais invertidos e exige conta de crédito no commit. */
+  kind: ImportDocumentKind;
   fileName: string;
   rows: StagedTransaction[];
   reconciliation: ImportReconciliation;

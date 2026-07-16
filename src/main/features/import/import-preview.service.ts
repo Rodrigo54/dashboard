@@ -1,4 +1,4 @@
-import type { ImportPreview, StagedTransaction } from '@shared/types';
+import type { ImportDocumentKind, ImportPreview, StagedTransaction } from '@shared/types';
 import { and, eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../../database/database.module';
 import { Service } from '../../core/service.decorator';
@@ -20,7 +20,7 @@ export class ImportPreviewService {
   private readonly matcher = inject(RecurrenceMatcherService);
 
   build(userId: string, parsed: StatementParseOutput, accountHintId?: string): ImportPreview {
-    const accountId = this.resolveAccount(userId, parsed.bank, accountHintId);
+    const accountId = this.resolveAccount(userId, parsed.bank, parsed.kind, accountHintId);
     const fingerprints = this.fingerprint.assign(
       parsed.lines.map((line) => ({ accountId: accountId ?? '', ...line })),
     );
@@ -52,7 +52,13 @@ export class ImportPreviewService {
       };
     });
 
-    return { bank: parsed.bank, fileName: '', rows, reconciliation: parsed.reconciliation };
+    return {
+      bank: parsed.bank,
+      kind: parsed.kind,
+      fileName: '',
+      rows,
+      reconciliation: parsed.reconciliation,
+    };
   }
 
   private duplicateFlags(
@@ -79,11 +85,24 @@ export class ImportPreviewService {
   }
 
   /**
-   * Conta sugerida: a dica do usuário, senão a conta cujo provedor casa com o
-   * banco do extrato, senão a primeira conta ativa.
+   * Conta sugerida. Para fatura, prefere a conta de crédito do provedor (senão
+   * qualquer conta de crédito), porque os valores já vêm invertidos e só fazem
+   * sentido num crédito. Para extrato, usa a dica do usuário, senão o provedor,
+   * senão a primeira conta ativa.
    */
-  private resolveAccount(userId: string, bank: string, hintId?: string): string | undefined {
+  private resolveAccount(
+    userId: string,
+    bank: string,
+    kind: ImportDocumentKind,
+    hintId?: string,
+  ): string | undefined {
     const accounts = this.accounts(userId);
+    if (kind === 'invoice') {
+      const credit =
+        accounts.find((a) => a.accountProvider === bank && a.type === 'credit') ??
+        accounts.find((a) => a.type === 'credit');
+      if (credit) return credit.id;
+    }
     if (hintId && accounts.some((a) => a.id === hintId)) return hintId;
     const byProvider = accounts.find((a) => a.accountProvider === bank);
     if (byProvider) return byProvider.id;
