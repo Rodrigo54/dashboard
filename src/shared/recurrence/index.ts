@@ -35,6 +35,16 @@ function addDays(date: Date, days: number): Date {
   return next;
 }
 
+/** Mesmo dia local (ano/mês/dia), ignorando a hora — usado para casar uma
+ * ocorrência prevista com a transação real que a materializa. */
+export function sameCalendarDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+
 /** Avança meses clampando o dia à âncora (31 -> 28/fev -> 31/mar). */
 function addMonthsClamped(date: Date, months: number, anchorDay: number): Date {
   const total = date.getMonth() + months;

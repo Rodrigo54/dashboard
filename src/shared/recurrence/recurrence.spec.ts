@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import type { RecurringPattern } from '../types';
-import { nextOccurrence, nextOccurrenceOnOrAfter, pendingOccurrences } from './index';
+import {
+  nextOccurrence,
+  nextOccurrenceOnOrAfter,
+  pendingOccurrences,
+  sameCalendarDay,
+} from './index';
 
 function pattern(overrides: Partial<RecurringPattern> = {}): RecurringPattern {
   return {
@@ -164,5 +169,19 @@ describe('nextOccurrenceOnOrAfter', () => {
       now,
     );
     expect(next).toBeNull();
+  });
+});
+
+describe('sameCalendarDay', () => {
+  it('true para o mesmo dia com horários diferentes', () => {
+    expect(sameCalendarDay(new Date(2026, 6, 6, 8, 0), new Date(2026, 6, 6, 23, 59))).toBe(true);
+  });
+
+  it('false para dias diferentes', () => {
+    expect(sameCalendarDay(new Date(2026, 6, 6), new Date(2026, 6, 7))).toBe(false);
+  });
+
+  it('false para o mesmo dia/mês em anos diferentes', () => {
+    expect(sameCalendarDay(new Date(2026, 6, 6), new Date(2025, 6, 6))).toBe(false);
   });
 });

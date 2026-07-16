@@ -17,8 +17,9 @@ export const importPreviewSchema = z.object({
 
 /**
  * Um item finalizado pelo usuário no staging, enviado ao `import:commit`. O
- * main revalida cada item, rededuplica e então insere (linha nova) ou reconcilia
- * a linha materializada indicada por `reconcileTransactionId` (update in-place).
+ * main revalida cada item, rededuplica e insere; o auto-link com recorrências
+ * (`recurrence-auto-link.utils.ts`) é recalculado no commit, não confiado do
+ * cliente — por isso este payload não carrega `recurringId`.
  */
 export const importCommitItemSchema = z.object({
   accountId: guid(),
@@ -28,10 +29,6 @@ export const importCommitItemSchema = z.object({
   description: z.string().min(1),
   date: z.coerce.date(),
   fingerprint: z.string().min(1),
-  // Recorrência existente à qual esta linha pertence (matching confirmado).
-  recurringId: guid().nullish(),
-  // Ocorrência já materializada que esta linha deve reconciliar (update in-place).
-  reconcileTransactionId: guid().nullish(),
 });
 
 export const importCommitSchema = z.object({

@@ -176,3 +176,22 @@ export function isAutoLinkCandidate(
   if (secondBestScore === undefined) return true;
   return bestScore - secondBestScore >= AUTO_LINK_MARGIN - EPSILON;
 }
+
+export interface ScoredCandidate<T> {
+  readonly value: T;
+  readonly score: number;
+}
+
+/**
+ * Melhor candidato elegível para auto-link dentre uma lista já pontuada, ou
+ * `undefined` se nenhum passa em `isAutoLinkCandidate` (abaixo do threshold,
+ * ou empatado com o segundo colocado). Genérico em `T` para servir tanto o
+ * commit de importação (`schema.Recurring` inteiro) quanto qualquer outro
+ * consumidor que precise só do id.
+ */
+export function bestAutoLinkCandidate<T>(scored: readonly ScoredCandidate<T>[]): T | undefined {
+  const sorted = [...scored].sort((a, b) => b.score - a.score);
+  const [best, second] = sorted;
+  if (!best) return undefined;
+  return isAutoLinkCandidate(best.score, second?.score) ? best.value : undefined;
+}

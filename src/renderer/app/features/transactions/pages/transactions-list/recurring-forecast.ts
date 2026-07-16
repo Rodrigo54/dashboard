@@ -1,5 +1,5 @@
 import type { TransactionType } from '@shared/enums';
-import { nextOccurrence } from '@shared/recurrence';
+import { nextOccurrence, sameCalendarDay } from '@shared/recurrence';
 import type { Recurring, Transaction, TransactionTemplate } from '@shared/types';
 import type { LedgerRow } from './ledger-row';
 
@@ -17,14 +17,6 @@ export interface ForecastFilter {
 /** A lista de recorrências desta tela é sempre de transação (controller filtra). */
 function templateOf(rule: Recurring): TransactionTemplate {
   return rule.template as TransactionTemplate;
-}
-
-function sameDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
 }
 
 /** Ocorrências da regra que caem dentro do mês exibido, respeitando o término. */
@@ -88,7 +80,7 @@ export function forecastRows(
 
     for (const date of occurrencesInMonth(rule, start, end)) {
       const materialized = transactions.some(
-        (t) => t.recurringId === rule.id && sameDay(new Date(t.date), date),
+        (t) => t.recurringId === rule.id && sameCalendarDay(new Date(t.date), date),
       );
       if (!materialized) rows.push(toForecastRow(rule, date));
     }

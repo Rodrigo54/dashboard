@@ -1,24 +1,21 @@
 import { negateDecimal } from '@shared/decimal';
-import { nextOccurrence } from '@shared/recurrence';
+import { nextOccurrence, sameCalendarDay } from '@shared/recurrence';
 import {
   CANDIDATE_MIN_THRESHOLD,
   computeRecurrenceProbability,
   nearestRuleOccurrence,
 } from '@shared/recurrence/matching';
-import type { RecurrenceMatchCandidate, TransactionTemplate } from '@shared/types';
+import type { RecurrenceMatchCandidate } from '@shared/types';
 import { and, eq, gte, inArray, isNull, lt, ne } from 'drizzle-orm';
+import type { DB } from '../../database/database.module';
 import { getDb, schema } from '../../database/database.module';
 import { Service } from '../../core/service.decorator';
 import { inject } from '../../core/services.providers';
 import { AccountBalanceService } from '../accounts/account-balance.service';
+import { ruleToMatchRule } from './recurrence-match-input';
 
-function sameCalendarDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
+/** Aceita tanto o `DB` quanto o objeto `tx` de `db.transaction(...)`. */
+type Tx = Pick<DB, 'select' | 'insert' | 'update' | 'delete'>;
 
 /**
  * Matching de recorrências contra o histórico de transações: sugere
@@ -76,9 +73,20 @@ export class RecurrenceMatchingService {
 
   /** Vincula a transação à regra (merge completo — ver docstring da classe). */
   linkTransaction(userId: string, transactionId: string, recurringId: string): void {
-    const db = getDb();
     const transaction = this.getUnlinkedTransaction(userId, transactionId);
-    const rule = db
+    const db = getDb();
+    db.transaction((tx) => this.applyLink(tx, userId, transaction, recurringId));
+  }
+
+  /**
+   * Aplica o vínculo (merge completo) dentro de uma transação SQL já aberta.
+   * Reentrante de propósito: o auto-link do commit de importação
+   * (`import-commit.service.ts`) insere a transação e chama isto na mesma
+   * transação do lote, em vez de abrir uma nova. Retorna `true` quando uma
+   * duplicata materializada foi encontrada e removida (reconciliação).
+   */
+  applyLink(tx: Tx, userId: string, transaction: schema.Transaction, recurringId: string): boolean {
+    const rule = tx
       .select()
       .from(schema.recurring)
       .where(
@@ -98,47 +106,49 @@ export class RecurrenceMatchingService {
       transaction.date,
     );
 
-    db.transaction((tx) => {
-      if (occurrence) {
-        const materialized = tx
-          .select()
-          .from(schema.transactions)
-          .where(
-            and(
-              eq(schema.transactions.userId, userId),
-              eq(schema.transactions.recurringId, recurringId),
-            ),
-          )
-          .all()
-          .find((t) => sameCalendarDay(t.date, occurrence));
+    let reconciled = false;
+    if (occurrence) {
+      const materialized = tx
+        .select()
+        .from(schema.transactions)
+        .where(
+          and(
+            eq(schema.transactions.userId, userId),
+            eq(schema.transactions.recurringId, recurringId),
+          ),
+        )
+        .all()
+        .find((t) => sameCalendarDay(t.date, occurrence));
 
-        if (materialized) {
-          this.balance.applyBalanceDelta(
-            tx,
-            userId,
-            materialized.accountId,
-            negateDecimal(this.balance.signedAmount(materialized.type, materialized.amount)),
-          );
-          tx.delete(schema.transactions).where(eq(schema.transactions.id, materialized.id)).run();
-        } else if (rule.nextDate && sameCalendarDay(rule.nextDate, occurrence)) {
-          const advanced = nextOccurrence(occurrence, rule.recurringPattern);
-          const completed = rule.endDate !== null && advanced > rule.endDate;
-          tx.update(schema.recurring)
-            .set({
-              nextDate: completed ? null : advanced,
-              executionCount: rule.executionCount + 1,
-              ...(completed ? { status: 'completed' as const } : {}),
-            })
-            .where(eq(schema.recurring.id, rule.id))
-            .run();
-        }
+      if (materialized) {
+        this.balance.applyBalanceDelta(
+          tx,
+          userId,
+          materialized.accountId,
+          negateDecimal(this.balance.signedAmount(materialized.type, materialized.amount)),
+        );
+        tx.delete(schema.transactions).where(eq(schema.transactions.id, materialized.id)).run();
+        reconciled = true;
+      } else if (rule.nextDate && sameCalendarDay(rule.nextDate, occurrence)) {
+        const advanced = nextOccurrence(occurrence, rule.recurringPattern);
+        const completed = rule.endDate !== null && advanced > rule.endDate;
+        tx.update(schema.recurring)
+          .set({
+            nextDate: completed ? null : advanced,
+            executionCount: rule.executionCount + 1,
+            ...(completed ? { status: 'completed' as const } : {}),
+          })
+          .where(eq(schema.recurring.id, rule.id))
+          .run();
       }
+    }
 
-      tx.update(schema.transactions)
-        .set({ recurringId })
-        .where(eq(schema.transactions.id, transactionId))
-        .run();
-    });
+    tx.update(schema.transactions)
+      .set({ recurringId })
+      .where(eq(schema.transactions.id, transaction.id))
+      .run();
+
+    return reconciled;
   }
 
   /** Desvincula a transação da recorrência (não recria materializada nem retrocede `nextDate`). */
@@ -205,24 +215,13 @@ export class RecurrenceMatchingService {
     transaction: schema.Transaction,
     rule: schema.Recurring,
   ): RecurrenceMatchCandidate | undefined {
-    const template = rule.template as TransactionTemplate;
     const score = computeRecurrenceProbability({
       transactionDescription: transaction.description,
       transactionAmount: transaction.amount,
       transactionDate: transaction.date,
       transactionType: transaction.type,
       transactionAccountId: transaction.accountId,
-      recurring: {
-        name: rule.name,
-        templateDescription: template.description,
-        templateAmount: template.amount,
-        templateType: template.type,
-        templateAccountId: template.accountId,
-        startDate: rule.startDate,
-        endDate: rule.endDate,
-        nextDate: rule.nextDate,
-        recurringPattern: rule.recurringPattern,
-      },
+      recurring: ruleToMatchRule(rule),
     });
     if (score < CANDIDATE_MIN_THRESHOLD) return undefined;
     return {

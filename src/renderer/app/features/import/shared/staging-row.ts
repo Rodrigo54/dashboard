@@ -27,7 +27,5 @@ export function toCommitItem(row: StagingRow, accountId: string): ImportCommitIt
     description: staged.description,
     date: staged.date,
     fingerprint: staged.fingerprint,
-    recurringId: staged.match?.recurringId ?? null,
-    reconcileTransactionId: staged.match?.materializedTransactionId ?? null,
   };
 }

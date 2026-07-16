@@ -3,6 +3,7 @@ import type { RecurringPattern } from '../types';
 import {
   AUTO_LINK_MARGIN,
   AUTO_LINK_THRESHOLD,
+  bestAutoLinkCandidate,
   CANDIDATE_MIN_THRESHOLD,
   computeRecurrenceProbability,
   isAutoLinkCandidate,
@@ -197,5 +198,35 @@ describe('nearestRuleOccurrence', () => {
     const target = new Date(2026, 6, 6);
     const endDate = new Date(2026, 5, 30); // termina antes de julho
     expect(nearestRuleOccurrence(monthly6, startDate, endDate, target)).toBeUndefined();
+  });
+});
+
+describe('bestAutoLinkCandidate', () => {
+  it('retorna undefined para lista vazia', () => {
+    expect(bestAutoLinkCandidate([])).toBeUndefined();
+  });
+
+  it('retorna o valor do único candidato quando ele bate o threshold', () => {
+    expect(bestAutoLinkCandidate([{ value: 'a', score: 0.9 }])).toBe('a');
+  });
+
+  it('retorna undefined quando o melhor não bate o threshold', () => {
+    expect(bestAutoLinkCandidate([{ value: 'a', score: 0.5 }])).toBeUndefined();
+  });
+
+  it('retorna o melhor quando ele abre vantagem suficiente sobre o segundo', () => {
+    const result = bestAutoLinkCandidate([
+      { value: 'b', score: 0.7 },
+      { value: 'a', score: 0.95 },
+    ]);
+    expect(result).toBe('a');
+  });
+
+  it('retorna undefined quando o melhor e o segundo empatam (regras irmãs)', () => {
+    const result = bestAutoLinkCandidate([
+      { value: 'a', score: 0.91 },
+      { value: 'b', score: 0.91 },
+    ]);
+    expect(result).toBeUndefined();
   });
 });

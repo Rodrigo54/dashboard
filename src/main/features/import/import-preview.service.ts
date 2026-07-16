@@ -1,12 +1,19 @@
-import type { ImportDocumentKind, ImportPreview, StagedTransaction } from '@shared/types';
+import { sameCalendarDay } from '@shared/recurrence';
+import { nearestRuleOccurrence } from '@shared/recurrence/matching';
+import type {
+  ImportDocumentKind,
+  ImportMatch,
+  ImportPreview,
+  StagedTransaction,
+} from '@shared/types';
 import { and, eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from '../../database/database.module';
 import { Service } from '../../core/service.decorator';
 import { inject } from '../../core/services.providers';
+import { bestSameAccountRule, type AutoLinkCandidateLine } from './recurrence-auto-link.utils';
 import type { StatementParseOutput } from './bank-parser.service';
 import { CategorizationService } from './categorization.service';
 import { FingerprintService } from './fingerprint.service';
-import { RecurrenceMatcherService } from './recurrence-matcher.service';
 
 const DAY_MS = 86_400_000;
 /** Janela (dias) para parear crédito+débito de mesmo valor como estorno. */
@@ -17,7 +24,6 @@ const REVERSAL_WINDOW_DAYS = 3;
 export class ImportPreviewService {
   private readonly fingerprint = inject(FingerprintService);
   private readonly categorization = inject(CategorizationService);
-  private readonly matcher = inject(RecurrenceMatcherService);
 
   build(userId: string, parsed: StatementParseOutput, accountHintId?: string): ImportPreview {
     const accountId = this.resolveAccount(userId, parsed.bank, parsed.kind, accountHintId);
@@ -34,7 +40,7 @@ export class ImportPreviewService {
       const reversal = reversals.has(index);
       const match =
         accountId && !duplicate
-          ? this.matcher.match(userId, { accountId, ...line }, rules)
+          ? this.computeMatch(userId, { accountId, ...line }, rules)
           : undefined;
       return {
         key: fingerprint,
@@ -59,6 +65,55 @@ export class ImportPreviewService {
       rows,
       reconciliation: parsed.reconciliation,
     };
+  }
+
+  /**
+   * Prévia do que o auto-link do commit fará com esta linha (mesma função de
+   * probabilidade, mesma regra de conta-igual — ver `recurrence-auto-link.utils.ts`).
+   * Só aparece um `match` aqui quando o commit realmente vai vincular sozinho.
+   */
+  private computeMatch(
+    userId: string,
+    line: AutoLinkCandidateLine,
+    rules: readonly schema.Recurring[],
+  ): ImportMatch | undefined {
+    const rule = bestSameAccountRule(line, rules);
+    if (!rule) return undefined;
+
+    const occurrence = nearestRuleOccurrence(
+      rule.recurringPattern,
+      rule.startDate,
+      rule.endDate,
+      line.date,
+    );
+    if (!occurrence) return undefined;
+
+    return {
+      recurringId: rule.id,
+      recurringName: rule.name,
+      occurrenceDate: occurrence,
+      materializedTransactionId: this.findMaterialized(userId, rule.id, occurrence),
+    };
+  }
+
+  /** Id da transação já materializada pela regra na mesma data da ocorrência, se houver. */
+  private findMaterialized(
+    userId: string,
+    recurringId: string,
+    occurrence: Date,
+  ): string | undefined {
+    const db = getDb();
+    return db
+      .select({ id: schema.transactions.id, date: schema.transactions.date })
+      .from(schema.transactions)
+      .where(
+        and(
+          eq(schema.transactions.userId, userId),
+          eq(schema.transactions.recurringId, recurringId),
+        ),
+      )
+      .all()
+      .find((t) => sameCalendarDay(t.date, occurrence))?.id;
   }
 
   private duplicateFlags(
