@@ -167,6 +167,32 @@ describe('forecastRows — exclusões', () => {
     const rule = recurringFixture();
     expect(forecastRows([rule], [], { ...julyFilter, type: 'income' })).toEqual([]);
   });
+
+  it('não duplica a previsão quando a transação vinculada caiu em dia diferente do calculado e nextDate já avançou', () => {
+    // Regressão: regra "1º Parcela do Salário" real — startDate/pattern
+    // calculam dia 6, mas o matching vinculou uma transação de dia 5 (dentro
+    // da tolerância de proximidade de data) e avançou nextDate para o mês
+    // seguinte. Recalcular ocorrências a partir de startDate recriava um
+    // "dia 6" fantasma que não batia com a transação real de dia 5.
+    const rule = recurringFixture({
+      startDate: localDate(2026, 6, 6),
+      nextDate: localDate(2026, 8, 6),
+      executionCount: 2,
+    });
+    const linked = transactionFixture({ recurringId: 'rule-1', date: localDate(2026, 6, 5) });
+    const juneFilter: ForecastFilter = { year: 2026, month: 6 };
+    expect(forecastRows([rule], [linked], juneFilter)).toEqual([]);
+  });
+
+  it('continua prevendo o mês corrente quando nextDate cai dentro dele', () => {
+    const rule = recurringFixture({
+      startDate: localDate(2026, 6, 6),
+      nextDate: localDate(2026, 8, 6),
+      executionCount: 2,
+    });
+    const rows = forecastRows([rule], [], { year: 2026, month: 8 });
+    expect(rows.map((r) => localDateString(r.date))).toEqual(['2026-08-06']);
+  });
 });
 
 describe('nextOccurrences', () => {
@@ -189,6 +215,15 @@ describe('nextOccurrences', () => {
   it('para no endDate, devolvendo menos que `count` se a regra terminar antes', () => {
     const rule = recurringFixture({ endDate: localDate(2026, 9, 5) });
     const dates = nextOccurrences(rule, [], 5, localDate(2026, 7, 10));
+    expect(dates.map(localDateString)).toEqual(['2026-08-05', '2026-09-05']);
+  });
+
+  it('parte de nextDate, não recalcula ocorrências de meses já resolvidos por vínculo', () => {
+    const rule = recurringFixture({
+      startDate: localDate(2026, 1, 5),
+      nextDate: localDate(2026, 8, 5),
+    });
+    const dates = nextOccurrences(rule, [], 2, localDate(2026, 7, 10));
     expect(dates.map(localDateString)).toEqual(['2026-08-05', '2026-09-05']);
   });
 });

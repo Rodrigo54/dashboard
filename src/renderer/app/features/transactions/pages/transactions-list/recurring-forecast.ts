@@ -22,7 +22,12 @@ function templateOf(rule: Recurring): TransactionTemplate {
 /** Ocorrências da regra que caem dentro do mês exibido, respeitando o término. */
 function occurrencesInMonth(rule: Recurring, start: Date, end: Date): Date[] {
   const dates: Date[] = [];
-  let cursor = new Date(rule.startDate);
+  // `nextDate` é a fronteira do que já foi resolvido (materializado ou
+  // vinculado a uma transação real) — partir de `startDate` sempre recriaria
+  // ocorrências mecânicas para períodos já fechados, que não batem
+  // necessariamente com a data real da transação vinculada (o vínculo aceita
+  // proximidade de data, não exige o mesmo dia do calendário).
+  let cursor = new Date(rule.nextDate ?? rule.startDate);
   let steps = 0;
 
   while (cursor < start && steps < MAX_STEPS) {
@@ -103,7 +108,10 @@ export function nextOccurrences(
   from: Date = new Date(),
 ): Date[] {
   const dates: Date[] = [];
-  let cursor = new Date(rule.startDate);
+  // Mesmo motivo do cursor em `occurrencesInMonth`: `nextDate` já reflete o
+  // que foi resolvido, então recomeçar dali evita recalcular (e possivelmente
+  // desalinhar de) ocorrências de períodos já fechados.
+  let cursor = new Date(rule.nextDate ?? rule.startDate);
   let steps = 0;
 
   while (cursor < from && steps < MAX_STEPS) {
