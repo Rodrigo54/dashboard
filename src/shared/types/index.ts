@@ -1,10 +1,5 @@
 import { z } from 'zod';
-import type {
-  AccountProvider,
-  RecurringFrequency,
-  TransactionCategory,
-  TransactionType,
-} from '../enums';
+import type { AccountProvider, TransactionCategory, TransactionType } from '../enums';
 import {
   // Accounts
   accountSchema,
@@ -41,7 +36,6 @@ import {
   importPreviewSchema,
   importCommitItemSchema,
   importCommitSchema,
-  confirmDetectedRecurrenceSchema,
   // Recurring
   recurringSchema,
   // Tags
@@ -234,34 +228,6 @@ export interface ImportCommitResult {
   inserted: number;
   reconciled: number;
   skipped: number;
-}
-
-export type ConfirmDetectedRecurrence = z.infer<typeof confirmDetectedRecurrenceSchema>;
-
-/** Recorrência candidata sugerida pela detecção sobre o histórico. */
-export interface DetectedRecurrence {
-  /** Chave estável da sugestão (deriva do cluster). */
-  key: string;
-  /** Descrição representativa (mais frequente do grupo). */
-  description: string;
-  accountId: string;
-  type: TransactionType;
-  category: TransactionCategory;
-  frequency: RecurringFrequency;
-  interval: number;
-  /** Dia do mês dominante (frequência mensal). */
-  dayOfMonth?: number;
-  /** Dia da semana dominante 0-6 (frequência semanal). */
-  dayOfWeek?: number;
-  averageAmount: string;
-  minAmount: string;
-  maxAmount: string;
-  /** Nº de ocorrências que sustentam o padrão. */
-  occurrences: number;
-  /** Data da primeira ocorrência (âncora do startDate). */
-  startDate: Date;
-  /** Ids das transações do grupo, para o vínculo retroativo. */
-  transactionIds: string[];
 }
 
 // ============================================================

@@ -27,7 +27,7 @@ export interface ControllerChannelMap {
   accounts: CrudAction | 'types' | 'providers' | 'currencies' | 'purge-preview';
   transactions: CrudAction | 'types' | 'categories';
   recurring: Exclude<CrudAction, 'save'> | 'frequencies' | 'pause' | 'resume' | 'materialize';
-  import: 'preview' | 'commit' | 'detect' | 'confirm';
+  import: 'preview' | 'commit';
 }
 
 /** União de todos os canais válidos no formato `controller:action`. */

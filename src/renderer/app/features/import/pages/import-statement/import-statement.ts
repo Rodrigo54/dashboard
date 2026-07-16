@@ -7,7 +7,7 @@ import { FramePaper } from '@/shared/frame/frame-paper';
 import { HlmButton } from '@/shared/spartan/button';
 import { SelectComponent } from '@/shared/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucideCircleCheck, lucideFileText, lucideRepeat } from '@ng-icons/lucide';
+import { lucideArrowLeft, lucideCircleCheck, lucideFileText } from '@ng-icons/lucide';
 import { HlmSpinner } from '@/shared/spartan/spinner';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -44,7 +44,7 @@ function untilMinLoading(startedAt: number): Promise<void> {
     SelectComponent,
     ImportStagingTable,
   ],
-  providers: [provideIcons({ lucideArrowLeft, lucideCircleCheck, lucideFileText, lucideRepeat })],
+  providers: [provideIcons({ lucideArrowLeft, lucideCircleCheck, lucideFileText })],
   template: `
     <div>
       <app-frame-header>
@@ -168,12 +168,6 @@ function untilMinLoading(startedAt: number): Promise<void> {
               (change)="onFile($event)"
             />
           </label>
-          <div class="mt-6 flex justify-center">
-            <button hlmBtn variant="ghost" routerLink="/import/recurrences">
-              <ng-icon name="lucideRepeat" class="text-[length:--spacing(3.5)]" />
-              Detectar recorrências no histórico
-            </button>
-          </div>
           @if (error()) {
             <p class="text-destructive mt-4 text-center">{{ error() }}</p>
           }

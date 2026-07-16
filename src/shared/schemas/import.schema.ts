@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { TRANSACTION_CATEGORIES, TRANSACTION_TYPES } from '../enums';
 import { guid, keysOf, positiveDecimalSchema } from './common.schema';
-import { recurringPatternSchema, transactionTemplateSchema } from './recurring.schema';
 
 // ============================================================
 // Importação de extratos (PDF -> transações)
@@ -37,17 +36,4 @@ export const importCommitItemSchema = z.object({
 
 export const importCommitSchema = z.object({
   items: z.array(importCommitItemSchema),
-});
-
-/**
- * Confirmação de uma recorrência detectada: cria a regra (source `imported`,
- * sem auto-materialização) e vincula retroativamente as transações que a
- * originaram (`transactionIds`).
- */
-export const confirmDetectedRecurrenceSchema = z.object({
-  name: z.string().min(1).max(255),
-  template: transactionTemplateSchema,
-  recurringPattern: recurringPatternSchema,
-  startDate: z.coerce.date(),
-  transactionIds: z.array(guid()).default([]),
 });
