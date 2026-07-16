@@ -141,3 +141,53 @@ describe('ImportStatement — fatura exige conta de crédito', () => {
     expect(fakeImport.commit).not.toHaveBeenCalled();
   });
 });
+
+/** Expõe os signals de loading/preview para inspecionar o piso de tempo. */
+interface LoadingInternals {
+  onFile(event: Event): Promise<void>;
+  loading(): boolean;
+  preview(): ImportPreview | null;
+}
+
+describe('ImportStatement — piso mínimo de loading', () => {
+  it('segura loading e preview por no mínimo 300ms mesmo com o parse voltando na hora', async () => {
+    vi.useFakeTimers();
+    try {
+      const fakeImport = new FakeImportService();
+      fakeImport.preview.mockResolvedValue(invoicePreview());
+      TestBed.configureTestingModule({
+        providers: [
+          provideZonelessChangeDetection(),
+          provideRouter([]),
+          { provide: AccountsService, useValue: new FakeAccountsService() },
+          { provide: TransactionsService, useValue: new FakeTransactionsService() },
+          { provide: ImportService, useValue: fakeImport },
+          { provide: LedgerInvalidationService, useValue: new FakeLedgerInvalidationService() },
+        ],
+      });
+      const component = TestBed.createComponent(ImportStatement)
+        .componentInstance as unknown as LoadingInternals;
+
+      const file = {
+        name: 'fatura.pdf',
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(1)),
+      } as unknown as File;
+      const event = { target: { files: [file], value: '' } } as unknown as Event;
+
+      const done = component.onFile(event);
+
+      // Parse já resolveu (microtasks), mas ainda dentro do piso de 300ms.
+      await vi.advanceTimersByTimeAsync(200);
+      expect(component.loading()).toBe(true);
+      expect(component.preview()).toBeNull();
+
+      // Passado o piso, o preview é revelado e o loading desliga.
+      await vi.advanceTimersByTimeAsync(100);
+      await done;
+      expect(component.loading()).toBe(false);
+      expect(component.preview()).not.toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

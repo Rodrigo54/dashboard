@@ -17,6 +17,20 @@ import { ImportService } from '../../shared/import.service';
 import { toCommitItem, toStagingRow, type StagingRow } from '../../shared/staging-row';
 import { ImportStagingTable, type CellEdit } from './import-staging-table';
 
+/**
+ * Tempo mínimo (ms) que o loading fica visível antes de revelar o preview. O
+ * parse costuma voltar antes disso; segurar o spinner+mensagem por esse piso
+ * evita o flash de um loading que aparece e some no mesmo quadro. Ajustável.
+ */
+const MIN_LOADING_MS = 300;
+
+/** Segura a execução até completar o piso de loading a partir de `startedAt`. */
+function untilMinLoading(startedAt: number): Promise<void> {
+  const remaining = MIN_LOADING_MS - (Date.now() - startedAt);
+  if (remaining <= 0) return Promise.resolve();
+  return new Promise((resolve) => setTimeout(resolve, remaining));
+}
+
 @Component({
   selector: 'app-import-statement',
   imports: [
@@ -228,9 +242,11 @@ export default class ImportStatement {
     this.error.set('');
     this.result.set(null);
     this.loading.set(true);
+    const startedAt = Date.now();
     try {
       const data = new Uint8Array(await file.arrayBuffer());
       const preview = await this.#importService.preview(file.name, data, this.accounts()[0]?.id);
+      await untilMinLoading(startedAt);
       this.fileName.set(file.name);
       this.preview.set(preview);
       this.rows.set(preview.rows.map(toStagingRow));
