@@ -11,7 +11,7 @@
 const DECIMAL_PATTERN = /^-?\d+(\.\d{1,2})?$/;
 
 /** Converte a string decimal canônica em centavos (`"10.5"` -> `1050n`). */
-function toCents(value: string): bigint {
+export function toCents(value: string): bigint {
   if (!DECIMAL_PATTERN.test(value)) {
     throw new Error(`Valor decimal inválido: "${value}" (use o formato "1234.56")`);
   }

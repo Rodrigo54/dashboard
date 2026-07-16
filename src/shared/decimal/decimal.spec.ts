@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { addDecimal, negateDecimal, subtractDecimal } from './index';
+import { addDecimal, negateDecimal, subtractDecimal, toCents } from './index';
 
 describe('addDecimal', () => {
   it('soma decimais canônicos com 2 casas', () => {
@@ -57,5 +57,25 @@ describe('negateDecimal', () => {
   it('zero permanece sem sinal', () => {
     expect(negateDecimal('0')).toBe('0.00');
     expect(negateDecimal('0.00')).toBe('0.00');
+  });
+});
+
+describe('toCents', () => {
+  it('converte decimal com 2 casas em centavos', () => {
+    expect(toCents('10.50')).toBe(1050n);
+  });
+
+  it('normaliza entradas com uma casa ou sem casas decimais', () => {
+    expect(toCents('10.5')).toBe(1050n);
+    expect(toCents('10')).toBe(1000n);
+  });
+
+  it('preserva o sinal negativo', () => {
+    expect(toCents('-10.50')).toBe(-1050n);
+  });
+
+  it('rejeita entradas fora do formato canônico', () => {
+    expect(() => toCents('1,50')).toThrow();
+    expect(() => toCents('1.234')).toThrow();
   });
 });
