@@ -26,7 +26,16 @@ export interface ControllerChannelMap {
   notes: 'list' | 'create';
   accounts: CrudAction | 'types' | 'providers' | 'currencies' | 'purge-preview';
   transactions: CrudAction | 'types' | 'categories';
-  recurring: Exclude<CrudAction, 'save'> | 'frequencies' | 'pause' | 'resume' | 'materialize';
+  recurring:
+    | Exclude<CrudAction, 'save'>
+    | 'frequencies'
+    | 'pause'
+    | 'resume'
+    | 'materialize'
+    | 'matchCandidates'
+    | 'matchCandidatesForTransaction'
+    | 'linkTransaction'
+    | 'unlinkTransaction';
   import: 'preview' | 'commit';
 }
 

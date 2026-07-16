@@ -2,15 +2,24 @@ import { enumOptions, RECURRING_FREQUENCIES } from '@shared/enums';
 import { nextOccurrenceOnOrAfter } from '@shared/recurrence';
 import {
   createRecurringSchema,
+  linkTransactionSchema,
+  matchMonthSchema,
   transactionTemplateSchema,
   updateRecurringSchema,
   uuidSchema,
 } from '@shared/schemas';
-import type { CreateRecurring, TransactionTemplate, UpdateRecurring, UUID } from '@shared/types';
+import type {
+  CreateRecurring,
+  RecurrenceMatchCandidate,
+  TransactionTemplate,
+  UpdateRecurring,
+  UUID,
+} from '@shared/types';
 import { and, desc, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getDb, schema } from '../../database/database.module';
 import { inject } from '../../core/services.providers';
+import { RecurrenceMatchingService } from './recurrence-matching.service';
 import { RecurringMaterializerService } from './recurring-materializer.service';
 import { TransactionRulesService } from '../transactions/transaction-rules.service';
 import {
@@ -28,11 +37,15 @@ import { requireCurrentUser } from '../../core/session';
  * CRUD das regras de recorrência de transações. Esta feature gerencia apenas
  * `type: 'transaction'`; recorrências de tarefa ficam para a feature de tasks.
  * Toda mutação dispara o materializador para refletir ocorrências vencidas.
+ * `matchCandidates*`/`(un)linkTransaction` expõem o matching por
+ * probabilidade (`RecurrenceMatchingService`) para a tela de detecção e a
+ * transactions-view.
  */
 @Controller('recurring')
 export class RecurringController {
   private readonly materializer = inject(RecurringMaterializerService);
   private readonly rules = inject(TransactionRulesService);
+  private readonly matching = inject(RecurrenceMatchingService);
 
   /** Narra o template como o de transação e valida o escopo atual. */
   private parseTransactionTemplate(template: unknown): TransactionTemplate {
@@ -197,6 +210,40 @@ export class RecurringController {
 
     const created = this.materializer.materializeRuleUntil(user.id, id, until);
     return { id, created };
+  }
+
+  /** Melhor candidato por transação sem vínculo no mês informado (tela de detecção). */
+  @action('matchCandidates')
+  async matchCandidates(rawFilter: unknown): Promise<RecurrenceMatchCandidate[]> {
+    const { year, month } = matchMonthSchema.parse(rawFilter);
+    const user = requireCurrentUser();
+    return this.matching.findMatchCandidates(user.id, year, month);
+  }
+
+  /** Todos os candidatos de uma transação específica (transactions-view). */
+  @action('matchCandidatesForTransaction')
+  async matchCandidatesForTransaction(rawId: unknown): Promise<RecurrenceMatchCandidate[]> {
+    const transactionId = uuidSchema.parse(rawId) as UUID;
+    const user = requireCurrentUser();
+    return this.matching.findCandidatesForTransaction(user.id, transactionId);
+  }
+
+  /** Vincula a transação a uma regra existente (merge completo — ver o service). */
+  @action('linkTransaction')
+  async linkTransaction(rawData: unknown): Promise<{ transactionId: UUID }> {
+    const { transactionId, recurringId } = linkTransactionSchema.parse(rawData);
+    const user = requireCurrentUser();
+    this.matching.linkTransaction(user.id, transactionId, recurringId);
+    return { transactionId: transactionId as UUID };
+  }
+
+  /** Desvincula a transação da recorrência. */
+  @action('unlinkTransaction')
+  async unlinkTransaction(rawId: unknown): Promise<{ transactionId: UUID }> {
+    const transactionId = uuidSchema.parse(rawId) as UUID;
+    const user = requireCurrentUser();
+    this.matching.unlinkTransaction(user.id, transactionId);
+    return { transactionId };
   }
 
   @remove
