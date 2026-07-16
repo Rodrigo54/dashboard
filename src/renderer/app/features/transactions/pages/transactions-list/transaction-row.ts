@@ -5,7 +5,7 @@ import { HlmButton } from '@/shared/spartan/button';
 import { HlmTableImports } from '@/shared/spartan/table';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideCircleCheck,
@@ -27,7 +27,7 @@ import type { LedgerRow } from './ledger-row';
  */
 @Component({
   selector: 'tr[appTransactionRow]',
-  host: { '[class]': 'rowClass()' },
+  host: { '[class]': 'rowClass()', '(click)': 'onRowClick()' },
   imports: [...HlmTableImports, HlmBadge, HlmButton, NgIcon, RouterLink, CurrencyPipe, DatePipe],
   providers: [
     provideIcons({
@@ -68,7 +68,7 @@ import type { LedgerRow } from './ledger-row';
     <td hlmTd class="text-right tabular-nums" [class]="amountClass()">
       {{ signedAmount() | currency: accountCurrency() }}
     </td>
-    <td hlmTd>
+    <td hlmTd (click)="$event.stopPropagation()">
       <div class="flex flex-row items-center justify-center gap-2">
         @if (row().kind === 'forecast' && row().rule; as rule) {
           @if (rule.status === 'active') {
@@ -115,7 +115,7 @@ import type { LedgerRow } from './ledger-row';
             hlmBtn
             variant="ghost"
             size="icon-sm"
-            [routerLink]="['/transactions', transaction.id]"
+            [routerLink]="['/transactions/edit', transaction.id]"
             aria-label="Editar transação"
           >
             <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
@@ -143,10 +143,18 @@ export class TransactionRow {
   readonly #transactionsService = inject(TransactionsService);
   readonly #recurringService = inject(RecurringService);
   readonly #ledgerInvalidation = inject(LedgerInvalidationService);
+  readonly #router = inject(Router);
 
   protected readonly rowClass = computed(() =>
-    this.row().kind === 'forecast' ? 'bg-muted/20' : '',
+    this.row().kind === 'forecast' ? 'bg-muted/20' : 'cursor-pointer',
   );
+
+  /** Só linhas reais navegam para a view — previsão não tem transação pra ver. */
+  protected onRowClick(): void {
+    const transaction = this.row().transaction;
+    if (!transaction) return;
+    void this.#router.navigate(['/transactions/view', transaction.id]);
+  }
 
   protected readonly dateCellClass = computed(() =>
     this.row().kind === 'forecast'

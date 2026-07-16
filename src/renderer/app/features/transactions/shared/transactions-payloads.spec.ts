@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { RecurringFormModel } from '@/features/recurring/pages/recurring-form/recurring-form';
-import { buildCreateRecurringFromRule } from './transactions-payloads';
+import type { Transaction } from '@shared/types';
+import { buildCreateRecurringFromRule, buildRecurringPrefillParams } from './transactions-payloads';
 
 function modelFixture(overrides: Partial<RecurringFormModel> = {}): RecurringFormModel {
   return {
@@ -47,5 +48,25 @@ describe('buildCreateRecurringFromRule', () => {
       modelFixture({ frequency: 'weekly', startDate: '2026-07-06' }), // segunda-feira
     );
     expect(payload.recurringPattern).toMatchObject({ frequency: 'weekly', dayOfWeek: 1 });
+  });
+});
+
+describe('buildRecurringPrefillParams', () => {
+  it('extrai os campos usados pelo prefill do recurring-form', () => {
+    const transaction = {
+      accountId: 'acc-1',
+      type: 'expense',
+      category: 'food',
+      amount: '42.50',
+      description: 'IFOOD LANCHONETE',
+    } as Transaction;
+
+    expect(buildRecurringPrefillParams(transaction)).toEqual({
+      accountId: 'acc-1',
+      type: 'expense',
+      category: 'food',
+      amount: '42.50',
+      description: 'IFOOD LANCHONETE',
+    });
   });
 });

@@ -99,7 +99,7 @@ import { AccountCleanupDialog, type AccountCleanupContext } from './account-clea
                           hlmBtn
                           variant="ghost"
                           size="icon-sm"
-                          [routerLink]="['/accounts', account.id]"
+                          [routerLink]="['/accounts/edit', account.id]"
                           aria-label="Editar conta"
                         >
                           <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />

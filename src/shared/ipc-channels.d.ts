@@ -25,7 +25,7 @@ export interface ControllerChannelMap {
   application: 'env' | 'info';
   notes: 'list' | 'create';
   accounts: CrudAction | 'types' | 'providers' | 'currencies' | 'purge-preview';
-  transactions: CrudAction | 'types' | 'categories';
+  transactions: CrudAction | 'types' | 'categories' | 'byRecurring';
   recurring:
     | Exclude<CrudAction, 'save'>
     | 'frequencies'

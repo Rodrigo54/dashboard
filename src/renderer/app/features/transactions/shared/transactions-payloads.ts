@@ -3,6 +3,7 @@ import type {
   CreateRecurring,
   CreateTransaction,
   RecurringPattern,
+  Transaction,
   TransactionTemplate,
   UpdateRecurring,
   UUID,
@@ -85,5 +86,22 @@ export function buildCreateRecurringFromRule(model: RecurringFormModel): CreateR
     recurringPattern: buildPattern(model.frequency, startDate),
     startDate,
     ...(model.endDate ? { endDate: fromDateInputValue(model.endDate) } : {}),
+  };
+}
+
+/**
+ * Query params do fluxo "Criar recorrência a partir desta transação"
+ * (transactions-form/-view -> `/recurring/new`). As chaves batem exatamente
+ * com o que `RecurringForm#buildInitialModel` lê.
+ */
+export function buildRecurringPrefillParams(
+  source: Pick<Transaction, 'accountId' | 'type' | 'category' | 'amount' | 'description'>,
+): Record<string, string> {
+  return {
+    accountId: source.accountId,
+    type: source.type,
+    category: source.category,
+    amount: source.amount,
+    description: source.description,
   };
 }

@@ -12,17 +12,22 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required, submit, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
-import type { RecurringFrequency, TransactionType } from '@shared/enums';
+import type { RecurringFrequency, TransactionCategory, TransactionType } from '@shared/enums';
 import { positiveDecimalSchema } from '@shared/schemas';
-import type { UUID } from '@shared/types';
+import type { Recurring, UUID } from '@shared/types';
 import { toDateInputValue } from '../../shared/date-input.utils';
 import { LedgerInvalidationService } from '../../shared/ledger-invalidation.service';
+import { RecurringRuleSummary } from '../../shared/recurring-rule-summary';
 import {
   fieldErrorOf,
   TransactionFormFieldsService,
   type TransactionCoreFields,
 } from '../../shared/transaction-form-fields.service';
-import { buildCreateRecurring, buildCreateTransaction } from '../../shared/transactions-payloads';
+import {
+  buildCreateRecurring,
+  buildCreateTransaction,
+  buildRecurringPrefillParams,
+} from '../../shared/transactions-payloads';
 import { TransactionsService } from '../../shared/transactions.service';
 
 /** Modelo do form: datas como string de `<input type="date">`. */
@@ -48,6 +53,7 @@ export interface TransactionFormModel extends TransactionCoreFields {
     HlmButton,
     SelectComponent,
     CurrencyInputComponent,
+    RecurringRuleSummary,
   ],
   providers: [provideIcons({ lucideArrowRightLeft })],
   template: `
@@ -132,6 +138,24 @@ export interface TransactionFormModel extends TransactionCoreFields {
               }
             </div>
 
+            @if (isEdit()) {
+              <div class="col-span-6">
+                @if (linkedRule(); as rule) {
+                  <app-recurring-rule-summary [rule]="rule" />
+                } @else {
+                  <button
+                    type="button"
+                    hlmBtn
+                    variant="outline"
+                    size="sm"
+                    (click)="createRecurring()"
+                  >
+                    Criar recorrência a partir desta transação
+                  </button>
+                }
+              </div>
+            }
+
             @if (!isEdit()) {
               <div class="col-span-6 flex items-center gap-3">
                 <input
@@ -210,6 +234,9 @@ export class TransactionsForm {
   protected readonly categoryOptions = this.#formFields.categoryOptions(this.model);
   protected readonly accountItems = this.#formFields.accountItems();
 
+  /** Regra vinculada à transação em edição, se houver — bloco somente-leitura. */
+  protected readonly linkedRule = signal<Recurring | undefined>(undefined);
+
   protected readonly transactionForm = form(this.model, (schemaPath) => {
     required(schemaPath.accountId, { message: 'A conta é obrigatória' });
     required(schemaPath.category, { message: 'A categoria é obrigatória' });
@@ -236,6 +263,20 @@ export class TransactionsForm {
       description: transaction.description,
       date: toDateInputValue(new Date(transaction.date)),
     }));
+    if (transaction.recurringId) {
+      this.linkedRule.set(await this.recurringService.findOne(transaction.recurringId));
+    }
+  }
+
+  /** Navega para `/recurring/new` prefilado com os dados desta transação. */
+  protected async createRecurring(): Promise<void> {
+    const model = this.model();
+    await this.#router.navigate(['/recurring/new'], {
+      queryParams: buildRecurringPrefillParams({
+        ...model,
+        category: model.category as TransactionCategory,
+      }),
+    });
   }
 
   protected onSubmit(): void {

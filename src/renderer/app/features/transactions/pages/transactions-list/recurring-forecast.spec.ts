@@ -1,6 +1,6 @@
 import type { Recurring, Transaction } from '@shared/types';
 import { describe, expect, it } from 'vitest';
-import { forecastRows, type ForecastFilter } from './recurring-forecast';
+import { forecastRows, nextOccurrences, type ForecastFilter } from './recurring-forecast';
 
 /**
  * `nextOccurrence`/`addMonthsClamped` trabalham em horário local — datas de
@@ -166,5 +166,29 @@ describe('forecastRows — exclusões', () => {
   it('exclui regras de outro tipo quando o filtro de tipo está ativo', () => {
     const rule = recurringFixture();
     expect(forecastRows([rule], [], { ...julyFilter, type: 'income' })).toEqual([]);
+  });
+});
+
+describe('nextOccurrences', () => {
+  it('retorna as próximas N ocorrências a partir de `from`, cruzando meses', () => {
+    const rule = recurringFixture(); // mensal, dia 5, desde jan/2026
+    const dates = nextOccurrences(rule, [], 3, localDate(2026, 7, 10));
+    expect(dates.map(localDateString)).toEqual(['2026-08-05', '2026-09-05', '2026-10-05']);
+  });
+
+  it('pula ocorrências futuras já materializadas manualmente', () => {
+    const rule = recurringFixture();
+    const materialized: Transaction = {
+      recurringId: 'rule-1',
+      date: localDate(2026, 8, 5),
+    } as Transaction;
+    const dates = nextOccurrences(rule, [materialized], 2, localDate(2026, 7, 10));
+    expect(dates.map(localDateString)).toEqual(['2026-09-05', '2026-10-05']);
+  });
+
+  it('para no endDate, devolvendo menos que `count` se a regra terminar antes', () => {
+    const rule = recurringFixture({ endDate: localDate(2026, 9, 5) });
+    const dates = nextOccurrences(rule, [], 5, localDate(2026, 7, 10));
+    expect(dates.map(localDateString)).toEqual(['2026-08-05', '2026-09-05']);
   });
 });

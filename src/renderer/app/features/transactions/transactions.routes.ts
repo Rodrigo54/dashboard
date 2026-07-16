@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import TransactionsList from './pages/transactions-list/transactions-list';
 import { TransactionsForm } from './pages/transactions-form/transactions-form';
+import TransactionsView from './pages/transactions-view/transactions-view';
 
 const routes: Routes = [
   {
@@ -13,9 +14,14 @@ const routes: Routes = [
     data: { breadcrumb: 'Nova Transação' },
   },
   {
-    path: ':transactionId',
+    path: 'edit/:transactionId',
     component: TransactionsForm,
     data: { breadcrumb: 'Editar Transação' },
+  },
+  {
+    path: 'view/:transactionId',
+    component: TransactionsView,
+    data: { breadcrumb: 'Transação' },
   },
 ];
 

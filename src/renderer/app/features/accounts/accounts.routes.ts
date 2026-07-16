@@ -13,7 +13,7 @@ const routes: Routes = [
     data: { breadcrumb: 'Nova Conta' },
   },
   {
-    path: ':accountId',
+    path: 'edit/:accountId',
     component: AccountsForm,
     data: { breadcrumb: 'Editar Conta' },
   },

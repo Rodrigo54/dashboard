@@ -88,3 +88,38 @@ export function forecastRows(
 
   return rows;
 }
+
+/**
+ * Próximas `count` ocorrências previstas da regra a partir de `from` (hoje,
+ * por padrão), pulando as já materializadas — usada pela transactions-view
+ * para mostrar o que vem a seguir, independente de mês. Mesmo motor de
+ * `forecastRows` (`nextOccurrence`), só que com corte por contagem em vez de
+ * limite de calendário.
+ */
+export function nextOccurrences(
+  rule: Recurring,
+  transactions: readonly Transaction[],
+  count: number,
+  from: Date = new Date(),
+): Date[] {
+  const dates: Date[] = [];
+  let cursor = new Date(rule.startDate);
+  let steps = 0;
+
+  while (cursor < from && steps < MAX_STEPS) {
+    cursor = nextOccurrence(cursor, rule.recurringPattern);
+    steps += 1;
+  }
+
+  while (dates.length < count && steps < MAX_STEPS) {
+    if (rule.endDate && cursor > rule.endDate) break;
+    const materialized = transactions.some(
+      (t) => t.recurringId === rule.id && sameCalendarDay(new Date(t.date), cursor),
+    );
+    if (!materialized) dates.push(new Date(cursor));
+    cursor = nextOccurrence(cursor, rule.recurringPattern);
+    steps += 1;
+  }
+
+  return dates;
+}

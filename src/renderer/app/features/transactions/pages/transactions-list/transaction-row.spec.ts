@@ -2,7 +2,7 @@ import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { RecurringService } from '@/features/recurring/shared/recurring.service';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import type { Account, Recurring, Transaction } from '@shared/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { type CategoryOptions, TransactionsService } from '../../shared/transactions.service';
@@ -141,10 +141,12 @@ function setup(row: LedgerRow) {
       { provide: RecurringService, useValue: fakeRecurring },
     ],
   });
+  const router = TestBed.inject(Router);
+  vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(TransactionRow);
   fixture.componentRef.setInput('row', row);
   fixture.detectChanges();
-  return { fixture, fakeAccounts, fakeTransactions, fakeRecurring };
+  return { fixture, fakeAccounts, fakeTransactions, fakeRecurring, router };
 }
 
 describe('TransactionRow — apresentação', () => {
@@ -265,5 +267,32 @@ describe('TransactionRow — ações', () => {
     await fixture.whenStable();
 
     expect(fakeTransactions.delete).not.toHaveBeenCalled();
+  });
+});
+
+describe('TransactionRow — clique na linha', () => {
+  it('linha real navega para a view da transação', () => {
+    const { fixture, router } = setup(transactionRowFixture());
+    (fixture.nativeElement as HTMLElement).click();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/transactions/view', 't-1']);
+  });
+
+  it('linha de previsão não navega (não há transação real pra ver)', () => {
+    const { fixture, router } = setup(forecastRowFixture());
+    (fixture.nativeElement as HTMLElement).click();
+
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('clicar em apagar não também navega pra view (stopPropagation)', async () => {
+    const { fixture, router } = setup(transactionRowFixture());
+    const button = fixture.nativeElement.querySelector<HTMLButtonElement>(
+      '[aria-label="Apagar transação"]',
+    );
+    button?.click();
+    await fixture.whenStable();
+
+    expect(router.navigate).not.toHaveBeenCalledWith(['/transactions/view', 't-1']);
   });
 });

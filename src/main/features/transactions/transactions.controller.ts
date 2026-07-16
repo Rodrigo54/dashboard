@@ -13,6 +13,7 @@ import {
 } from '@shared/schemas';
 import type { CreateTransaction, UpdateTransaction, UUID } from '@shared/types';
 import { and, desc, eq, gte, lt, type SQL } from 'drizzle-orm';
+import { z } from 'zod';
 import { getDb, schema } from '../../database/database.module';
 import { inject } from '../../core/services.providers';
 import { AccountBalanceService } from '../accounts/account-balance.service';
@@ -45,6 +46,34 @@ export class TransactionsController {
       income: enumOptions(INCOME_CATEGORIES),
       expense: enumOptions(EXPENSE_CATEGORIES),
     };
+  }
+
+  /** Transações reais de uma recorrência, mais recentes primeiro — a transactions-view usa
+   * para o histórico e para não sugerir como previsão uma ocorrência futura já materializada
+   * manualmente. */
+  @action('byRecurring')
+  async byRecurring(payload: {
+    recurringId: unknown;
+    limit?: unknown;
+  }): Promise<schema.Transaction[]> {
+    const recurringId = uuidSchema.parse(payload.recurringId) as UUID;
+    const limit = payload.limit
+      ? z.coerce.number().int().positive().max(200).parse(payload.limit)
+      : 100;
+    const user = requireCurrentUser();
+    const db = getDb();
+    return db
+      .select()
+      .from(schema.transactions)
+      .where(
+        and(
+          eq(schema.transactions.userId, user.id),
+          eq(schema.transactions.recurringId, recurringId),
+        ),
+      )
+      .orderBy(desc(schema.transactions.date))
+      .limit(limit)
+      .all();
   }
 
   @list

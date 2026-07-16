@@ -83,6 +83,11 @@ export class TransactionsService {
     return invoke<Transaction>('transactions:read', id);
   }
 
+  /** Transações reais de uma recorrência, mais recentes primeiro (transactions-view). */
+  byRecurring(recurringId: UUID, limit?: number): Promise<Transaction[]> {
+    return invoke<Transaction[]>('transactions:byRecurring', { recurringId, limit });
+  }
+
   /** Upsert: cria quando `id` é omitido, atualiza quando informado. */
   save(data: CreateTransaction | UpdateTransaction, id?: UUID): Promise<Transaction> {
     return invoke<Transaction>('transactions:save', { id, data });
