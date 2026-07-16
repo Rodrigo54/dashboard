@@ -1,8 +1,8 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
+import { RecurringService } from '@/features/recurring/shared/recurring.service';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LedgerInvalidationService } from './ledger-invalidation.service';
-import { RecurringService } from './recurring.service';
 import { TransactionsService } from './transactions.service';
 
 class FakeTransactionsService {

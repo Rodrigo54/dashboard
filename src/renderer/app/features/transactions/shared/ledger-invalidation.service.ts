@@ -1,6 +1,6 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
+import { RecurringService } from '@/features/recurring/shared/recurring.service';
 import { inject, Injectable } from '@angular/core';
-import { RecurringService } from './recurring.service';
 import { TransactionsService } from './transactions.service';
 
 /**

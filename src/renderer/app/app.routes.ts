@@ -37,6 +37,11 @@ export const routes: Routes = [
         data: { breadcrumb: 'Transações' },
       },
       {
+        path: 'recurring',
+        loadChildren: () => import('./features/recurring/recurring.routes'),
+        data: { breadcrumb: 'Recorrências' },
+      },
+      {
         path: 'import',
         loadChildren: () => import('./features/import/import.routes'),
         data: { breadcrumb: 'Importar Extrato' },

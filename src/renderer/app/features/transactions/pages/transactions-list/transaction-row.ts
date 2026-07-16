@@ -1,4 +1,5 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
+import { RecurringService } from '@/features/recurring/shared/recurring.service';
 import { HlmBadge } from '@/shared/spartan/badge';
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmTableImports } from '@/shared/spartan/table';
@@ -16,7 +17,6 @@ import {
 } from '@ng-icons/lucide';
 import type { Recurring, Transaction } from '@shared/types';
 import { LedgerInvalidationService } from '../../shared/ledger-invalidation.service';
-import { RecurringService } from '../../shared/recurring.service';
 import { TransactionsService } from '../../shared/transactions.service';
 import type { LedgerRow } from './ledger-row';
 
@@ -105,7 +105,7 @@ import type { LedgerRow } from './ledger-row';
             hlmBtn
             variant="ghost"
             size="icon-sm"
-            [routerLink]="['/transactions/recurring', rule.id]"
+            [routerLink]="['/recurring/edit', rule.id]"
             aria-label="Editar recorrência"
           >
             <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />

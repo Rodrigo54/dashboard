@@ -7,8 +7,8 @@ import type {
   UpdateRecurring,
   UUID,
 } from '@shared/types';
+import type { RecurringFormModel } from '@/features/recurring/pages/recurring-form/recurring-form';
 import { fromDateInputValue } from './date-input.utils';
-import type { RecurringFormModel } from '../pages/recurring-form/recurring-form';
 import type { TransactionFormModel } from '../pages/transactions-form/transactions-form';
 
 /** Converte o modelo do form no payload de `transactions:create`/`save`. */
@@ -72,5 +72,18 @@ export function buildUpdateRecurring(model: RecurringFormModel): UpdateRecurring
     recurringPattern: buildPattern(model.frequency, startDate),
     startDate,
     endDate: model.endDate ? fromDateInputValue(model.endDate) : null,
+  };
+}
+
+/** Converte o modelo do recurring-form (criação) no payload de `recurring:create`. */
+export function buildCreateRecurringFromRule(model: RecurringFormModel): CreateRecurring {
+  const startDate = fromDateInputValue(model.startDate);
+  return {
+    type: 'transaction',
+    name: model.name,
+    template: buildTemplate(model),
+    recurringPattern: buildPattern(model.frequency, startDate),
+    startDate,
+    ...(model.endDate ? { endDate: fromDateInputValue(model.endDate) } : {}),
   };
 }

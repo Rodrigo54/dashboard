@@ -1,3 +1,4 @@
+import { RecurringService } from '@/features/recurring/shared/recurring.service';
 import { CurrencyInputComponent } from '@/shared/currency-input';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
@@ -16,7 +17,6 @@ import { positiveDecimalSchema } from '@shared/schemas';
 import type { UUID } from '@shared/types';
 import { toDateInputValue } from '../../shared/date-input.utils';
 import { LedgerInvalidationService } from '../../shared/ledger-invalidation.service';
-import { RecurringService } from '../../shared/recurring.service';
 import {
   fieldErrorOf,
   TransactionFormFieldsService,

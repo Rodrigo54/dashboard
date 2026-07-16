@@ -1,4 +1,5 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
+import { RecurringService } from '@/features/recurring/shared/recurring.service';
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmEmptyImports } from '@/shared/spartan/empty';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -15,7 +16,6 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { RouterLink } from '@angular/router';
 import type { TransactionType } from '@shared/enums';
 import type { UUID } from '@shared/types';
-import { RecurringService } from '../../shared/recurring.service';
 import { TransactionsService } from '../../shared/transactions.service';
 import { byDateThenForecast, transactionToRow, type LedgerRow } from './ledger-row';
 import { forecastRows } from './recurring-forecast';

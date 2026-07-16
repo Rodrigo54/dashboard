@@ -11,6 +11,7 @@ import {
   lucideHouse,
   lucideInbox,
   lucideLandmark,
+  lucideRepeat,
   lucideSearch,
   lucideSettings,
   lucideUser,
@@ -36,6 +37,7 @@ interface MenuItem {
       lucideHouse,
       lucideInbox,
       lucideLandmark,
+      lucideRepeat,
       lucideSearch,
       lucideSettings,
       lucideUser,
@@ -105,6 +107,7 @@ export class FrameSidebar {
   mainMenuItems: MenuItem[] = [
     { icon: 'lucideLandmark', label: 'Contas', link: '/accounts' },
     { icon: 'lucideBookOpen', label: 'Transações', link: '/transactions' },
+    { icon: 'lucideRepeat', label: 'Recorrências', link: '/recurring' },
     { icon: 'lucideFileText', label: 'Importar Extrato', link: '/import' },
 
     { icon: 'lucideInbox', label: 'Inbox', link: '/inbox' },

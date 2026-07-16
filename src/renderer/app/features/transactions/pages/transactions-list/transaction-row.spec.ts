@@ -1,10 +1,10 @@
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
+import { RecurringService } from '@/features/recurring/shared/recurring.service';
 import { provideZonelessChangeDetection, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import type { Account, Recurring, Transaction } from '@shared/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { RecurringService } from '../../shared/recurring.service';
 import { type CategoryOptions, TransactionsService } from '../../shared/transactions.service';
 import type { LedgerRow } from './ledger-row';
 import { TransactionRow } from './transaction-row';

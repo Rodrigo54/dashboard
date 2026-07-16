@@ -7,25 +7,28 @@ import { HlmInput } from '@/shared/spartan/input';
 import { SelectComponent } from '@/shared/select';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideRepeat } from '@ng-icons/lucide';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required, submit, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import type { RecurringFrequency } from '@shared/enums';
 import { positiveDecimalSchema } from '@shared/schemas';
 import type { TransactionTemplate, UUID } from '@shared/types';
-import { toDateInputValue } from '../../shared/date-input.utils';
-import { LedgerInvalidationService } from '../../shared/ledger-invalidation.service';
-import { RecurringService } from '../../shared/recurring.service';
+import { toDateInputValue } from '@/features/transactions/shared/date-input.utils';
+import { LedgerInvalidationService } from '@/features/transactions/shared/ledger-invalidation.service';
 import {
   fieldErrorOf,
   TransactionFormFieldsService,
   type TransactionCoreFields,
-} from '../../shared/transaction-form-fields.service';
-import { buildUpdateRecurring } from '../../shared/transactions-payloads';
-import { TransactionsService } from '../../shared/transactions.service';
+} from '@/features/transactions/shared/transaction-form-fields.service';
+import {
+  buildCreateRecurringFromRule,
+  buildUpdateRecurring,
+} from '@/features/transactions/shared/transactions-payloads';
+import { TransactionsService } from '@/features/transactions/shared/transactions.service';
+import { RecurringService } from '../../shared/recurring.service';
 
-/** Modelo do form de edição de regra: datas como string de `<input type="date">`. */
+/** Modelo do form de criação/edição de regra: datas como string de `<input type="date">`. */
 export interface RecurringFormModel extends TransactionCoreFields {
   name: string;
   amount: string;
@@ -54,9 +57,13 @@ export interface RecurringFormModel extends TransactionCoreFields {
     <div>
       <app-frame-header>
         <ng-icon slot="icon" name="lucideRepeat" class="text-[length:--spacing(12)]" />
-        <h1 slot="title">Editar Recorrência</h1>
+        <h1 slot="title">{{ isEdit() ? 'Editar Recorrência' : 'Nova Recorrência' }}</h1>
         <p slot="subtitle">
-          As alterações valem para os próximos lançamentos; os já gerados não mudam
+          {{
+            isEdit()
+              ? 'As alterações valem para os próximos lançamentos; os já gerados não mudam'
+              : 'Ocorrências já vencidas (início no passado) são lançadas na hora'
+          }}
         </p>
       </app-frame-header>
       <app-frame-paper>
@@ -163,7 +170,7 @@ export interface RecurringFormModel extends TransactionCoreFields {
 
             <div class="col-span-6 flex flex-row-reverse gap-6">
               <button type="submit" hlmBtn variant="default" [disabled]="recurringForm().invalid()">
-                Salvar
+                {{ isEdit() ? 'Salvar' : 'Criar Recorrência' }}
               </button>
               <button type="button" hlmBtn variant="outline" (click)="cancel()">Cancelar</button>
             </div>
@@ -183,19 +190,11 @@ export class RecurringForm {
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
-  readonly #recurringId = this.#route.snapshot.paramMap.get('recurringId') as UUID;
+  /** `null` na rota `new`; o UUID da regra na rota `edit/:recurringId`. */
+  readonly #recurringId = this.#route.snapshot.paramMap.get('recurringId') as UUID | null;
+  protected readonly isEdit = computed(() => this.#recurringId !== null);
 
-  protected readonly model = signal<RecurringFormModel>({
-    name: '',
-    accountId: '',
-    type: 'expense',
-    category: '',
-    amount: '',
-    description: '',
-    frequency: 'monthly',
-    startDate: toDateInputValue(new Date()),
-    endDate: '',
-  });
+  protected readonly model = signal<RecurringFormModel>(this.#buildInitialModel());
 
   protected readonly currencySymbol = this.#formFields.currencySymbol(this.model);
   protected readonly categoryOptions = this.#formFields.categoryOptions(this.model);
@@ -212,8 +211,30 @@ export class RecurringForm {
   });
 
   constructor() {
-    void this.#loadRule(this.#recurringId);
+    if (this.#recurringId) void this.#loadRule(this.#recurringId);
     this.#formFields.wireCategoryReset(this.model);
+  }
+
+  /**
+   * Modo criação: prefill via query params (fluxo "Criar recorrência a
+   * partir desta transação" da transactions-view/-form) — frequência e
+   * datas ficam sempre a critério do usuário, nunca vêm de query param.
+   */
+  #buildInitialModel(): RecurringFormModel {
+    const qp = this.#route.snapshot.queryParamMap;
+    const description = qp.get('description') ?? '';
+    const type = qp.get('type') === 'income' ? 'income' : 'expense';
+    return {
+      name: description,
+      accountId: qp.get('accountId') ?? '',
+      type,
+      category: qp.get('category') ?? '',
+      amount: qp.get('amount') ?? '',
+      description,
+      frequency: 'monthly',
+      startDate: toDateInputValue(new Date()),
+      endDate: '',
+    };
   }
 
   async #loadRule(id: UUID): Promise<void> {
@@ -235,8 +256,12 @@ export class RecurringForm {
 
   protected onSubmit(): void {
     submit(this.recurringForm, async () => {
-      await this.recurringService.update(this.#recurringId, buildUpdateRecurring(this.model()));
-      // A atualização pode materializar ocorrências e mexer em saldos.
+      if (this.#recurringId) {
+        await this.recurringService.update(this.#recurringId, buildUpdateRecurring(this.model()));
+      } else {
+        await this.recurringService.create(buildCreateRecurringFromRule(this.model()));
+      }
+      // A mutação pode materializar ocorrências vencidas e mexer em saldos.
       this.#ledgerInvalidation.reloadRules();
       this.#ledgerInvalidation.reloadBalanceAffectingData();
       await this.#router.navigate(['/transactions']);

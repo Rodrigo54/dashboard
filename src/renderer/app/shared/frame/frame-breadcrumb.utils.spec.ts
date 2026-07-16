@@ -61,17 +61,15 @@ describe('buildBreadcrumbs', () => {
     ]);
   });
 
-  it('monta um único crumb para rotas com path composto (ex.: recurring/:id)', () => {
+  it('monta um único crumb para rotas com path composto (ex.: edit/:id)', () => {
     const root = node('', {}, [
-      node('transactions', { breadcrumb: 'Transações' }, [
-        node('recurring/7', { breadcrumb: 'Recorrência' }),
-      ]),
+      node('accounts', { breadcrumb: 'Contas' }, [node('edit/7', { breadcrumb: 'Editar Conta' })]),
     ]);
 
     expect(buildBreadcrumbs(root)).toEqual([
       { label: 'Home', url: '/home' },
-      { label: 'Transações', url: '/transactions' },
-      { label: 'Recorrência', url: '/transactions/recurring/7' },
+      { label: 'Contas', url: '/accounts' },
+      { label: 'Editar Conta', url: '/accounts/edit/7' },
     ]);
   });
 
