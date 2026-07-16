@@ -68,18 +68,19 @@ function addDays(date: Date, days: number): Date {
 }
 
 /**
- * Menor distância (em dias) entre `target` e uma ocorrência do padrão,
- * dentro de uma janela de busca de `DATE_DECAY_LIMIT_DAYS` para cada lado.
- * Reconstrói a cadência a partir do `startDate` (ignora `nextDate`): o
- * matching quer saber a proximidade com o *padrão*, não com o estado de
- * materialização já avançado da regra.
+ * Ocorrência do padrão mais próxima de `target`, dentro de uma janela de
+ * busca de `DATE_DECAY_LIMIT_DAYS` para cada lado. Reconstrói a cadência a
+ * partir do `startDate` (ignora `nextDate`): tanto o scorer quanto o link
+ * manual (`recurrence-matching.service.ts`, main) querem saber a ocorrência
+ * mais próxima do *padrão*, não o estado de materialização já avançado da
+ * regra. `undefined` quando nenhuma ocorrência cai dentro da janela.
  */
-function nearestOccurrenceDistanceDays(
+export function nearestRuleOccurrence(
   pattern: RecurringPattern,
   startDate: Date,
   endDate: Date | null,
   target: Date,
-): number | undefined {
+): Date | undefined {
   const window: RecurrenceWindow = { startDate, endDate, nextDate: null, pattern };
   const windowStart = addDays(target, -DATE_DECAY_LIMIT_DAYS);
   const windowEnd = addDays(target, DATE_DECAY_LIMIT_DAYS);
@@ -87,27 +88,32 @@ function nearestOccurrenceDistanceDays(
   let cursor = nextOccurrenceOnOrAfter(window, windowStart);
   if (cursor === null) return undefined;
 
-  let best = daysBetween(cursor, target);
+  let best = cursor;
+  let bestDelta = daysBetween(cursor, target);
   let steps = 0;
   while (cursor <= windowEnd && steps < MAX_WINDOW_STEPS) {
     const delta = daysBetween(cursor, target);
-    if (delta < best) best = delta;
+    if (delta < bestDelta) {
+      bestDelta = delta;
+      best = cursor;
+    }
     cursor = nextOccurrence(cursor, pattern);
     steps += 1;
   }
 
-  return best <= DATE_DECAY_LIMIT_DAYS ? best : undefined;
+  return bestDelta <= DATE_DECAY_LIMIT_DAYS ? best : undefined;
 }
 
 /** 1 na ocorrência exata, decaindo linearmente até 0 em `DATE_DECAY_LIMIT_DAYS`. */
 function dateProximityScore(input: RecurrenceMatchInput): number {
-  const distance = nearestOccurrenceDistanceDays(
+  const occurrence = nearestRuleOccurrence(
     input.recurring.recurringPattern,
     input.recurring.startDate,
     input.recurring.endDate,
     input.transactionDate,
   );
-  if (distance === undefined) return 0;
+  if (occurrence === undefined) return 0;
+  const distance = daysBetween(occurrence, input.transactionDate);
   return Math.max(0, 1 - distance / DATE_DECAY_LIMIT_DAYS);
 }
 

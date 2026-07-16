@@ -71,3 +71,15 @@ export const createRecurringSchema = z.object({
 export const updateRecurringSchema = createRecurringSchema.partial().extend({
   endDate: z.coerce.date().nullable().optional(),
 });
+
+/** Filtro de `recurring:matchCandidates`: um mês por vez. */
+export const matchMonthSchema = z.object({
+  year: z.number().int().min(2000).max(2100),
+  month: z.number().int().min(1).max(12),
+});
+
+/** Payload de `recurring:linkTransaction`: vincula uma transação a uma regra existente. */
+export const linkTransactionSchema = z.object({
+  transactionId: guid(),
+  recurringId: guid(),
+});

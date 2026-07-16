@@ -149,6 +149,23 @@ export type RecurringPattern = z.infer<typeof recurringPatternSchema>;
 export type TransactionTemplate = z.infer<typeof transactionTemplateSchema>;
 export type TaskTemplate = z.infer<typeof taskTemplateSchema>;
 
+/**
+ * Candidato de vínculo entre uma transação sem `recurringId` e uma regra
+ * existente (`recurrence-matching.service.ts`, main). `score` é a saída de
+ * `computeRecurrenceProbability` (0..1) — a confirmação é sempre manual,
+ * independente da pontuação.
+ */
+export interface RecurrenceMatchCandidate {
+  transactionId: string;
+  transactionDate: Date;
+  transactionDescription: string;
+  transactionAmount: string;
+  transactionAccountId: string;
+  recurringId: string;
+  recurringName: string;
+  score: number;
+}
+
 // ============================================================
 // Import (extratos PDF)
 // ============================================================

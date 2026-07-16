@@ -6,6 +6,7 @@ import {
   CANDIDATE_MIN_THRESHOLD,
   computeRecurrenceProbability,
   isAutoLinkCandidate,
+  nearestRuleOccurrence,
   type RecurrenceMatchInput,
 } from './matching';
 
@@ -170,5 +171,31 @@ describe('AUTO_LINK_THRESHOLD', () => {
 describe('AUTO_LINK_MARGIN', () => {
   it('é 0.10', () => {
     expect(AUTO_LINK_MARGIN).toBe(0.1);
+  });
+});
+
+describe('nearestRuleOccurrence', () => {
+  const startDate = new Date(2026, 0, 6); // 06/jan/2026
+  const monthly6 = pattern({ frequency: 'monthly', dayOfMonth: 6 });
+
+  it('retorna a própria data quando ela coincide com uma ocorrência', () => {
+    const target = new Date(2026, 6, 6); // 06/jul/2026
+    expect(nearestRuleOccurrence(monthly6, startDate, null, target)).toEqual(target);
+  });
+
+  it('retorna a ocorrência mais próxima quando a data cai fora, mas dentro da janela', () => {
+    const target = new Date(2026, 6, 9); // 09/jul/2026 — 3 dias após a ocorrência
+    expect(nearestRuleOccurrence(monthly6, startDate, null, target)).toEqual(new Date(2026, 6, 6));
+  });
+
+  it('retorna undefined quando não há ocorrência dentro de ~10 dias', () => {
+    const target = new Date(2026, 6, 20); // 14 dias da ocorrência de julho
+    expect(nearestRuleOccurrence(monthly6, startDate, null, target)).toBeUndefined();
+  });
+
+  it('respeita o endDate: nenhuma ocorrência além dele', () => {
+    const target = new Date(2026, 6, 6);
+    const endDate = new Date(2026, 5, 30); // termina antes de julho
+    expect(nearestRuleOccurrence(monthly6, startDate, endDate, target)).toBeUndefined();
   });
 });
