@@ -70,14 +70,72 @@ O conceito mais importante do domínio financeiro:
   regras ativas — previsão não existe no banco, é derivada em leitura.
 - **Regras com `autoMaterialize: false` nunca materializam sozinhas.** Elas só
   geram previsão; as ocorrências reais chegam pela **importação de extrato**
-  (reconciliação). É o caso das regras com `source: 'imported'` — detectadas a
-  partir do próprio extrato (ex.: uma assinatura mensal identificada no
-  histórico). Regras criadas à mão têm `source: 'manual'` e materializam
-  automaticamente por padrão.
+  (auto-link) ou pelo vínculo manual na tela de detecção.
 - Uma regra quebrada (ex.: conta excluída) não trava as demais: o
   materializador loga e segue.
 - `recurring.type` também aceita `task` (template de tarefa) — previsto para a
   futura feature de tasks; hoje só `transaction` é materializado.
+- **Toda regra é criada manualmente pelo usuário.** A coluna `source` ainda
+  existe no schema (`manual`/`imported`) mas hoje só `'manual'` é gravado — a
+  detecção automática de padrões no histórico (que propunha regras novas com
+  `source: 'imported'`) foi removida. `imported` fica reservado por
+  compatibilidade de schema, sem gravador ativo.
+
+## Vínculo de transação com recorrência (matching)
+
+Como uma transação (importada ou já existente no histórico) descobre a que
+regra pertence — sem depender de detecção automática de novas regras, que foi
+removida. A função pura `computeRecurrenceProbability`
+(`src/shared/recurrence/matching.ts`) é a fonte única de verdade; main
+(auto-link do import, tela de detecção) e a lógica de UI dependem só dela.
+
+- **Pesos**: 0,5 similaridade de texto (Levenshtein normalizado entre a
+  descrição da transação e o nome/descrição do template da regra — o maior
+  dos dois), 0,3 proximidade de data (decai linearmente até 0 a partir de 10
+  dias de distância da ocorrência prevista mais próxima do padrão) e 0,2
+  proximidade de valor (decai linearmente até 0 numa diferença de 15% sobre o
+  valor do template).
+- **Tipo divergente é filtro duro** — `income` nunca casa com regra de
+  `expense`, pontuação zero, nem entra na lista de candidatos.
+- **Conta divergente é penalidade, não filtro** (`×0,8` sobre o total) — uma
+  mesma conta de luz pode ser paga ora de um banco, ora de outro; descartar o
+  candidato só por conta diferente perderia esse caso real.
+- **Thresholds**: `CANDIDATE_MIN_THRESHOLD = 0,4` (piso pra aparecer como
+  sugestão na tela de detecção) e `AUTO_LINK_THRESHOLD = 0,85` (piso pra
+  vincular sozinho, sem confirmação, no commit da importação).
+- **Margem contra regras "irmãs"** (`AUTO_LINK_MARGIN = 0,10`): o auto-link só
+  prossegue se o melhor candidato bater o threshold **e** abrir pelo menos
+  essa vantagem sobre o segundo colocado. Motivo real: duas parcelas de
+  salário no mesmo mês (parcela + 13º) com a mesma descrição
+  "PAGTO SALARIO" geram duas regras com nome idêntico — sem a margem, o
+  commit podia vincular a transação errada quando as pontuações empatavam
+  acima do threshold. Sem vantagem suficiente, a linha cai para confirmação
+  manual em vez de arriscar o vínculo errado.
+- **Import exige conta idêntica** para o auto-link (mais estrito que o
+  matching geral, que só penaliza) — cruzar contas automaticamente sem
+  confirmação humana é considerado arriscado demais mesmo dentro do
+  threshold. `bestSameAccountRule`
+  (`src/main/features/import/recurrence-auto-link.utils.ts`) filtra as regras
+  candidatas pela conta da linha antes de pontuar.
+- **Vincular via `linkTransaction` faz merge, nunca duplica**: se a ocorrência
+  já tinha sido materializada (existe uma transação prevista/lançada para
+  aquela data), o vínculo apaga a materializada (revertendo o saldo) em favor
+  da transação real sendo linkada e avança `nextDate`/`executionCount`; se a
+  ocorrência ainda é só previsão (`nextDate` pendente), o vínculo simplesmente
+  avança a regra. `unlinkTransaction` só limpa `recurringId` — não desfaz
+  avanço de `nextDate`.
+- **Duas superfícies de detecção**, mesma função de pontuação:
+  - **Tela geral** (`/recurring/matches`, `RecurrenceMatchingService.findMatchCandidates`)
+    varre transações sem `recurringId` de um mês contra todas as regras
+    ativas do usuário, filtra por `CANDIDATE_MIN_THRESHOLD` e sempre pede
+    confirmação manual — nunca vincula sozinha, mesmo acima do threshold de
+    auto-link.
+  - **Transação individual** (`transactions/view/:id`,
+    `findCandidatesForTransaction`) faz a mesma varredura restrita a uma
+    transação — é o caminho para corrigir um vínculo errado: como uma
+    transação já vinculada some da lista de candidatos gerais, desvincular
+    (`unlinkTransaction`) e revincular pela própria tela da transação é a
+    única forma de correção depois do fato.
 
 ## Importação de extratos (feature `import`)
 
@@ -115,17 +173,15 @@ desta fatura` (não há saldo corrido).
   regexes sobre a descrição crua (primeira que casa vence). Regras aprendidas
   do usuário (padrão → categoria) são evolução futura, aplicadas **antes** da
   semente.
-- **Reconciliação com recorrências** (`recurrence-matcher.service.ts`): uma
-  linha importada casa com uma recorrência existente se tiver mesma conta e
-  tipo, descrição similar (Levenshtein, similaridade ≥ 0.6) e ocorrência
-  prevista numa janela de ±6 dias. Se a ocorrência já foi materializada, o
-  commit faz **update in-place** da linha existente (`reconciled`) em vez de
-  inserir duplicata.
-- **Detecção de recorrências** (`recurrence-detection.service.ts` + `cadence.ts`):
-  identifica padrões repetidos no histórico importado e propõe regras novas
-  (`source: 'imported'`, `autoMaterialize: false`) que o usuário confirma.
-- O commit do lote roda numa única transação SQL, com os deltas de saldo no
-  mesmo commit (`import-commit.service.ts`).
+- **Auto-link com recorrências** no commit: cada linha inserida é pontuada
+  contra as regras ativas **da mesma conta** (`bestSameAccountRule`) pela
+  mesma função de probabilidade da tela de detecção (ver "Vínculo de
+  transação com recorrência" acima); passando no threshold + margem, o
+  vínculo (`RecurrenceMatchingService.applyLink`) roda dentro da própria
+  transação SQL do commit. Não há mais proposta automática de regra nova a
+  partir do extrato — regra é sempre criada manualmente pelo usuário.
+- O commit do lote roda numa única transação SQL, com os deltas de saldo e o
+  auto-link no mesmo commit (`import-commit.service.ts`).
 
 ## As entidades
 

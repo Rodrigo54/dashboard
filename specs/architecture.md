@@ -35,9 +35,9 @@ Bundler` + `noEmit` (só type-check; o Vite emite). **Imports relativos não
   `<script type="module" src="/main.ts">`); a detecção de mudança usa
   `provideZonelessChangeDetection()` (**sem zone.js**). Organizado em `core/`
   (infra transversal: IPC, environment, event manager plugins),
-  `features/*` (`auth`, `home`, `accounts`, `transactions`, `import`, `profile`)
-  e `shared/` (blocos de UI neutros ao domínio: `frame`, `spartan`,
-  `currency-input`). As rotas raiz ficam em
+  `features/*` (`auth`, `home`, `accounts`, `transactions`, `recurring`,
+  `import`, `profile`) e `shared/` (blocos de UI neutros ao domínio: `frame`,
+  `spartan`, `currency-input`). As rotas raiz ficam em
   `app/app.routes.ts` (lazy `loadChildren` por feature, `authGuard`, hash
   routing); a configuração em `app/app.config.ts`. O `angular.json` é mantido
   **apenas** para `ng test`/schematics.
@@ -50,8 +50,9 @@ Bundler` + `noEmit` (só type-check; o Vite emite). **Imports relativos não
   `timestamps`, que o barrel `schemas/index.ts` **não** reexporta), `types/`
   (tipos inferidos dos schemas via `z.infer`), `decimal/` (aritmética decimal
   sobre strings — `addDecimal`, `negateDecimal`, etc.) e `recurrence/` (cálculo
-  de ocorrências de recorrência, usado por main e renderer). Reexportado por
-  `shared/index.ts`.
+  de ocorrências de recorrência — `nextOccurrence`, `sameCalendarDay` — e o
+  motor de probabilidade de vínculo transação↔regra, `matching.ts`,
+  consumidos por main e renderer). Reexportado por `shared/index.ts`.
 
 A ponte de IPC é deliberadamente estreita:
 
@@ -131,7 +132,12 @@ com `@Service('<nome>')` (arquivos `*.service.ts` dentro da feature dona):
 - Ex.: `account-balance` (mutação de saldo, em `accounts`) e `transaction-rules`
   (regras de transação, em `transactions`) são compartilhados por `transactions`,
   `recurring` e `import`; `recurring-materializer` (em `recurring`) materializa
-  recorrências e é usado pelo próprio `recurring` e no login (`auth`).
+  recorrências e é usado pelo próprio `recurring` e no login (`auth`);
+  `recurrence-matching` (em `recurring`) é o service de vínculo
+  transação↔regra (`findMatchCandidates`, `findCandidatesForTransaction`,
+  `linkTransaction`, `unlinkTransaction`) sobre a função pura de
+  `shared/recurrence/matching.ts` — consumido pelo próprio `recurring` e por
+  `import` (auto-link no commit, ver `business-context.md`).
 
 ## Environments (environments/\*.yml)
 
@@ -210,8 +216,9 @@ O modo do build decide o environment carregado: `dev` embute
   `invoke<T>` que fala com o preload) e `environment/` (`EnvironmentService`,
   consome o canal `application:env`). Nada aqui importa de `features/*`.
 - **Organização por feature** em `app/features/*` (`auth`, `home`, `accounts`,
-  `transactions`, `import`, `profile`), por **proximidade de uso**, não por tipo — sem
-  pastas genéricas `components/`, `services/`, `models/`:
+  `transactions`, `recurring`, `import`, `profile`), por **proximidade de
+  uso**, não por tipo — sem pastas genéricas `components/`, `services/`,
+  `models/`:
   - `<feature>.routes.ts` na raiz da feature (lazy via `loadChildren`).
   - `pages/<entidade>-<papel>/` — uma pasta por tela, nome no **plural da
     entidade do banco** (`accounts`, `transactions`, `recurring`) + sufixo de
@@ -222,14 +229,18 @@ O modo do build decide o environment carregado: `dev` embute
     em `transactions/pages/transactions-list/`, pois só a lista os usa).
   - `shared/` interno à feature — o que cruza **2+ telas** da mesma feature:
     o `*.service.ts` que fala IPC, models/payloads compartilhados. Ex.:
-    `transactions/shared/` guarda `transactions.service.ts`,
-    `recurring.service.ts`, `date-input.utils.ts` e
-    `transactions-payloads.ts`, usados tanto por `transactions-form` quanto
-    por `recurring-form`.
-  - Sub-domínios fortemente acoplados na UI não viram feature própria mesmo
-    quando são controllers separados no main: `recurring` é sub-conceito de
-    `transactions` no renderer (o extrato mistura transações reais com
-    previsões de recorrência), não uma feature irmã.
+    `recurring/shared/` guarda `recurring.service.ts` (usado por
+    `recurring-list`, `recurring-matches` e `recurring-form`); `transactions/shared/`
+    guarda `transactions.service.ts`, `transactions-payloads.ts` e
+    `recurring-rule-summary.ts` (componente somente-leitura reusado por
+    `transactions-form` e `transactions-view` para mostrar a regra vinculada).
+  - **`recurring` é feature própria no renderer** (rotas `/recurring` — lista
+    de regras —, `/recurring/matches` — detecção geral —, `/recurring/new` e
+    `/recurring/edit/:recurringId`), mas continua consumida por
+    `transactions`: o formulário e a tela de visualização de transação
+    importam `RecurringService` de `@/features/recurring/shared/recurring.service`
+    via o alias `@/*` (cross-feature via import direto, não via `core/` —
+    ver "Path aliases").
   - Guards/services que dependem de estado de domínio ficam na feature dona,
     não em `core/`: `auth/auth.guard.ts` (`authGuard`) importa o `AuthService`
     da própria feature — movê-lo para `core/` inverteria a dependência
@@ -238,6 +249,12 @@ O modo do build decide o environment carregado: `dev` embute
   obrigatório no Electron, onde a parte antes do `#` não muda e funciona via
   `file://` no build de produção (sem servidor para o fallback de SPA). As rotas
   protegidas ficam sob o `FrameLayout` com `authGuard`.
+- **Convenção de rotas CRUD**, igual em toda feature de entidade: `''` (lista),
+  `new` (criação), `edit/:id` (edição) e, quando a entidade tem tela de
+  detalhe, `view/:id` (leitura de um registro — ver `-view` acima).
+  `transactions` e `recurring` têm as quatro; `accounts` só tem lista/`new`/
+  `edit/:id` (sem view dedicada). O `:id` é sempre o nome da entidade
+  (`transactionId`, `recurringId`, `accountId`), não um `:id` genérico.
 - **Template inline é a preferência** (`template:` com template string),
   não `templateUrl` + `.html` separado — mantém componente e marcação juntos
   num único arquivo, mais fácil de navegar. O limite de **400 linhas por
