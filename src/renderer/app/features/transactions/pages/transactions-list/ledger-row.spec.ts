@@ -1,6 +1,40 @@
-import type { Transaction } from '@shared/types';
+import type { Recurring, Transaction } from '@shared/types';
 import { describe, expect, it } from 'vitest';
 import { byDateThenForecast, transactionToRow, type LedgerRow } from './ledger-row';
+
+function recurringFixture(overrides: Partial<Recurring> = {}): Recurring {
+  return {
+    id: 'rule-1',
+    userId: 'user-1',
+    type: 'transaction',
+    name: '1º Parcela do Salário',
+    description: null,
+    template: {
+      accountId: 'acc-1',
+      type: 'income',
+      category: 'salary',
+      amount: '3844.08',
+      description: 'PAGTO SALARIO',
+    },
+    recurringPattern: {
+      frequency: 'monthly',
+      interval: 1,
+      dayOfMonth: 6,
+      businessDaysOnly: false,
+      timezone: 'America/Sao_Paulo',
+    },
+    startDate: new Date('2026-06-06'),
+    endDate: null,
+    nextDate: new Date('2026-08-06'),
+    status: 'active',
+    source: 'manual',
+    autoMaterialize: true,
+    executionCount: 2,
+    createdAt: new Date('2026-01-01'),
+    updatedAt: new Date('2026-01-01'),
+    ...overrides,
+  } as Recurring;
+}
 
 function transactionFixture(overrides: Partial<Transaction> = {}): Transaction {
   return {
@@ -59,6 +93,30 @@ describe('transactionToRow', () => {
   it('marca recurring true quando a transação veio de uma regra', () => {
     const transaction = transactionFixture({ recurringId: 'rule-1' });
     expect(transactionToRow(transaction).recurring).toBe(true);
+  });
+
+  it('mostra o nome da regra vinculada em vez da descrição da transação', () => {
+    const transaction = transactionFixture({
+      description: 'PAGTO SALARIO',
+      recurringId: 'rule-1',
+    });
+    const row = transactionToRow(transaction, [recurringFixture()]);
+    expect(row.description).toBe('1º Parcela do Salário');
+  });
+
+  it('sem regra correspondente na lista, mantém a descrição original da transação', () => {
+    const transaction = transactionFixture({
+      description: 'PAGTO SALARIO',
+      recurringId: 'rule-inexistente',
+    });
+    const row = transactionToRow(transaction, [recurringFixture()]);
+    expect(row.description).toBe('PAGTO SALARIO');
+  });
+
+  it('sem vínculo, ignora as regras passadas e mantém a descrição própria', () => {
+    const transaction = transactionFixture({ description: 'Mercado', recurringId: null });
+    const row = transactionToRow(transaction, [recurringFixture()]);
+    expect(row.description).toBe('Mercado');
   });
 });
 

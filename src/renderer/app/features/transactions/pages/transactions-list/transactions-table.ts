@@ -2,13 +2,14 @@ import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { RecurringService } from '@/features/recurring/shared/recurring.service';
 import { HlmButton } from '@/shared/spartan/button';
 import { HlmEmptyImports } from '@/shared/spartan/empty';
+import { HlmInput } from '@/shared/spartan/input';
+import { CurrencyPipe } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   lucideArrowLeft,
   lucideChevronLeft,
   lucideChevronRight,
   lucidePlus,
-  lucideRepeat,
 } from '@ng-icons/lucide';
 import { SelectComponent } from '@/shared/select';
 import { HlmTableImports } from '@/shared/spartan/table';
@@ -19,9 +20,8 @@ import type { UUID } from '@shared/types';
 import { TransactionsService } from '../../shared/transactions.service';
 import { byDateThenForecast, transactionToRow, type LedgerRow } from './ledger-row';
 import { forecastRows } from './recurring-forecast';
+import { monthSummary } from './transactions-summary';
 import { TransactionRow } from './transaction-row';
-
-type Scope = 'all' | 'recurring';
 
 @Component({
   selector: 'app-transactions-table',
@@ -30,10 +30,12 @@ type Scope = 'all' | 'recurring';
     RouterLink,
     NgIcon,
     HlmButton,
+    HlmInput,
     ...HlmEmptyImports,
     SelectComponent,
     ...HlmTableImports,
     TransactionRow,
+    CurrencyPipe,
   ],
   providers: [
     provideIcons({
@@ -41,72 +43,72 @@ type Scope = 'all' | 'recurring';
       lucideChevronLeft,
       lucideChevronRight,
       lucidePlus,
-      lucideRepeat,
     }),
   ],
   template: `
+    <div class="mb-6 grid grid-cols-3 gap-4">
+      <div class="border-border bg-card rounded-lg border p-4">
+        <p class="text-muted-foreground text-sm">Receitas do mês</p>
+        <p class="text-2xl font-semibold tabular-nums text-emerald-600">
+          {{ summary().income | currency: 'BRL' }}
+        </p>
+      </div>
+      <div class="border-border bg-card rounded-lg border p-4">
+        <p class="text-muted-foreground text-sm">Despesas do mês</p>
+        <p class="text-destructive text-2xl font-semibold tabular-nums">
+          {{ summary().expense | currency: 'BRL' }}
+        </p>
+      </div>
+      <div class="border-border bg-card rounded-lg border p-4">
+        <p class="text-muted-foreground text-sm">Saldo do mês</p>
+        <p class="text-2xl font-semibold tabular-nums" [class]="balanceClass()">
+          {{ summary().balance | currency: 'BRL' }}
+        </p>
+      </div>
+    </div>
+
     <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div
-          class="border-border bg-muted/40 inline-flex items-center gap-1 rounded-lg border p-1"
-          role="group"
-          aria-label="Filtrar lançamentos"
+      <div class="flex items-center gap-1">
+        <button
+          hlmBtn
+          variant="ghost"
+          size="sm"
+          [disabled]="service.isCurrentMonth()"
+          (click)="service.goToToday()"
+          aria-label="Voltar para o mês atual"
         >
-          <button
-            hlmBtn
-            size="sm"
-            [variant]="scope() === 'all' ? 'secondary' : 'ghost'"
-            [attr.aria-pressed]="scope() === 'all'"
-            (click)="scope.set('all')"
-          >
-            Tudo
-          </button>
-          <button
-            hlmBtn
-            size="sm"
-            [variant]="scope() === 'recurring' ? 'secondary' : 'ghost'"
-            [attr.aria-pressed]="scope() === 'recurring'"
-            (click)="scope.set('recurring')"
-          >
-            <ng-icon name="lucideRepeat" class="text-[length:--spacing(3.5)]" />
-            Recorrências
-          </button>
-        </div>
-        <div class="bg-border h-6 w-px"></div>
-        <div class="flex items-center gap-1">
-          <button
-            hlmBtn
-            variant="ghost"
-            size="sm"
-            [disabled]="service.isCurrentMonth()"
-            (click)="service.goToToday()"
-            aria-label="Voltar para o mês atual"
-          >
-            <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
-            Hoje
-          </button>
-          <button
-            hlmBtn
-            variant="ghost"
-            size="icon-sm"
-            (click)="service.previousMonth()"
-            aria-label="Mês anterior"
-          >
-            <ng-icon name="lucideChevronLeft" class="text-[length:--spacing(3.5)]" />
-          </button>
-          <button
-            hlmBtn
-            variant="ghost"
-            size="icon-sm"
-            (click)="service.nextMonth()"
-            aria-label="Próximo mês"
-          >
-            <ng-icon name="lucideChevronRight" class="text-[length:--spacing(3.5)]" />
-          </button>
-          <span class="ml-2 text-base font-semibold capitalize">{{ service.monthLabel() }}</span>
-        </div>
+          <ng-icon name="lucideArrowLeft" class="text-[length:--spacing(3.5)]" />
+          Hoje
+        </button>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon-sm"
+          (click)="service.previousMonth()"
+          aria-label="Mês anterior"
+        >
+          <ng-icon name="lucideChevronLeft" class="text-[length:--spacing(3.5)]" />
+        </button>
+        <button
+          hlmBtn
+          variant="ghost"
+          size="icon-sm"
+          (click)="service.nextMonth()"
+          aria-label="Próximo mês"
+        >
+          <ng-icon name="lucideChevronRight" class="text-[length:--spacing(3.5)]" />
+        </button>
+        <span class="ml-2 text-base font-semibold capitalize">{{ service.monthLabel() }}</span>
       </div>
       <div class="flex items-center gap-2">
+        <input
+          hlmInput
+          type="text"
+          class="w-56"
+          placeholder="Buscar por descrição"
+          [value]="searchText()"
+          (input)="onSearchInput($event)"
+        />
         <app-select
           class="w-44"
           [items]="accountFilterItems()"
@@ -167,7 +169,7 @@ export class TransactionsTable {
   protected readonly recurringService = inject(RecurringService);
   protected readonly accountsService = inject(AccountsService);
 
-  protected readonly scope = signal<Scope>('all');
+  protected readonly searchText = signal('');
 
   /** Contas do filtro, com a opção "Todas as contas" à frente. */
   protected readonly accountFilterItems = computed(() => [
@@ -181,22 +183,36 @@ export class TransactionsTable {
     ...(this.service.types.value() ?? []),
   ]);
 
+  /** Totais do mês, só transações reais (previsões não entram na conta). */
+  protected readonly summary = computed(() =>
+    monthSummary(this.service.transactions.value() ?? []),
+  );
+
+  protected readonly balanceClass = computed(() =>
+    this.summary().balance.startsWith('-') ? 'text-destructive' : 'text-emerald-600',
+  );
+
   /**
-   * Extrato unificado, sempre com transações e previsões das regras. Em "Tudo"
-   * lista todas as transações; em "Recorrências", apenas as originadas de regra.
+   * Extrato unificado: transações reais (vinculadas a uma regra mostram o
+   * nome da regra) e previsões das ocorrências ainda não materializadas,
+   * filtrado pela busca de texto sobre a descrição já exibida.
    */
   protected readonly rows = computed<LedgerRow[]>(() => {
     const transactions = this.service.transactions.value() ?? [];
-    const base = transactions.map(transactionToRow);
-    const real = this.scope() === 'recurring' ? base.filter((row) => row.recurring) : base;
+    const rules = this.recurringService.rules.value() ?? [];
+    const real = transactions.map((t) => transactionToRow(t, rules));
 
-    const forecasts = forecastRows(this.recurringService.rules.value() ?? [], transactions, {
+    const forecasts = forecastRows(rules, transactions, {
       year: this.service.year(),
       month: this.service.month(),
       accountId: this.service.accountFilter(),
       type: this.service.typeFilter(),
     });
-    return [...real, ...forecasts].sort(byDateThenForecast);
+
+    const combined = [...real, ...forecasts].sort(byDateThenForecast);
+    const query = this.searchText().trim().toLowerCase();
+    if (!query) return combined;
+    return combined.filter((row) => row.description.toLowerCase().includes(query));
   });
 
   protected readonly isLoading = computed(
@@ -208,12 +224,12 @@ export class TransactionsTable {
   );
 
   protected readonly emptyTitle = computed(() =>
-    this.scope() === 'recurring' ? 'Nenhuma recorrência neste mês' : 'Nenhuma transação neste mês',
+    this.searchText().trim() ? 'Nenhum resultado encontrado' : 'Nenhuma transação neste mês',
   );
 
   protected readonly emptyDescription = computed(() =>
-    this.scope() === 'recurring'
-      ? 'Crie uma transação com a opção “Repetir” ativa para ver as previsões aqui.'
+    this.searchText().trim()
+      ? 'Tente buscar por outro termo.'
       : 'Registre uma receita ou despesa para vê-la aqui.',
   );
 
@@ -223,5 +239,9 @@ export class TransactionsTable {
 
   protected onTypeFilter(value: string | undefined): void {
     this.service.typeFilter.set(value === 'all' ? undefined : (value as TransactionType));
+  }
+
+  protected onSearchInput(event: Event): void {
+    this.searchText.set((event.target as HTMLInputElement).value);
   }
 }

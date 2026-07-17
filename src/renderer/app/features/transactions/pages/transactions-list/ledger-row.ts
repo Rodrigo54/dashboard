@@ -28,13 +28,24 @@ export interface LedgerRow {
   readonly ruleStatus?: 'active' | 'paused';
 }
 
-/** Mapeia uma transação persistida para uma linha do extrato. */
-export function transactionToRow(transaction: Transaction): LedgerRow {
+/**
+ * Mapeia uma transação persistida para uma linha do extrato. Vinculada a uma
+ * regra, exibe o nome da regra em vez da descrição própria — mesmo rótulo
+ * antes e depois de materializar, como a linha de previsão já mostra.
+ */
+export function transactionToRow(
+  transaction: Transaction,
+  rules: readonly Recurring[] = [],
+): LedgerRow {
+  const rule = transaction.recurringId
+    ? rules.find((r) => r.id === transaction.recurringId)
+    : undefined;
+
   return {
     kind: 'transaction',
     key: `t:${transaction.id}`,
     date: new Date(transaction.date),
-    description: transaction.description,
+    description: rule?.name ?? transaction.description,
     accountId: transaction.accountId,
     type: transaction.type,
     category: transaction.category,
