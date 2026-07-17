@@ -11,7 +11,14 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucidePlus, lucideSquarePen, lucideUnlink } from '@ng-icons/lucide';
-import type { Recurring, RecurrenceMatchCandidate, Transaction, UUID } from '@shared/types';
+import { addDecimal, negateDecimal } from '@shared/decimal';
+import type {
+  Recurring,
+  RecurrenceMatchCandidate,
+  Transaction,
+  TransactionTemplate,
+  UUID,
+} from '@shared/types';
 import { LedgerInvalidationService } from '../../shared/ledger-invalidation.service';
 import { RecurringRuleSummary } from '../../shared/recurring-rule-summary';
 import { buildRecurringPrefillParams } from '../../shared/transactions-payloads';
@@ -82,20 +89,26 @@ import { nextOccurrences } from '../transactions-list/recurring-forecast';
           <div class="mt-8">
             @if (rule(); as r) {
               <app-recurring-rule-summary [rule]="r" />
-              <button hlmBtn variant="outline" size="sm" class="mt-3" (click)="unlink()">
-                <ng-icon name="lucideUnlink" class="text-[length:--spacing(3.5)]" />
-                Desvincular desta recorrência
-              </button>
+              <div class="mt-3 flex gap-2">
+                <button hlmBtn variant="outline" size="sm" [routerLink]="['/recurring/edit', r.id]">
+                  <ng-icon name="lucideSquarePen" class="text-[length:--spacing(3.5)]" />
+                  Editar recorrência
+                </button>
+                <button hlmBtn variant="outline" size="sm" (click)="unlink()">
+                  <ng-icon name="lucideUnlink" class="text-[length:--spacing(3.5)]" />
+                  Desvincular desta recorrência
+                </button>
+              </div>
 
               <div class="mt-8 grid grid-cols-2 gap-8">
                 <div>
                   <h2 class="mb-3 font-semibold">Últimos lançamentos</h2>
-                  @if (recentTransactions().length) {
+                  @if (recentTransactionsDisplay().length) {
                     <ul class="flex flex-col gap-2">
-                      @for (item of recentTransactions(); track item.id) {
+                      @for (item of recentTransactionsDisplay(); track item.id) {
                         <li class="text-muted-foreground flex justify-between text-sm">
                           <span>{{ item.date | date: 'dd/MM/yyyy' }}</span>
-                          <span>{{ item.amount | currency: accountCurrency() }}</span>
+                          <span>{{ signedAmountOf(item) | currency: accountCurrency() }}</span>
                         </li>
                       }
                     </ul>
@@ -108,13 +121,30 @@ import { nextOccurrences } from '../transactions-list/recurring-forecast';
                   @if (upcoming().length) {
                     <ul class="flex flex-col gap-2">
                       @for (date of upcoming(); track date.getTime()) {
-                        <li class="text-muted-foreground text-sm">
-                          {{ date | date: 'dd/MM/yyyy' }}
+                        <li class="text-muted-foreground flex justify-between text-sm">
+                          <span>{{ date | date: 'dd/MM/yyyy' }}</span>
+                          <span>{{ upcomingSignedAmount() | currency: accountCurrency() }}</span>
                         </li>
                       }
                     </ul>
                   } @else {
                     <p class="text-muted-foreground text-sm">Sem previsões futuras.</p>
+                  }
+                </div>
+                <div
+                  class="border-border text-foreground flex justify-between border-t pt-2 text-sm font-medium"
+                >
+                  @if (recentTransactionsDisplay().length) {
+                    <span>Total lançado desde o início</span>
+                    <span>{{ recentTotal() | currency: accountCurrency() }}</span>
+                  }
+                </div>
+                <div
+                  class="border-border text-foreground flex justify-between border-t pt-2 text-sm font-medium"
+                >
+                  @if (upcomingTotal() !== null) {
+                    <span>Total restante até o término</span>
+                    <span>{{ upcomingTotal() | currency: accountCurrency() }}</span>
                   }
                 </div>
               </div>
@@ -179,7 +209,42 @@ export default class TransactionsView {
 
   protected readonly upcoming = computed(() => {
     const r = this.rule();
-    return r ? nextOccurrences(r, this.recentTransactions(), 10) : [];
+    return r ? nextOccurrences(r, this.recentTransactions(), 5) : [];
+  });
+
+  /** Só as 5 mais recentes na lista — o total abaixo soma o histórico inteiro. */
+  protected readonly recentTransactionsDisplay = computed(() =>
+    this.recentTransactions().slice(0, 5),
+  );
+
+  /** Soma de tudo que já foi lançado desta regra desde o início, com sinal. */
+  protected readonly recentTotal = computed(() =>
+    this.recentTransactions().reduce(
+      (total, t) => addDecimal(total, this.signedAmountOf(t)),
+      '0.00',
+    ),
+  );
+
+  /** Valor de cada ocorrência prevista, com sinal — todas compartilham o template da regra. */
+  protected readonly upcomingSignedAmount = computed(() => {
+    const r = this.rule();
+    if (!r) return '0.00';
+    const template = r.template as TransactionTemplate;
+    return template.type === 'expense' ? negateDecimal(template.amount) : template.amount;
+  });
+
+  /**
+   * Soma de todas as ocorrências ainda não materializadas até o término da
+   * regra — `null` quando a regra não tem `endDate` (não dá pra totalizar um
+   * horizonte indefinido).
+   */
+  protected readonly upcomingTotal = computed(() => {
+    const r = this.rule();
+    if (!r?.endDate) return null;
+
+    const perOccurrence = this.upcomingSignedAmount();
+    const remaining = nextOccurrences(r, this.recentTransactions(), Number.POSITIVE_INFINITY);
+    return remaining.reduce((total) => addDecimal(total, perOccurrence), '0.00');
   });
 
   protected readonly accountName = computed(
@@ -205,8 +270,13 @@ export default class TransactionsView {
   protected readonly signedAmount = computed(() => {
     const t = this.transaction();
     if (!t) return '0';
-    return t.type === 'expense' ? `-${t.amount}` : t.amount;
+    return this.signedAmountOf(t);
   });
+
+  /** Valor com sinal para exibição: despesas aparecem negativas. */
+  protected signedAmountOf(transaction: Transaction): string {
+    return transaction.type === 'expense' ? `-${transaction.amount}` : transaction.amount;
+  }
 
   constructor() {
     void this.#load();

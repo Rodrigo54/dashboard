@@ -8,6 +8,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { TransactionsService, type CategoryOptions } from '../../shared/transactions.service';
 import TransactionsView from './transactions-view';
 
+/** Superfície `protected` acessada diretamente pelo teste (TS-only, sem efeito em runtime). */
+interface TestableTransactionsView {
+  recentTransactionsDisplay: () => Transaction[];
+  recentTotal: () => string;
+  upcoming: () => Date[];
+  upcomingTotal: () => string | null;
+}
+
 function transactionFixture(overrides: Partial<Transaction> = {}): Transaction {
   return {
     id: 't-1',
@@ -126,6 +134,8 @@ function setup(
   options: {
     transaction?: Partial<Transaction>;
     candidates?: RecurrenceMatchCandidate[];
+    recentTransactions?: Transaction[];
+    rule?: Partial<Recurring>;
   } = {},
 ) {
   const fakeAccounts = new FakeAccountsService();
@@ -134,6 +144,12 @@ function setup(
   fakeTransactions.findOne.mockResolvedValue(transactionFixture(options.transaction));
   if (options.candidates) {
     fakeRecurring.matchCandidatesForTransaction.mockResolvedValue(options.candidates);
+  }
+  if (options.recentTransactions) {
+    fakeTransactions.byRecurring.mockResolvedValue(options.recentTransactions);
+  }
+  if (options.rule) {
+    fakeRecurring.findOne.mockResolvedValue(recurringFixture(options.rule));
   }
 
   TestBed.configureTestingModule({
@@ -153,8 +169,131 @@ function setup(
   vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(TransactionsView);
   fixture.detectChanges();
-  return { fixture, fakeAccounts, fakeTransactions, fakeRecurring, router };
+  const component = fixture.componentInstance as unknown as TestableTransactionsView;
+  return { fixture, component, fakeAccounts, fakeTransactions, fakeRecurring, router };
 }
+
+describe('TransactionsView — últimos lançamentos', () => {
+  it('mostra o valor de uma despesa recorrente com sinal negativo', async () => {
+    const { fixture } = setup({
+      transaction: { recurringId: 'rule-1' },
+      recentTransactions: [
+        transactionFixture({ id: 't-2', type: 'expense', amount: '573.97', recurringId: 'rule-1' }),
+      ],
+    });
+    await flush(fixture);
+
+    const items = Array.from(
+      fixture.nativeElement.querySelectorAll('ul')[0].querySelectorAll('li span:last-child'),
+    ) as HTMLElement[];
+    const amounts = items.map((el) => el.textContent?.trim());
+    expect(amounts.some((text) => text?.includes('-'))).toBe(true);
+  });
+
+  it('mostra o valor de uma receita recorrente sem sinal negativo', async () => {
+    const { fixture } = setup({
+      transaction: { recurringId: 'rule-1' },
+      recentTransactions: [
+        transactionFixture({ id: 't-2', type: 'income', amount: '3844.08', recurringId: 'rule-1' }),
+      ],
+    });
+    await flush(fixture);
+
+    const items = Array.from(
+      fixture.nativeElement.querySelectorAll('ul')[0].querySelectorAll('li span:last-child'),
+    ) as HTMLElement[];
+    const amounts = items.map((el) => el.textContent?.trim());
+    expect(amounts.some((text) => text?.includes('-'))).toBe(false);
+  });
+
+  it('mostra no máximo 5 lançamentos, mas totaliza todo o histórico', async () => {
+    const recentTransactions = Array.from({ length: 8 }, (_, i) =>
+      transactionFixture({
+        id: `t-${i}`,
+        type: 'expense',
+        amount: '100.00',
+        recurringId: 'rule-1',
+        date: new Date(2026, i, 5),
+      }),
+    );
+    const { fixture, component } = setup({
+      transaction: { recurringId: 'rule-1' },
+      recentTransactions,
+    });
+    await flush(fixture);
+
+    const rows = fixture.nativeElement.querySelectorAll('ul')[0].querySelectorAll('li');
+    expect(rows.length).toBe(5);
+    expect(component.recentTransactionsDisplay()).toHaveLength(5);
+    expect(component.recentTotal()).toBe('-800.00');
+    expect(fixture.nativeElement.textContent).toContain('Total lançado desde o início');
+  });
+});
+
+describe('TransactionsView — próximas previsões', () => {
+  it('mostra no máximo 5 previsões e totaliza tudo até o término quando a regra tem endDate', async () => {
+    const { fixture, component } = setup({
+      transaction: { recurringId: 'rule-1' },
+      rule: {
+        endDate: new Date(2027, 5, 5),
+        template: {
+          accountId: 'acc-1',
+          type: 'expense',
+          category: 'education',
+          amount: '100.00',
+          description: 'FIES',
+        },
+      },
+    });
+    await flush(fixture);
+
+    expect(component.upcoming().length).toBeLessThanOrEqual(5);
+    expect(component.upcomingTotal()).not.toBeNull();
+    expect(component.upcomingTotal()?.startsWith('-')).toBe(true);
+  });
+
+  it('sem endDate, não mostra total (horizonte indefinido)', async () => {
+    const { fixture, component } = setup({ transaction: { recurringId: 'rule-1' } });
+    await flush(fixture);
+
+    expect(component.upcomingTotal()).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('Total restante');
+  });
+
+  it('cada previsão mostra o valor da ocorrência, no mesmo layout dos lançamentos', async () => {
+    const { fixture } = setup({
+      transaction: { recurringId: 'rule-1' },
+      rule: {
+        template: {
+          accountId: 'acc-1',
+          type: 'expense',
+          category: 'education',
+          amount: '100.00',
+          description: 'FIES',
+        },
+      },
+    });
+    await flush(fixture);
+
+    const uls = fixture.nativeElement.querySelectorAll('ul');
+    const previsoes = uls[uls.length - 1];
+    const firstRow = previsoes.querySelector('li');
+    expect(firstRow?.querySelectorAll('span')).toHaveLength(2);
+    expect(firstRow?.textContent).toContain('-');
+  });
+});
+
+describe('TransactionsView — editar recorrência', () => {
+  it('mostra botão "Editar recorrência" ao lado de "Desvincular"', async () => {
+    const { fixture } = setup({ transaction: { recurringId: 'rule-1' } });
+    await flush(fixture);
+
+    const button = Array.from(
+      fixture.nativeElement.querySelectorAll<HTMLButtonElement>('button'),
+    ).find((b) => b.textContent?.includes('Editar recorrência'));
+    expect(button).toBeTruthy();
+  });
+});
 
 describe('TransactionsView — transação vinculada', () => {
   it('mostra o resumo da regra e permite desvincular', async () => {
