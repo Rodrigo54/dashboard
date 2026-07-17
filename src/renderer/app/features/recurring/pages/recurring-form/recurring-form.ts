@@ -1,3 +1,4 @@
+import { GoBackService } from '@/core/navigation/go-back.service';
 import { CurrencyInputComponent } from '@/shared/currency-input';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
@@ -10,7 +11,7 @@ import { lucideRepeat } from '@ng-icons/lucide';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required, submit, validateStandardSchema } from '@angular/forms/signals';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import type { RecurringFrequency } from '@shared/enums';
 import { positiveDecimalSchema } from '@shared/schemas';
 import type { TransactionTemplate, UUID } from '@shared/types';
@@ -187,7 +188,7 @@ export class RecurringForm {
   protected readonly recurringService = inject(RecurringService);
   readonly #formFields = inject(TransactionFormFieldsService);
   readonly #ledgerInvalidation = inject(LedgerInvalidationService);
-  readonly #router = inject(Router);
+  readonly #goBack = inject(GoBackService);
   readonly #route = inject(ActivatedRoute);
 
   /** `null` na rota `new`; o UUID da regra na rota `edit/:recurringId`. */
@@ -264,12 +265,12 @@ export class RecurringForm {
       // A mutação pode materializar ocorrências vencidas e mexer em saldos.
       this.#ledgerInvalidation.reloadRules();
       this.#ledgerInvalidation.reloadBalanceAffectingData();
-      await this.#router.navigate(['/transactions']);
+      this.#goBack.goBackOr('/transactions');
     });
   }
 
   protected cancel(): void {
-    void this.#router.navigate(['/transactions']);
+    this.#goBack.goBackOr('/transactions');
   }
 
   protected readonly errorOf = fieldErrorOf;

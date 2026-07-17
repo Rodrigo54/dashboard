@@ -1,12 +1,19 @@
+import { GoBackService } from '@/core/navigation/go-back.service';
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import { RecurringService } from '@/features/recurring/shared/recurring.service';
-import { provideZonelessChangeDetection, signal } from '@angular/core';
+import { provideZonelessChangeDetection, signal, type WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import type { Account, EnumOption, Recurring, Transaction } from '@shared/types';
 import { describe, expect, it, vi } from 'vitest';
 import { type CategoryOptions, TransactionsService } from '../../shared/transactions.service';
-import { TransactionsForm } from './transactions-form';
+import { TransactionsForm, type TransactionFormModel } from './transactions-form';
+
+/** Superfície `protected` acessada diretamente pelo teste (TS-only, sem efeito em runtime). */
+interface TestableTransactionsForm {
+  model: WritableSignal<TransactionFormModel>;
+  onSubmit(): void;
+}
 
 function transactionFixture(overrides: Partial<Transaction> = {}): Transaction {
   return {
@@ -98,6 +105,10 @@ class FakeRecurringService {
   create = vi.fn().mockResolvedValue(recurringFixture());
 }
 
+class FakeGoBackService {
+  goBackOr = vi.fn();
+}
+
 function activatedRouteStub(params: Record<string, string> = {}) {
   return {
     snapshot: { paramMap: convertToParamMap(params), queryParamMap: convertToParamMap({}) },
@@ -108,6 +119,7 @@ function setup(route: ReturnType<typeof activatedRouteStub>, transaction?: Parti
   const fakeAccounts = new FakeAccountsService();
   const fakeTransactions = new FakeTransactionsService();
   const fakeRecurring = new FakeRecurringService();
+  const fakeGoBack = new FakeGoBackService();
   if (transaction) fakeTransactions.findOne.mockResolvedValue(transactionFixture(transaction));
 
   TestBed.configureTestingModule({
@@ -118,13 +130,15 @@ function setup(route: ReturnType<typeof activatedRouteStub>, transaction?: Parti
       { provide: AccountsService, useValue: fakeAccounts },
       { provide: TransactionsService, useValue: fakeTransactions },
       { provide: RecurringService, useValue: fakeRecurring },
+      { provide: GoBackService, useValue: fakeGoBack },
     ],
   });
   const router = TestBed.inject(Router);
   vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(TransactionsForm);
   fixture.detectChanges();
-  return { fixture, fakeRecurring, router };
+  const component = fixture.componentInstance as unknown as TestableTransactionsForm;
+  return { fixture, component, fakeTransactions, fakeRecurring, fakeGoBack, router };
 }
 
 async function flush(fixture: {
@@ -173,5 +187,42 @@ describe('TransactionsForm — vínculo com recorrência (edição)', () => {
     const { fixture } = setup(activatedRouteStub());
     expect(fixture.nativeElement.textContent).not.toContain('Recorrência vinculada');
     expect(fixture.nativeElement.textContent).not.toContain('Criar recorrência a partir');
+  });
+});
+
+describe('TransactionsForm — cancelar', () => {
+  it('delega ao GoBackService com /transactions como fallback', () => {
+    const { fixture, fakeGoBack } = setup(activatedRouteStub());
+    const button = Array.from(
+      fixture.nativeElement.querySelectorAll<HTMLButtonElement>('button'),
+    ).find((b) => b.textContent?.trim() === 'Cancelar');
+
+    button?.click();
+
+    expect(fakeGoBack.goBackOr).toHaveBeenCalledWith('/transactions');
+  });
+});
+
+describe('TransactionsForm — salvar', () => {
+  it('sem repetição, salva a transação, recarrega saldo e volta (goBackOr) para /transactions', async () => {
+    const { fixture, component, fakeTransactions, fakeGoBack } = setup(activatedRouteStub());
+    component.model.set({
+      accountId: 'acc-1',
+      type: 'expense',
+      category: 'housing',
+      amount: '150.00',
+      description: 'Mercado',
+      date: '2026-07-10',
+      repeat: false,
+      frequency: 'monthly',
+      endDate: '',
+    });
+
+    component.onSubmit();
+    await flush(fixture);
+
+    expect(fakeTransactions.save).toHaveBeenCalled();
+    expect(fakeTransactions.transactions.reload).toHaveBeenCalled();
+    expect(fakeGoBack.goBackOr).toHaveBeenCalledWith('/transactions');
   });
 });

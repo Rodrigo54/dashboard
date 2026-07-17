@@ -1,3 +1,4 @@
+import { GoBackService } from '@/core/navigation/go-back.service';
 import { AccountsService } from '@/features/accounts/shared/accounts.service';
 import {
   TransactionsService,
@@ -5,7 +6,7 @@ import {
 } from '@/features/transactions/shared/transactions.service';
 import { provideZonelessChangeDetection, signal, type WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import type { Account, EnumOption, Recurring } from '@shared/types';
 import { describe, expect, it, vi } from 'vitest';
 import { RecurringService } from '../../shared/recurring.service';
@@ -87,6 +88,10 @@ class FakeRecurringService {
   update = vi.fn().mockResolvedValue(recurringFixture());
 }
 
+class FakeGoBackService {
+  goBackOr = vi.fn();
+}
+
 function activatedRouteStub(
   params: Record<string, string> = {},
   queryParams: Record<string, string> = {},
@@ -103,6 +108,7 @@ function setup(route: ReturnType<typeof activatedRouteStub>) {
   const fakeAccounts = new FakeAccountsService();
   const fakeTransactions = new FakeTransactionsService();
   const fakeRecurring = new FakeRecurringService();
+  const fakeGoBack = new FakeGoBackService();
   TestBed.configureTestingModule({
     providers: [
       provideZonelessChangeDetection(),
@@ -111,14 +117,13 @@ function setup(route: ReturnType<typeof activatedRouteStub>) {
       { provide: AccountsService, useValue: fakeAccounts },
       { provide: TransactionsService, useValue: fakeTransactions },
       { provide: RecurringService, useValue: fakeRecurring },
+      { provide: GoBackService, useValue: fakeGoBack },
     ],
   });
-  const router = TestBed.inject(Router);
-  vi.spyOn(router, 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(RecurringForm);
   fixture.detectChanges();
   const component = fixture.componentInstance as unknown as TestableRecurringForm;
-  return { fixture, component, fakeRecurring, router };
+  return { fixture, component, fakeRecurring, fakeGoBack };
 }
 
 async function flush(): Promise<void> {
@@ -160,8 +165,8 @@ describe('RecurringForm — modo criação', () => {
     });
   });
 
-  it('submeter chama recurringService.create, recarrega regras e navega para /transactions', async () => {
-    const { component, fakeRecurring, router } = setup(activatedRouteStub());
+  it('submeter chama recurringService.create, recarrega regras e volta (goBackOr) para /transactions', async () => {
+    const { component, fakeRecurring, fakeGoBack } = setup(activatedRouteStub());
     component.model.set({
       name: 'Nova regra',
       accountId: 'acc-1',
@@ -179,7 +184,7 @@ describe('RecurringForm — modo criação', () => {
 
     expect(fakeRecurring.create).toHaveBeenCalled();
     expect(fakeRecurring.rules.reload).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/transactions']);
+    expect(fakeGoBack.goBackOr).toHaveBeenCalledWith('/transactions');
   });
 });
 
@@ -205,5 +210,18 @@ describe('RecurringForm — modo edição', () => {
     await flush();
 
     expect(fakeRecurring.update).toHaveBeenCalledWith('rule-1', expect.any(Object));
+  });
+});
+
+describe('RecurringForm — cancelar', () => {
+  it('delega ao GoBackService com /transactions como fallback', () => {
+    const { fixture, fakeGoBack } = setup(activatedRouteStub());
+    const button = Array.from(
+      fixture.nativeElement.querySelectorAll<HTMLButtonElement>('button'),
+    ).find((b) => b.textContent?.trim() === 'Cancelar');
+
+    button?.click();
+
+    expect(fakeGoBack.goBackOr).toHaveBeenCalledWith('/transactions');
   });
 });

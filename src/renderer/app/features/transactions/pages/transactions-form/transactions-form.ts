@@ -1,3 +1,4 @@
+import { GoBackService } from '@/core/navigation/go-back.service';
 import { RecurringService } from '@/features/recurring/shared/recurring.service';
 import { CurrencyInputComponent } from '@/shared/currency-input';
 import { FrameHeader } from '@/shared/frame/frame-header';
@@ -211,6 +212,7 @@ export class TransactionsForm {
   protected readonly recurringService = inject(RecurringService);
   readonly #formFields = inject(TransactionFormFieldsService);
   readonly #ledgerInvalidation = inject(LedgerInvalidationService);
+  readonly #goBack = inject(GoBackService);
   readonly #router = inject(Router);
   readonly #route = inject(ActivatedRoute);
 
@@ -293,12 +295,12 @@ export class TransactionsForm {
       }
       // Saldo e listagem mudam em qualquer um dos caminhos.
       this.#ledgerInvalidation.reloadBalanceAffectingData();
-      await this.#router.navigate(['/transactions']);
+      this.#goBack.goBackOr('/transactions');
     });
   }
 
   protected cancel(): void {
-    void this.#router.navigate(['/transactions']);
+    this.#goBack.goBackOr('/transactions');
   }
 
   protected readonly errorOf = fieldErrorOf;

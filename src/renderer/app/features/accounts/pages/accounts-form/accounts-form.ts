@@ -1,3 +1,4 @@
+import { GoBackService } from '@/core/navigation/go-back.service';
 import { CurrencyInputComponent } from '@/shared/currency-input';
 import { FrameHeader } from '@/shared/frame/frame-header';
 import { FramePaper } from '@/shared/frame/frame-paper';
@@ -15,7 +16,7 @@ import {
   submit,
   validateStandardSchema,
 } from '@angular/forms/signals';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLandmark } from '@ng-icons/lucide';
 import { CURRENCY_SYMBOLS } from '@shared/enums';
@@ -137,7 +138,7 @@ import { AccountsService } from '../../shared/accounts.service';
 })
 export class AccountsForm {
   protected readonly accountsService = inject(AccountsService);
-  readonly #router = inject(Router);
+  readonly #goBack = inject(GoBackService);
   readonly #route = inject(ActivatedRoute);
 
   /** `null` na rota `new`; o UUID da conta na rota `:accountId` (modo edição). */
@@ -185,12 +186,12 @@ export class AccountsForm {
     submit(this.accountForm, async () => {
       await this.accountsService.save(this.accountModel(), this.#accountId ?? undefined);
       this.accountsService.accounts.reload();
-      await this.#router.navigate(['/accounts']);
+      this.#goBack.goBackOr('/accounts');
     });
   }
 
   protected cancel(): void {
-    void this.#router.navigate(['/accounts']);
+    this.#goBack.goBackOr('/accounts');
   }
 
   /** Primeira mensagem de erro de um campo, apenas após ser tocado (vazia caso ok). */
